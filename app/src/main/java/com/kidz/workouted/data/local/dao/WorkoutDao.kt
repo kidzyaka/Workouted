@@ -15,9 +15,22 @@ interface WorkoutDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertSets(sets: List<SetEntity>)
 
+    @Query("SELECT * FROM sets WHERE workoutId = :workoutId")
+    suspend fun getSetsForWorkout(workoutId: Long): List<SetEntity>
+
+    @Query("DELETE FROM sets WHERE workoutId = :workoutId")
+    suspend fun deleteSetsForWorkout(workoutId: Long)
+
     @Transaction
     suspend fun saveWorkoutWithSets(workout: WorkoutEntity, sets: List<SetEntity>) {
-        val workoutId = insertWorkout(workout)
+        val workoutId = if (workout.id == 0L) {
+            insertWorkout(workout)
+        } else {
+            // Update existing workout
+            insertWorkout(workout) // Replaces if exists
+            deleteSetsForWorkout(workout.id)
+            workout.id
+        }
         val setsWithId = sets.map { it.copy(workoutId = workoutId) }
         insertSets(setsWithId)
     }

@@ -1,6 +1,7 @@
 package com.kidz.workouted.presentation.log
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -16,17 +17,47 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
+import java.text.SimpleDateFormat
+import java.util.*
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddWorkoutScreen(
+    // ...
     viewModel: AddWorkoutViewModel,
     onAddExerciseClick: () -> Unit,
     onBackClick: () -> Unit,
     onFinish: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    var showDatePicker by remember { mutableStateOf(false) }
+
+    if (showDatePicker) {
+        val datePickerState = rememberDatePickerState(
+            initialSelectedDateMillis = uiState.timestamp
+        )
+        DatePickerDialog(
+            onDismissRequest = { showDatePicker = false },
+            confirmButton = {
+                TextButton(onClick = {
+                    datePickerState.selectedDateMillis?.let { viewModel.setTimestamp(it) }
+                    showDatePicker = false
+                }) {
+                    Text("OK")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDatePicker = false }) {
+                    Text("Cancel")
+                }
+            }
+        ) {
+            DatePicker(state = datePickerState)
+        }
+    }
 
     LaunchedEffect(uiState.isFinished) {
+        // ...
         if (uiState.isFinished) {
             onFinish()
         }
@@ -35,13 +66,23 @@ fun AddWorkoutScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Log Workout", fontWeight = FontWeight.Black) },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
                         Icon(Icons.Default.Close, contentDescription = "Cancel")
                     }
                 },
+                title = {
+                    Column(modifier = Modifier.clickable { showDatePicker = true }) {
+                        Text("Log Workout", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Black)
+                        Text(
+                            text = SimpleDateFormat("dd MMMM, yyyy", Locale.getDefault()).format(Date(uiState.timestamp)),
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                    }
+                },
                 actions = {
+                    // ...
                     Button(
                         onClick = { viewModel.saveWorkout() },
                         enabled = uiState.exercises.isNotEmpty() && !uiState.isSaving,

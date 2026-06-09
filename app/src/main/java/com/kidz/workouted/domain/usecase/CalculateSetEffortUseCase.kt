@@ -24,6 +24,6 @@ class CalculateSetEffortUseCase @Inject constructor() {
         val relativeStrength = oneRepMaxEstimate / maxWeightReference
         val heightCorrection = userHeightCm / 175.0
         
-        return relativeStrength * heightCorrection * 100.0
+        return relativeStrength * heightCorrection * 1000.0
     }
 }

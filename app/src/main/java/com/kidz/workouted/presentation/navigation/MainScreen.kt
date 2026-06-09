@@ -6,6 +6,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavDestination.Companion.hierarchy
@@ -62,7 +63,7 @@ fun MainScreen() {
                 },
                 floatingActionButton = {
                     FloatingActionButton(
-                        onClick = { navController.navigate(Screen.AddWorkout.route) },
+                        onClick = { navController.navigate(Screen.AddWorkout.createRoute()) },
                         containerColor = MaterialTheme.colorScheme.primary,
                         contentColor = MaterialTheme.colorScheme.onPrimary,
                         elevation = FloatingActionButtonDefaults.bottomAppBarFabElevation()
@@ -95,12 +96,30 @@ fun MainScreen() {
             composable(Screen.Settings.route) {
                 SettingsScreen()
             }
-            composable(Screen.AddWorkout.route) { backStackEntry ->
+            composable(
+                route = Screen.AddWorkout.route,
+                arguments = listOf(navArgument("workoutId") { 
+                    type = NavType.StringType
+                    nullable = true
+                    defaultValue = null
+                })
+            ) { backStackEntry ->
                 val parentEntry = remember(backStackEntry) {
                     navController.getBackStackEntry(Screen.AddWorkout.route)
                 }
+                val viewModel: AddWorkoutViewModel = hiltViewModel(parentEntry)
+                
+                val workoutIdString = backStackEntry.arguments?.getString("workoutId")
+                val workoutId = workoutIdString?.toLongOrNull()
+                
+                LaunchedEffect(workoutId) {
+                    if (workoutId != null) {
+                        viewModel.loadWorkout(workoutId)
+                    }
+                }
+
                 AddWorkoutScreen(
-                    viewModel = hiltViewModel(parentEntry),
+                    viewModel = viewModel,
                     onAddExerciseClick = { navController.navigate(Screen.SelectExercise.route) },
                     onBackClick = { navController.popBackStack() },
                     onFinish = { navController.popBackStack() }
@@ -123,7 +142,11 @@ fun MainScreen() {
                 val workoutId = backStackEntry.arguments?.getLong("workoutId") ?: 0L
                 WorkoutDetailsScreen(
                     workoutId = workoutId,
-                    onBackClick = { navController.popBackStack() }
+                    viewModel = hiltViewModel(),
+                    onBackClick = { navController.popBackStack() },
+                    onEditClick = { id ->
+                        navController.navigate(Screen.AddWorkout.createRoute(id))
+                    }
                 )
             }
         }

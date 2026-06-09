@@ -26,12 +26,38 @@ fun LogScreen(
     onWorkoutClick: (Long) -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    var workoutToDelete by remember { mutableStateOf<Workout?>(null) }
+
+    if (workoutToDelete != null) {
+        AlertDialog(
+            onDismissRequest = { workoutToDelete = null },
+            title = { Text("Delete Workout") },
+            text = { Text("Are you sure you want to delete this workout? This action cannot be undone.") },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        workoutToDelete?.let { viewModel.deleteWorkout(it) }
+                        workoutToDelete = null
+                    },
+                    colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.error)
+                ) {
+                    Text("Delete")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { workoutToDelete = null }) {
+                    Text("Cancel")
+                }
+            }
+        )
+    }
 
     Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp)
     ) {
+        // ...
         Text(
             text = "Workout Log",
             style = MaterialTheme.typography.headlineMedium,
@@ -62,7 +88,7 @@ fun LogScreen(
                             WorkoutItem(
                                 workout = workout,
                                 onClick = { onWorkoutClick(workout.id) },
-                                onDelete = { viewModel.deleteWorkout(workout) }
+                                onDelete = { workoutToDelete = workout }
                             )
                         }
                     }
@@ -88,10 +114,16 @@ fun WorkoutItem(
         confirmValueChange = {
             if (it == SwipeToDismissBoxValue.EndToStart) {
                 onDelete()
-                true
+                false // Don't dismiss yet, wait for confirmation
             } else false
         }
     )
+
+    LaunchedEffect(swipeToDismissState.currentValue) {
+        if (swipeToDismissState.currentValue == SwipeToDismissBoxValue.Settled) {
+            // Reset state if needed
+        }
+    }
 
     SwipeToDismissBox(
         state = swipeToDismissState,
@@ -156,7 +188,7 @@ fun WorkoutItem(
                         fontWeight = FontWeight.Bold
                     )
                     Text(
-                        text = "${workout.exercisesCount} exercises • ${workout.totalVolume} kg",
+                        text = "${workout.exercisesCount} exercises • ${workout.totalVolume.toInt()} kg",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
                     )

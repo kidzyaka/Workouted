@@ -12,7 +12,9 @@ sealed class Screen(val route: String, val title: String, val icon: ImageVector?
     object Log : Screen("log", "Log", Icons.Default.History)
     object Stats : Screen("stats", "Stats", Icons.Default.Assessment)
     object Settings : Screen("settings", "Profile", Icons.Default.Settings)
-    object AddWorkout : Screen("add_workout", "Add Workout")
+    object AddWorkout : Screen("add_workout?workoutId={workoutId}", "Add Workout") {
+        fun createRoute(workoutId: Long? = null) = if (workoutId != null) "add_workout?workoutId=$workoutId" else "add_workout"
+    }
     object SelectExercise : Screen("select_exercise", "Select Exercise")
     object WorkoutDetails : Screen("workout_details/{workoutId}", "Workout Details") {
         fun createRoute(workoutId: Long) = "workout_details/$workoutId"

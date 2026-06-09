@@ -13,7 +13,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.Fill
@@ -21,6 +20,8 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kotlin.math.cos
+import kotlin.math.sin
 
 @Composable
 fun StatsScreen(
@@ -58,7 +59,15 @@ fun StatsScreen(
                 Spacer(modifier = Modifier.height(24.dp))
                 BalanceChart(state.muscleBalance)
                 Spacer(modifier = Modifier.height(24.dp))
-                ProgressChart(state.progressData)
+                if (state.progressData.isNotEmpty()) {
+                    ProgressChart(state.progressData)
+                } else {
+                    Card(modifier = Modifier.fillMaxWidth()) {
+                        Box(Modifier.padding(32.dp).fillMaxWidth(), contentAlignment = Alignment.Center) {
+                            Text("No progress data yet", style = MaterialTheme.typography.bodyMedium)
+                        }
+                    }
+                }
             }
             is StatsUiState.Error -> {
                 Text("Error: ${state.message}", color = MaterialTheme.colorScheme.error)
@@ -93,10 +102,10 @@ fun ActivityChart(data: List<ActivityData>) {
                         Box(
                             modifier = Modifier
                                 .width(30.dp)
-                                .fillMaxHeight(item.value)
+                                .fillMaxHeight(item.value.coerceIn(0.05f, 1f))
                                 .background(
-                                    if (item.value > 0.6f) MaterialTheme.colorScheme.primary 
-                                    else MaterialTheme.colorScheme.primary.copy(alpha = 0.4f),
+                                    if (item.value > 0.1f) MaterialTheme.colorScheme.primary 
+                                    else MaterialTheme.colorScheme.primary.copy(alpha = 0.2f),
                                     RoundedCornerShape(topStart = 4.dp, topEnd = 4.dp)
                                 )
                         )
@@ -117,36 +126,59 @@ fun BalanceChart(balance: Map<String, Float>) {
     ) {
         Column(modifier = Modifier.padding(20.dp)) {
             Text(
-                text = "Balance",
+                text = "Muscle Balance",
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold
             )
             Spacer(modifier = Modifier.height(20.dp))
-            // Radar Chart Placeholder with Canvas
+            
             Box(
-                modifier = Modifier.fillMaxWidth().height(200.dp),
+                modifier = Modifier.fillMaxWidth().height(250.dp),
                 contentAlignment = Alignment.Center
             ) {
                 val primaryColor = MaterialTheme.colorScheme.primary
-                Canvas(modifier = Modifier.size(180.dp)) {
-                    val center = Offset(size.width / 2, size.height / 2)
-                    val radius = size.width / 2
-                    
-                    // Draw polygons
-                    drawCircle(color = primaryColor.copy(alpha = 0.1f), radius = radius, style = Fill)
-                    drawCircle(color = primaryColor.copy(alpha = 0.2f), radius = radius * 0.6f, style = Stroke(1f))
-                    
-                    // Simplified radar path
-                    val path = Path().apply {
-                        moveTo(center.x, center.y - radius * 0.8f)
-                        lineTo(center.x + radius * 0.7f, center.y - radius * 0.3f)
-                        lineTo(center.x + radius * 0.5f, center.y + radius * 0.6f)
-                        lineTo(center.x - radius * 0.5f, center.y + radius * 0.6f)
-                        lineTo(center.x - radius * 0.7f, center.y - radius * 0.3f)
-                        close()
+                val labels = balance.keys.toList()
+                val values = balance.values.toList()
+
+                if (labels.isEmpty()) {
+                    Text("Add workouts to see balance", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                } else {
+                    Canvas(modifier = Modifier.size(200.dp)) {
+                        val center = Offset(size.width / 2, size.height / 2)
+                        val radius = size.width / 2 * 0.8f
+                        val angleStep = (2 * Math.PI / labels.size).toFloat()
+
+                        // Draw web
+                        for (i in 1..5) {
+                            val r = radius * (i / 5f)
+                            val path = Path()
+                            for (j in labels.indices) {
+                                val angle = j * angleStep - Math.PI.toFloat() / 2
+                                val x = center.x + r * cos(angle)
+                                val y = center.y + r * sin(angle)
+                                if (j == 0) path.moveTo(x, y) else path.lineTo(x, y)
+                            }
+                            path.close()
+                            drawPath(path, primaryColor.copy(alpha = 0.1f), style = Stroke(1.dp.toPx()))
+                        }
+
+                        // Draw values
+                        val valuePath = Path()
+                        for (i in values.indices) {
+                            val r = radius * values[i].coerceIn(0.1f, 1f)
+                            val angle = i * angleStep - Math.PI.toFloat() / 2
+                            val x = center.x + r * cos(angle)
+                            val y = center.y + r * sin(angle)
+                            if (i == 0) valuePath.moveTo(x, y) else valuePath.lineTo(x, y)
+                            
+                            // Draw point
+                            drawCircle(primaryColor, radius = 4.dp.toPx(), center = Offset(x, y))
+                        }
+                        if (values.isNotEmpty()) valuePath.close()
+                        
+                        drawPath(valuePath, primaryColor.copy(alpha = 0.3f), style = Fill)
+                        drawPath(valuePath, primaryColor, style = Stroke(2.dp.toPx()))
                     }
-                    drawPath(path, color = primaryColor.copy(alpha = 0.4f), style = Fill)
-                    drawPath(path, color = primaryColor, style = Stroke(4f))
                 }
             }
         }
@@ -161,37 +193,53 @@ fun ProgressChart(data: List<ProgressData>) {
     ) {
         Column(modifier = Modifier.padding(20.dp)) {
             Text(
-                text = "Progress 1RM",
+                text = "Strength Progress (Estimated 1RM)",
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold
             )
             Spacer(modifier = Modifier.height(20.dp))
-            // Line Chart Placeholder
-            Canvas(modifier = Modifier.fillMaxWidth().height(150.dp)) {
-                val spacing = size.width / (data.size - 1)
-                val maxVal = data.maxOf { it.value }
-                val minVal = data.minOf { it.value }
-                val range = maxVal - minVal
-                
-                val points = data.mapIndexed { index, item ->
-                    Offset(
-                        x = index * spacing,
-                        y = size.height - ((item.value - minVal) / range) * size.height
-                    )
+            
+            Canvas(modifier = Modifier.fillMaxWidth().height(150.dp).padding(horizontal = 16.dp)) {
+                if (data.size < 2) {
+                    // Not enough points for a line, just draw a circle
+                    val valY = size.height / 2
+                    drawCircle(Color(0xFFE57373), radius = 6.dp.toPx(), center = Offset(size.width / 2, valY))
+                } else {
+                    val spacing = size.width / (data.size - 1)
+                    val maxVal = data.maxOf { it.value }.coerceAtLeast(1f)
+                    val minVal = data.minOf { it.value } * 0.9f
+                    val range = (maxVal - minVal).coerceAtLeast(1f)
+                    
+                    val points = data.mapIndexed { index, item ->
+                        Offset(
+                            x = index * spacing,
+                            y = size.height - ((item.value - minVal) / range) * size.height
+                        )
+                    }
+                    
+                    for (i in 0 until points.size - 1) {
+                        drawLine(
+                            color = Color(0xFFE57373),
+                            start = points[i],
+                            end = points[i+1],
+                            strokeWidth = 3.dp.toPx()
+                        )
+                    }
+                    
+                    points.forEach { point ->
+                        drawCircle(Color.White, radius = 4.dp.toPx(), center = point)
+                        drawCircle(Color(0xFFE57373), radius = 2.dp.toPx(), center = point)
+                    }
                 }
-                
-                for (i in 0 until points.size - 1) {
-                    drawLine(
-                        color = Color(0xFFE57373), // Coral/Red for progress
-                        start = points[i],
-                        end = points[i+1],
-                        strokeWidth = 6f
-                    )
-                }
-                
-                points.forEach { point ->
-                    drawCircle(color = Color.White, radius = 8f, center = point)
-                    drawCircle(color = Color(0xFFE57373), radius = 4f, center = point)
+            }
+            
+            Spacer(modifier = Modifier.height(16.dp))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                data.forEach { 
+                    Text(it.date, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             }
         }

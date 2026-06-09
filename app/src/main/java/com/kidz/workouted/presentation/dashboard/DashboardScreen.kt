@@ -64,22 +64,22 @@ fun DashboardContent(
                 Box(Modifier.fillMaxSize()) {
                     MuscleBadge(
                         "Chest", 
-                        uiState.muscleGroupRanks["Chest"] ?: Rank.TREE,
+                        uiState.muscleGroupRanks["CHEST"] ?: Rank.TREE,
                         Modifier.align(Alignment.Center).offset(y = (-40).dp)
                     )
                     MuscleBadge(
                         "Back", 
-                        uiState.muscleGroupRanks["Back"] ?: Rank.TREE,
+                        uiState.muscleGroupRanks["BACK"] ?: Rank.TREE,
                         Modifier.align(Alignment.Center).offset(x = (-80).dp, y = 20.dp)
                     )
                     MuscleBadge(
                         "Legs", 
-                        uiState.muscleGroupRanks["Legs"] ?: Rank.TREE,
+                        uiState.muscleGroupRanks["LEGS"] ?: Rank.TREE,
                         Modifier.align(Alignment.Center).offset(y = 80.dp)
                     )
                     MuscleBadge(
                         "Arms", 
-                        uiState.muscleGroupRanks["Arms"] ?: Rank.TREE,
+                        uiState.muscleGroupRanks["ARMS"] ?: Rank.TREE,
                         Modifier.align(Alignment.Center).offset(x = 80.dp, y = 20.dp)
                     )
                 }

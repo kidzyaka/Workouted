@@ -1,20 +1,20 @@
 package com.kidz.workouted.presentation.log
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import com.kidz.workouted.data.local.entity.SetEntity
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -22,21 +22,15 @@ import java.util.*
 @Composable
 fun WorkoutDetailsScreen(
     workoutId: Long,
-    onBackClick: () -> Unit
+    viewModel: WorkoutDetailsViewModel,
+    onBackClick: () -> Unit,
+    onEditClick: (Long) -> Unit
 ) {
-    // Mock data for now
-    val timestamp = System.currentTimeMillis()
-    val exercises = listOf(
-        "Bench Press" to listOf(
-            SetEntity(weight = 80.0, reps = 10, workoutId = 0, exerciseId = 0),
-            SetEntity(weight = 85.0, reps = 8, workoutId = 0, exerciseId = 0),
-            SetEntity(weight = 90.0, reps = 6, workoutId = 0, exerciseId = 0)
-        ),
-        "Squats" to listOf(
-            SetEntity(weight = 100.0, reps = 12, workoutId = 0, exerciseId = 0),
-            SetEntity(weight = 110.0, reps = 10, workoutId = 0, exerciseId = 0)
-        )
-    )
+    val uiState by viewModel.uiState.collectAsState()
+
+    LaunchedEffect(workoutId) {
+        viewModel.loadWorkout(workoutId)
+    }
 
     Scaffold(
         topBar = {
@@ -44,46 +38,47 @@ fun WorkoutDetailsScreen(
                 title = { Text("Workout Details") },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                     }
                 }
             )
         },
         floatingActionButton = {
-            ExtendedFloatingActionButton(
-                onClick = { /* TODO: Edit */ },
-                icon = { Icon(Icons.Default.Edit, contentDescription = null) },
-                text = { Text("Edit") },
-                containerColor = MaterialTheme.colorScheme.primary,
-                contentColor = MaterialTheme.colorScheme.onPrimary
-            )
+            if (!uiState.isLoading) {
+                ExtendedFloatingActionButton(
+                    onClick = { onEditClick(workoutId) },
+                    icon = { Icon(Icons.Default.Edit, contentDescription = null) },
+                    text = { Text("Edit") },
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    contentColor = MaterialTheme.colorScheme.onPrimary
+                )
+            }
         }
     ) { innerPadding ->
-        LazyColumn(
-            modifier = Modifier
-                .padding(innerPadding)
-                .padding(horizontal = 16.dp)
-                .fillMaxSize(),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            item {
-                Column(modifier = Modifier.padding(vertical = 16.dp)) {
-                    Text(
-                        text = SimpleDateFormat("dd MMMM, HH:mm", Locale.getDefault())
-                            .format(Date(timestamp)),
-                        style = MaterialTheme.typography.headlineMedium,
-                        fontWeight = FontWeight.Black
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        SuggestionChip(onClick = {}, label = { Text("75 min") })
-                        SuggestionChip(onClick = {}, label = { Text("450 kcal") })
+        if (uiState.isLoading) {
+            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                CircularProgressIndicator()
+            }
+        } else {
+            LazyColumn(
+                modifier = Modifier
+                    .padding(innerPadding)
+                    .padding(horizontal = 16.dp)
+                    .fillMaxSize(),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                item {
+                    Column(modifier = Modifier.padding(vertical = 16.dp)) {
+                        Text(
+                            text = SimpleDateFormat("dd MMMM, HH:mm", Locale.getDefault())
+                                .format(Date(uiState.timestamp)),
+                            style = MaterialTheme.typography.headlineMedium,
+                            fontWeight = FontWeight.Black
+                        )
                     }
                 }
-            }
 
-            exercises.forEach { (name, sets) ->
-                item {
+                items(uiState.exercises) { (name, sets) ->
                     Text(
                         text = name,
                         style = MaterialTheme.typography.titleLarge,
@@ -129,9 +124,9 @@ fun WorkoutDetailsScreen(
                         }
                     }
                 }
+                
+                item { Spacer(modifier = Modifier.height(80.dp)) }
             }
-            
-            item { Spacer(modifier = Modifier.height(80.dp)) }
         }
     }
 }

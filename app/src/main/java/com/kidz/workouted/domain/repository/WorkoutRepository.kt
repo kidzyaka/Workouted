@@ -7,8 +7,9 @@ import kotlinx.coroutines.flow.Flow
 
 interface WorkoutRepository {
     fun getWorkouts(): Flow<List<Workout>>
-    suspend fun saveWorkout(timestamp: Long, sets: List<SetEntity>)
+    suspend fun saveWorkout(timestamp: Long, sets: List<SetEntity>, workoutId: Long = 0)
     suspend fun deleteWorkout(workout: Workout)
     suspend fun getWorkoutById(id: Long): Workout?
+    suspend fun getSetsForWorkout(workoutId: Long): List<SetEntity>
     fun getExercisesWithImpacts(): Flow<List<ExerciseWithImpacts>>
 }

@@ -22,6 +22,8 @@ data class ActiveSet(
 )
 
 data class AddWorkoutUiState(
+    val workoutId: Long = 0,
+    val timestamp: Long = System.currentTimeMillis(),
     val exercises: List<ActiveExercise> = emptyList(),
     val availableExercises: List<ExerciseWithImpacts> = emptyList(),
     val isSaving: Boolean = false,
@@ -42,6 +44,40 @@ class AddWorkoutViewModel @Inject constructor(
                 _uiState.update { it.copy(availableExercises = exercises) }
             }
             .launchIn(viewModelScope)
+    }
+
+    fun loadWorkout(id: Long) {
+        if (id == 0L || _uiState.value.workoutId == id) return
+        
+        viewModelScope.launch {
+            val workout = repository.getWorkoutById(id) ?: return@launch
+            val sets = repository.getSetsForWorkout(id)
+            
+            // Wait for available exercises to be loaded if they aren't yet
+            val available = _uiState.value.availableExercises.ifEmpty {
+                repository.getExercisesWithImpacts().first()
+            }
+            
+            val exerciseMap = available.associateBy { it.exercise.id }
+            
+            val activeExercises = sets.groupBy { it.exerciseId }.map { (exerciseId, exerciseSets) ->
+                val exercise = exerciseMap[exerciseId]?.exercise ?: return@map null
+                ActiveExercise(
+                    exercise = exercise,
+                    sets = exerciseSets.map { ActiveSet(it.weight.toString(), it.reps.toString()) }
+                )
+            }.filterNotNull()
+
+            _uiState.update { it.copy(
+                workoutId = id,
+                timestamp = workout.timestamp,
+                exercises = activeExercises
+            ) }
+        }
+    }
+
+    fun setTimestamp(timestamp: Long) {
+        _uiState.update { it.copy(timestamp = timestamp) }
     }
 
     fun addExercise(exercise: ExerciseEntity) {
@@ -99,14 +135,13 @@ class AddWorkoutViewModel @Inject constructor(
         viewModelScope.launch {
             _uiState.update { it.copy(isSaving = true) }
             
-            val timestamp = System.currentTimeMillis()
             val setsToSave = state.exercises.flatMap { activeExercise ->
                 activeExercise.sets.mapNotNull { activeSet ->
                     val weight = activeSet.weight.toDoubleOrNull() ?: 0.0
                     val reps = activeSet.reps.toIntOrNull() ?: 0
                     if (reps > 0) {
                         SetEntity(
-                            workoutId = 0, // Will be set by DAO transaction
+                            workoutId = state.workoutId,
                             exerciseId = activeExercise.exercise.id,
                             weight = weight,
                             reps = reps
@@ -116,7 +151,7 @@ class AddWorkoutViewModel @Inject constructor(
             }
 
             if (setsToSave.isNotEmpty()) {
-                repository.saveWorkout(timestamp, setsToSave)
+                repository.saveWorkout(state.timestamp, setsToSave, state.workoutId)
             }
             
             _uiState.update { it.copy(isSaving = false, isFinished = true) }
