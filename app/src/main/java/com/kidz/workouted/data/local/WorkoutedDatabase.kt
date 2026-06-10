@@ -14,7 +14,7 @@ import com.kidz.workouted.data.local.entity.*
         MuscleGroupEntity::class,
         MuscleImpactEntity::class
     ],
-    version = 3,
+    version = 10,
     exportSchema = false
 )
 abstract class WorkoutedDatabase : RoomDatabase() {

@@ -1,5 +1,6 @@
 package com.kidz.workouted.presentation.log
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.kidz.workouted.data.local.dao.ExerciseWithImpacts
@@ -39,8 +40,10 @@ class AddWorkoutViewModel @Inject constructor(
     val uiState: StateFlow<AddWorkoutUiState> = _uiState.asStateFlow()
 
     init {
+        Log.d("AddWorkoutVM", "Initializing AddWorkoutViewModel")
         repository.getExercisesWithImpacts()
             .onEach { exercises ->
+                Log.d("AddWorkoutVM", "Loaded ${exercises.size} exercises into ViewModel state.")
                 _uiState.update { it.copy(availableExercises = exercises) }
             }
             .launchIn(viewModelScope)

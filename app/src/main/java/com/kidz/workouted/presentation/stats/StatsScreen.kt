@@ -23,6 +23,9 @@ import androidx.compose.ui.unit.sp
 import kotlin.math.cos
 import kotlin.math.sin
 
+import com.kidz.workouted.R
+import androidx.compose.ui.res.stringResource
+
 @Composable
 fun StatsScreen(
     viewModel: StatsViewModel
@@ -36,13 +39,13 @@ fun StatsScreen(
             .padding(16.dp)
     ) {
         Text(
-            text = "Statistics",
+            text = stringResource(R.string.statistics),
             style = MaterialTheme.typography.headlineLarge,
             fontWeight = FontWeight.Black,
             modifier = Modifier.padding(bottom = 8.dp)
         )
         Text(
-            text = "Your progress for the last 30 days",
+            text = stringResource(R.string.progress_30_days),
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f),
             modifier = Modifier.padding(bottom = 24.dp)
@@ -64,7 +67,7 @@ fun StatsScreen(
                 } else {
                     Card(modifier = Modifier.fillMaxWidth()) {
                         Box(Modifier.padding(32.dp).fillMaxWidth(), contentAlignment = Alignment.Center) {
-                            Text("No progress data yet", style = MaterialTheme.typography.bodyMedium)
+                            Text(stringResource(R.string.no_progress_data), style = MaterialTheme.typography.bodyMedium)
                         }
                     }
                 }
@@ -87,7 +90,7 @@ fun ActivityChart(data: List<ActivityData>) {
     ) {
         Column(modifier = Modifier.padding(20.dp)) {
             Text(
-                text = "Workload",
+                text = stringResource(R.string.workload),
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold
             )
@@ -134,7 +137,7 @@ fun BalanceChart(balance: Map<String, Float>) {
     ) {
         Column(modifier = Modifier.padding(20.dp)) {
             Text(
-                text = "Muscle Balance",
+                text = stringResource(R.string.muscle_balance),
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold
             )
@@ -149,8 +152,9 @@ fun BalanceChart(balance: Map<String, Float>) {
                 val values = balance.values.toList()
 
                 if (labels.isEmpty()) {
-                    Text("Add workouts to see balance", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text(stringResource(R.string.add_workouts_balance), color = MaterialTheme.colorScheme.onSurfaceVariant)
                 } else {
+                    // ... (rest of Canvas logic remains the same)
                     Canvas(modifier = Modifier.size(200.dp)) {
                         val center = Offset(size.width / 2, size.height / 2)
                         val radius = size.width / 2 * 0.8f
@@ -201,10 +205,11 @@ fun ProgressChart(data: List<ProgressData>) {
     ) {
         Column(modifier = Modifier.padding(20.dp)) {
             Text(
-                text = "Strength Progress (Estimated 1RM)",
+                text = stringResource(R.string.strength_progress),
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold
             )
+            // ...
             Spacer(modifier = Modifier.height(20.dp))
             
             Canvas(modifier = Modifier.fillMaxWidth().height(150.dp).padding(horizontal = 16.dp)) {

@@ -1,24 +1,32 @@
 package com.kidz.workouted.presentation.dashboard
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.BiasAlignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.kidz.workouted.R
 import com.kidz.workouted.domain.model.Rank
 import com.kidz.workouted.presentation.components.MuscleBadge
-import com.kidz.workouted.presentation.components.StatCard
 import com.kidz.workouted.ui.theme.WorkoutedTheme
+import java.time.LocalDate
+import java.time.YearMonth
+import java.time.ZoneId
+import java.time.format.TextStyle
+import java.util.*
 
 @Composable
 fun DashboardScreen(
@@ -40,47 +48,77 @@ fun DashboardContent(
             .padding(16.dp)
     ) {
         Text(
-            text = "Muscle Map",
+            text = stringResource(R.string.muscle_map),
             style = MaterialTheme.typography.headlineMedium,
             fontWeight = FontWeight.Black,
             modifier = Modifier.padding(bottom = 8.dp)
         )
         Text(
-            text = "Your progress by muscle",
+            text = stringResource(R.string.progress_by_muscle),
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f),
             modifier = Modifier.padding(bottom = 24.dp)
         )
 
-        // Muscle Map Placeholder
+        // Muscle Map with Body Silhouette
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(300.dp),
+                .height(400.dp),
             contentAlignment = Alignment.Center
         ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .width(200.dp)
+                    .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.2f), MaterialTheme.shapes.extraLarge)
+            )
+
+            androidx.compose.foundation.Image(
+                painter = androidx.compose.ui.res.painterResource(id = R.drawable.body_silhouette),
+                contentDescription = null,
+                modifier = Modifier.fillMaxHeight(),
+                alpha = 0.5f,
+                contentScale = androidx.compose.ui.layout.ContentScale.Fit
+            )
+
             if (uiState is DashboardUiState.Success) {
-                // Simplified positioning for now
                 Box(Modifier.fillMaxSize()) {
-                    MuscleBadge(
-                        "Chest", 
-                        uiState.muscleGroupRanks["CHEST"] ?: Rank.TREE,
-                        Modifier.align(Alignment.Center).offset(y = (-40).dp)
-                    )
+                    // BACK (Center, high)
                     MuscleBadge(
                         "Back", 
-                        uiState.muscleGroupRanks["BACK"] ?: Rank.TREE,
-                        Modifier.align(Alignment.Center).offset(x = (-80).dp, y = 20.dp)
+                        uiState.muscleGroupRanks["group_back"] ?: Rank.TREE,
+                        Modifier.align(BiasAlignment(0f, -0.7f))
                     )
+                    // SHOULDERS (Sides)
                     MuscleBadge(
-                        "Legs", 
-                        uiState.muscleGroupRanks["LEGS"] ?: Rank.TREE,
-                        Modifier.align(Alignment.Center).offset(y = 80.dp)
+                        "Shoulders", 
+                        uiState.muscleGroupRanks["group_shoulders"] ?: Rank.TREE,
+                        Modifier.align(BiasAlignment(0.45f, -0.45f))
                     )
+                    // CHEST (Center, under Back)
+                    MuscleBadge(
+                        "Chest", 
+                        uiState.muscleGroupRanks["group_chest"] ?: Rank.TREE,
+                        Modifier.align(BiasAlignment(-0.1f, -0.55f))
+                    )
+                    // ARMS (Left side)
                     MuscleBadge(
                         "Arms", 
-                        uiState.muscleGroupRanks["ARMS"] ?: Rank.TREE,
-                        Modifier.align(Alignment.Center).offset(x = 80.dp, y = 20.dp)
+                        uiState.muscleGroupRanks["group_arms"] ?: Rank.TREE,
+                        Modifier.align(BiasAlignment(-0.5f, -0.15f))
+                    )
+                    // CORE (Mid body)
+                    MuscleBadge(
+                        "Core", 
+                        uiState.muscleGroupRanks["group_core"] ?: Rank.TREE,
+                        Modifier.align(BiasAlignment(0f, -0.05f))
+                    )
+                    // LEGS (Lower body)
+                    MuscleBadge(
+                        "Legs", 
+                        uiState.muscleGroupRanks["group_legs"] ?: Rank.TREE,
+                        Modifier.align(BiasAlignment(0f, 0.6f))
                     )
                 }
             }
@@ -88,71 +126,109 @@ fun DashboardContent(
 
         Spacer(modifier = Modifier.height(32.dp))
 
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = "Weekly Summary",
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Bold
-            )
-            TextButton(onClick = { /* TODO */ }) {
-                Text("See History")
+        when (uiState) {
+            is DashboardUiState.Success -> {
+                WorkoutCalendar(uiState.workoutDates)
             }
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        if (uiState is DashboardUiState.Success) {
-            Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                Row(
-                    modifier = Modifier.fillMaxWidth().height(160.dp),
-                    horizontalArrangement = Arrangement.spacedBy(16.dp)
-                ) {
-                    StatCard(
-                        title = "Active Time",
-                        value = uiState.activeTimeHours.toString(),
-                        unit = "h",
-                        modifier = Modifier.weight(1f),
-                        containerColor = MaterialTheme.colorScheme.secondaryContainer
-                    )
-                    StatCard(
-                        title = "Calories",
-                        value = "${uiState.activeEnergyKcal / 1000}.${(uiState.activeEnergyKcal % 1000) / 100}k",
-                        unit = "kcal",
-                        modifier = Modifier.weight(1f),
-                        containerColor = MaterialTheme.colorScheme.tertiaryContainer
-                    )
-                }
-                Row(
-                    modifier = Modifier.fillMaxWidth().height(160.dp),
-                    horizontalArrangement = Arrangement.spacedBy(16.dp)
-                ) {
-                    StatCard(
-                        title = "Workouts",
-                        value = uiState.weeklyWorkoutsCount.toString(),
-                        unit = "this week",
-                        modifier = Modifier.weight(1f),
-                        containerColor = Color(0xFF80CBC4) // Emerald shade
-                    )
-                    StatCard(
-                        title = "Strength",
-                        value = "+${uiState.strengthIncreasePercentage}%",
-                        unit = "increase",
-                        modifier = Modifier.weight(1f),
-                        containerColor = MaterialTheme.colorScheme.primaryContainer
-                    )
+            is DashboardUiState.Loading -> {
+                Box(Modifier.fillMaxWidth().height(200.dp), contentAlignment = Alignment.Center) {
+                    CircularProgressIndicator()
                 }
             }
-        } else if (uiState is DashboardUiState.Loading) {
-            Box(Modifier.fillMaxWidth().height(200.dp), contentAlignment = Alignment.Center) {
-                CircularProgressIndicator()
-            }
+            else -> {}
         }
         
         Spacer(modifier = Modifier.height(80.dp)) // Space for bottom bar
+    }
+}
+
+@Composable
+fun WorkoutCalendar(workoutDates: Set<Long>) {
+    val currentMonth = remember { YearMonth.now() }
+    val daysInMonth = currentMonth.lengthOfMonth()
+    // Monday = 1, Sunday = 7 in java.time. DayOfWeek. 
+    // We want Monday = 0 for our grid.
+    val firstDayOfMonth = currentMonth.atDay(1).dayOfWeek.value - 1
+    
+    val workoutLocalDates = remember(workoutDates) {
+        workoutDates.map { 
+            java.time.Instant.ofEpochMilli(it).atZone(ZoneId.systemDefault()).toLocalDate() 
+        }.toSet()
+    }
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f), MaterialTheme.shapes.extraLarge)
+            .padding(16.dp)
+    ) {
+        Text(
+            text = currentMonth.month.getDisplayName(TextStyle.FULL, Locale.getDefault())
+                .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() } + " " + currentMonth.year,
+            style = MaterialTheme.typography.titleLarge,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.padding(bottom = 16.dp)
+        )
+
+        // Weekday labels
+        Row(modifier = Modifier.fillMaxWidth()) {
+            val days = listOf("M", "T", "W", "T", "F", "S", "S")
+            days.forEach { day ->
+                Text(
+                    text = day,
+                    modifier = Modifier.weight(1f),
+                    textAlign = TextAlign.Center,
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        // Days grid
+        val rows = (daysInMonth + firstDayOfMonth + 6) / 7
+        for (row in 0 until rows) {
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
+                for (col in 0 until 7) {
+                    val dayNum = row * 7 + col - (firstDayOfMonth - 1)
+                    if (dayNum in 1..daysInMonth) {
+                        val date = currentMonth.atDay(dayNum)
+                        val hasWorkout = workoutLocalDates.contains(date)
+                        val isToday = date == LocalDate.now()
+
+                        Box(
+                            modifier = Modifier
+                                .weight(1f)
+                                .aspectRatio(1f)
+                                .padding(4.dp)
+                                .clip(CircleShape)
+                                .background(
+                                    when {
+                                        hasWorkout -> MaterialTheme.colorScheme.primary
+                                        isToday -> MaterialTheme.colorScheme.primaryContainer
+                                        else -> Color.Transparent
+                                    }
+                                ),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = dayNum.toString(),
+                                style = MaterialTheme.typography.bodyMedium,
+                                fontWeight = if (hasWorkout || isToday) FontWeight.Bold else FontWeight.Normal,
+                                color = when {
+                                    hasWorkout -> MaterialTheme.colorScheme.onPrimary
+                                    isToday -> MaterialTheme.colorScheme.onPrimaryContainer
+                                    else -> MaterialTheme.colorScheme.onSurface
+                                }
+                            )
+                        }
+                    } else {
+                        Spacer(modifier = Modifier.weight(1f))
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -164,12 +240,14 @@ fun DashboardPreview() {
             DashboardContent(
                 uiState = DashboardUiState.Success(
                     muscleGroupRanks = mapOf(
-                        "Chest" to Rank.SILVER,
-                        "Back" to Rank.GOLD,
-                        "Legs" to Rank.BRONZE,
-                        "Arms" to Rank.PLATINUM,
-                        "Shoulders" to Rank.TREE
+                        "group_chest" to Rank.SILVER,
+                        "group_back" to Rank.GOLD,
+                        "group_legs" to Rank.BRONZE,
+                        "group_arms" to Rank.PLATINUM,
+                        "group_shoulders" to Rank.TREE,
+                        "group_core" to Rank.EMERALD
                     ),
+                    workoutDates = setOf(System.currentTimeMillis()),
                     weeklyWorkoutsCount = 12,
                     strengthIncreasePercentage = 12,
                     activeEnergyKcal = 1800,

@@ -22,6 +22,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 
+import com.kidz.workouted.R
+import androidx.compose.ui.res.stringResource
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(
@@ -36,22 +39,22 @@ fun SettingsScreen(
             .padding(16.dp)
     ) {
         Text(
-            text = "Settings",
+            text = stringResource(R.string.settings),
             style = MaterialTheme.typography.headlineLarge,
             fontWeight = FontWeight.Black,
             modifier = Modifier.padding(bottom = 8.dp)
         )
         Text(
-            text = "Manage your profile and preferences",
+            text = stringResource(R.string.manage_profile),
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f),
             modifier = Modifier.padding(bottom = 24.dp)
         )
 
-        SettingsSection(title = "Language & Region") {
+        SettingsSection(title = stringResource(R.string.language_region)) {
             SettingsItem(
                 icon = Icons.Default.Language,
-                title = "App Language",
+                title = stringResource(R.string.app_language),
                 subtitle = "English",
                 onClick = { /* TODO */ }
             )
@@ -59,22 +62,22 @@ fun SettingsScreen(
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        SettingsSection(title = "Physical Parameters") {
+        SettingsSection(title = stringResource(R.string.physical_parameters)) {
             ParameterInput(
                 icon = Icons.Default.Straighten,
-                label = "Height (cm)",
+                label = stringResource(R.string.height_cm),
                 value = uiState.height,
                 onValueChange = { viewModel.updateHeight(it) }
             )
             ParameterInput(
                 icon = Icons.Default.MonitorWeight,
-                label = "Weight (kg)",
+                label = stringResource(R.string.weight_kg_label),
                 value = uiState.weight,
                 onValueChange = { viewModel.updateWeight(it) }
             )
             ParameterInput(
                 icon = Icons.Default.Height,
-                label = "Age",
+                label = stringResource(R.string.age),
                 value = uiState.age,
                 onValueChange = { viewModel.updateAge(it) }
             )
@@ -82,28 +85,17 @@ fun SettingsScreen(
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        SettingsSection(title = "About App") {
+        SettingsSection(title = stringResource(R.string.about_app)) {
             SettingsItem(
-                title = "Version",
+                title = stringResource(R.string.version),
                 subtitle = "2.4.0 (Experimental)",
                 showChevron = false
             )
             SettingsItem(
-                title = "GitHub Repository",
+                title = stringResource(R.string.github_repo),
                 subtitle = "kidz/workouted",
                 onClick = { /* TODO */ }
             )
-            
-            Spacer(modifier = Modifier.height(16.dp))
-            
-            Button(
-                onClick = { /* TODO */ },
-                modifier = Modifier.fillMaxWidth(),
-                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error.copy(alpha = 0.1f)),
-                contentPadding = PaddingValues(16.dp)
-            ) {
-                Text("Logout from account", color = MaterialTheme.colorScheme.error)
-            }
         }
         
         Spacer(modifier = Modifier.height(80.dp))

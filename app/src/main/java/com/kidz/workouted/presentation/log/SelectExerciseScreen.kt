@@ -13,6 +13,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 
+import com.kidz.workouted.R
+import androidx.compose.ui.res.stringResource
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SelectExerciseScreen(
@@ -32,10 +35,10 @@ fun SelectExerciseScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Select Exercise") },
+                title = { Text(stringResource(R.string.select_exercise)) },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.cancel))
                     }
                 }
             )
@@ -52,7 +55,7 @@ fun SelectExerciseScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(16.dp),
-                placeholder = { Text("Search exercises...") },
+                placeholder = { Text(stringResource(R.string.search_exercises)) },
                 leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
                 shape = MaterialTheme.shapes.extraLarge,
                 singleLine = true
@@ -70,7 +73,7 @@ fun SelectExerciseScreen(
                             ) 
                         },
                         supportingContent = { 
-                            Text("${item.impacts.size} target muscles") 
+                            Text("${item.impacts.size} ${stringResource(R.string.target_muscles)}")
                         },
                         modifier = Modifier.clickable {
                             viewModel.addExercise(item.exercise)

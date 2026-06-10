@@ -1,5 +1,7 @@
 package com.kidz.workouted.presentation.log
 
+import com.kidz.workouted.R
+import androidx.compose.ui.res.stringResource
 import androidx.compose.animation.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -31,8 +33,8 @@ fun LogScreen(
     if (workoutToDelete != null) {
         AlertDialog(
             onDismissRequest = { workoutToDelete = null },
-            title = { Text("Delete Workout") },
-            text = { Text("Are you sure you want to delete this workout? This action cannot be undone.") },
+            title = { Text(stringResource(R.string.delete_workout)) },
+            text = { Text(stringResource(R.string.delete_confirm)) },
             confirmButton = {
                 TextButton(
                     onClick = {
@@ -41,12 +43,12 @@ fun LogScreen(
                     },
                     colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.error)
                 ) {
-                    Text("Delete")
+                    Text(stringResource(R.string.delete))
                 }
             },
             dismissButton = {
                 TextButton(onClick = { workoutToDelete = null }) {
-                    Text("Cancel")
+                    Text(stringResource(R.string.cancel))
                 }
             }
         )
@@ -59,7 +61,7 @@ fun LogScreen(
     ) {
         // ...
         Text(
-            text = "Workout Log",
+            text = stringResource(R.string.workout_log),
             style = MaterialTheme.typography.headlineMedium,
             fontWeight = FontWeight.Black,
             modifier = Modifier.padding(bottom = 24.dp)
@@ -74,7 +76,7 @@ fun LogScreen(
             is LogUiState.Success -> {
                 if (state.workouts.isEmpty()) {
                     Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        Text("No workouts logged yet.")
+                        Text(stringResource(R.string.no_workouts))
                     }
                 } else {
                     LazyColumn(
@@ -188,7 +190,7 @@ fun WorkoutItem(
                         fontWeight = FontWeight.Bold
                     )
                     Text(
-                        text = "${workout.exercisesCount} exercises • ${workout.totalVolume.toInt()} kg",
+                        text = "${workout.exercisesCount} ${stringResource(R.string.exercises)} • ${workout.totalVolume.toInt()} kg",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
                     )

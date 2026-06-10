@@ -1,0 +1,68 @@
+<resources>
+    <string name="app_name">Workouted</string>
+
+    <!-- Navigation -->
+    <string name="nav_home">首页</string>
+    <string name="nav_log">日志</string>
+    <string name="nav_stats">统计</string>
+    <string name="nav_profile">个人资料</string>
+    <string name="add_workout">添加训练</string>
+
+    <!-- Dashboard -->
+    <string name="muscle_map">肌肉图</string>
+    <string name="progress_by_muscle">肌肉进度</string>
+    <string name="weekly_summary">每周总结</string>
+    <string name="see_history">查看历史</string>
+    <string name="active_time">活跃时间</string>
+    <string name="calories">卡路里</string>
+    <string name="workouts">训练次数</string>
+    <string name="strength">力量</string>
+    <string name="this_week">本周</string>
+    <string name="increase">增长</string>
+
+    <!-- Log -->
+    <string name="workout_log">训练日志</string>
+    <string name="no_workouts">暂无训练记录。</string>
+    <string name="delete_workout">删除训练</string>
+    <string name="delete_confirm">您确定要删除此训练吗？此操作无法撤销。</string>
+    <string name="delete">删除</string>
+    <string name="cancel">取消</string>
+    <string name="workout_details">训练详情</string>
+    <string name="edit">编辑</string>
+    <string name="exercises">项练习</string>
+
+    <!-- Add Workout -->
+    <string name="log_workout">记录训练</string>
+    <string name="finish">完成</string>
+    <string name="add_exercise">添加练习</string>
+    <string name="start_adding">从添加练习开始</string>
+    <string name="select_exercise">选择练习</string>
+    <string name="search_exercises">搜索练习…</string>
+    <string name="target_muscles">个目标肌肉</string>
+    <string name="add_set">添加组</string>
+    <string name="weight_kg">重量 (kg)</string>
+    <string name="reps">次数</string>
+    <string name="set_label">组</string>
+
+    <!-- Stats -->
+    <string name="statistics">统计</string>
+    <string name="progress_30_days">过去30天的进度</string>
+    <string name="workload">工作量</string>
+    <string name="muscle_balance">肌肉平衡</string>
+    <string name="strength_progress">力量进度 (预估1RM)</string>
+    <string name="no_progress_data">暂无进度数据</string>
+    <string name="add_workouts_balance">添加训练以查看平衡</string>
+
+    <!-- Settings -->
+    <string name="settings">设置</string>
+    <string name="manage_profile">管理您的个人资料和偏好</string>
+    <string name="language_region">语言和地区</string>
+    <string name="app_language">应用语言</string>
+    <string name="physical_parameters">身体参数</string>
+    <string name="height_cm">身高 (cm)</string>
+    <string name="weight_kg_label">体重 (kg)</string>
+    <string name="age">年龄</string>
+    <string name="about_app">关于应用</string>
+    <string name="version">版本</string>
+    <string name="github_repo">GitHub 仓库</string>
+</resources>

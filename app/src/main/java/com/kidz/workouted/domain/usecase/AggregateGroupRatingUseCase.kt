@@ -14,8 +14,8 @@ import javax.inject.Inject
  */
 class AggregateGroupRatingUseCase @Inject constructor() {
     operator fun invoke(
-        muscleRatings: Map<Long, Double>,
-        anatomicalWeights: Map<Long, Double>
+        muscleRatings: Map<String, Double>,
+        anatomicalWeights: Map<String, Double>
     ): Double {
         var totalWeightedRating = 0.0
         var totalAnatomicalWeight = 0.0

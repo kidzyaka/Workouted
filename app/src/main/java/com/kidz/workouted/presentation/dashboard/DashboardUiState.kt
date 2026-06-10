@@ -6,6 +6,7 @@ sealed class DashboardUiState {
     object Loading : DashboardUiState()
     data class Success(
         val muscleGroupRanks: Map<String, Rank>,
+        val workoutDates: Set<Long>,
         val weeklyWorkoutsCount: Int,
         val strengthIncreasePercentage: Int,
         val activeEnergyKcal: Int,

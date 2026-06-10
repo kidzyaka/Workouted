@@ -1,0 +1,68 @@
+<resources>
+    <string name="app_name">Workouted</string>
+
+    <!-- Navigation -->
+    <string name="nav_home">Inicio</string>
+    <string name="nav_log">Registro</string>
+    <string name="nav_stats">Estadísticas</string>
+    <string name="nav_profile">Perfil</string>
+    <string name="add_workout">Añadir entrenamiento</string>
+
+    <!-- Dashboard -->
+    <string name="muscle_map">Mapa muscular</string>
+    <string name="progress_by_muscle">Progreso por músculo</string>
+    <string name="weekly_summary">Resumen semanal</string>
+    <string name="see_history">Ver historial</string>
+    <string name="active_time">Tiempo activo</string>
+    <string name="calories">Calorías</string>
+    <string name="workouts">Entrenamientos</string>
+    <string name="strength">Fuerza</string>
+    <string name="this_week">esta semana</string>
+    <string name="increase">aumento</string>
+
+    <!-- Log -->
+    <string name="workout_log">Registro de entrenamientos</string>
+    <string name="no_workouts">No hay entrenamientos registrados.</string>
+    <string name="delete_workout">Eliminar entrenamiento</string>
+    <string name="delete_confirm">¿Estás seguro de que quieres eliminar este entrenamiento? Esta acción no se puede deshacer.</string>
+    <string name="delete">Eliminar</string>
+    <string name="cancel">Cancelar</string>
+    <string name="workout_details">Detalles del entrenamiento</string>
+    <string name="edit">Editar</string>
+    <string name="exercises">ejercicios</string>
+
+    <!-- Add Workout -->
+    <string name="log_workout">Registrar entrenamiento</string>
+    <string name="finish">Terminar</string>
+    <string name="add_exercise">Añadir ejercicio</string>
+    <string name="start_adding">Empieza añadiendo un ejercicio</string>
+    <string name="select_exercise">Seleccionar ejercicio</string>
+    <string name="search_exercises">Buscar ejercicios…</string>
+    <string name="target_muscles">músculos objetivo</string>
+    <string name="add_set">Añadir serie</string>
+    <string name="weight_kg">Peso (kg)</string>
+    <string name="reps">Reps</string>
+    <string name="set_label">Serie</string>
+
+    <!-- Stats -->
+    <string name="statistics">Estadísticas</string>
+    <string name="progress_30_days">Tu progreso en los últimos 30 días</string>
+    <string name="workload">Carga de trabajo</string>
+    <string name="muscle_balance">Equilibrio muscular</string>
+    <string name="strength_progress">Progreso de fuerza (1RM estimado)</string>
+    <string name="no_progress_data">Sin datos de progreso</string>
+    <string name="add_workouts_balance">Añade entrenamientos para ver el equilibrio</string>
+
+    <!-- Settings -->
+    <string name="settings">Ajustes</string>
+    <string name="manage_profile">Gestiona tu perfil y preferencias</string>
+    <string name="language_region">Idioma y región</string>
+    <string name="app_language">Idioma de la aplicación</string>
+    <string name="physical_parameters">Parámetros físicos</string>
+    <string name="height_cm">Altura (cm)</string>
+    <string name="weight_kg_label">Peso (kg)</string>
+    <string name="age">Edad</string>
+    <string name="about_app">Sobre la aplicación</string>
+    <string name="version">Versión</string>
+    <string name="github_repo">Repositorio de GitHub</string>
+</resources>

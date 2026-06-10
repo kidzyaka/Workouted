@@ -1,5 +1,6 @@
 package com.kidz.workouted.presentation.dashboard
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.kidz.workouted.data.local.dao.WorkoutDao
@@ -37,7 +38,9 @@ class DashboardViewModel @Inject constructor(
             preferencesRepository.userHeightCm
         ) { workouts, sets, exercises, groups, height ->
             
-            val muscleRatings = mutableMapOf<Long, Double>()
+            Log.d("DashboardVM", "Loaded ${exercises.size} exercises from DB.")
+            
+            val muscleRatings = mutableMapOf<String, Double>()
             val exerciseMap = exercises.associateBy { it.exercise.id }
             
             sets.forEach { set ->
@@ -62,7 +65,7 @@ class DashboardViewModel @Inject constructor(
                 val groupAnatomicalWeights = groupWithMuscles.muscles.associate { it.id to it.anatomicalWeight }
                 
                 val groupScore = aggregateGroupRating(groupMuscleRatings, groupAnatomicalWeights)
-                groupWithMuscles.group.name to Rank.fromScore(groupScore.toInt())
+                groupWithMuscles.group.id to Rank.fromScore(groupScore.toInt())
             }
 
             // Calculate weekly load
@@ -71,6 +74,7 @@ class DashboardViewModel @Inject constructor(
             
             DashboardUiState.Success(
                 muscleGroupRanks = groupRanks,
+                workoutDates = workouts.map { it.timestamp }.toSet(),
                 weeklyWorkoutsCount = weeklyWorkouts.size,
                 strengthIncreasePercentage = 0,
                 activeEnergyKcal = 0,

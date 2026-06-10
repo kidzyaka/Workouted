@@ -43,10 +43,10 @@ interface WorkoutDao {
     suspend fun getWorkoutWithSets(workoutId: Long): WorkoutWithSets
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertMuscleGroup(group: MuscleGroupEntity): Long
+    suspend fun insertMuscleGroup(group: MuscleGroupEntity)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertMuscle(muscle: MuscleEntity): Long
+    suspend fun insertMuscle(muscle: MuscleEntity)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertExercise(exercise: ExerciseEntity): Long

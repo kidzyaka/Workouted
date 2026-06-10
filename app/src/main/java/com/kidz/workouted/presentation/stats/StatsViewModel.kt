@@ -85,7 +85,7 @@ class StatsViewModel @Inject constructor(
             }
 
             // 2. Muscle Balance Calculation
-            val muscleRatings = mutableMapOf<Long, Double>()
+            val muscleRatings = mutableMapOf<String, Double>()
             
             setEfforts.forEach { (set, baseEffort) ->
                 val ex = exerciseMap[set.exerciseId]
@@ -99,6 +99,7 @@ class StatsViewModel @Inject constructor(
                 val groupMuscleRatings = groupWithMuscles.muscles.associate { it.id to (muscleRatings[it.id] ?: 0.0) }
                 val groupAnatomicalWeights = groupWithMuscles.muscles.associate { it.id to it.anatomicalWeight }
                 val groupScore = aggregateGroupRating(groupMuscleRatings, groupAnatomicalWeights)
+                // Use localized name for labels in the chart
                 groupWithMuscles.group.name to groupScore.toFloat()
             }
 

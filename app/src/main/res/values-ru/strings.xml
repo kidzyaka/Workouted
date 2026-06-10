@@ -1,0 +1,68 @@
+<resources>
+    <string name="app_name">Workouted</string>
+
+    <!-- Navigation -->
+    <string name="nav_home">Главная</string>
+    <string name="nav_log">Журнал</string>
+    <string name="nav_stats">Статистика</string>
+    <string name="nav_profile">Профиль</string>
+    <string name="add_workout">Добавить тренировку</string>
+
+    <!-- Dashboard -->
+    <string name="muscle_map">Карта мышц</string>
+    <string name="progress_by_muscle">Прогресс по мышцам</string>
+    <string name="weekly_summary">Итоги недели</string>
+    <string name="see_history">История</string>
+    <string name="active_time">Время</string>
+    <string name="calories">Калории</string>
+    <string name="workouts">Тренировки</string>
+    <string name="strength">Сила</string>
+    <string name="this_week">за неделю</string>
+    <string name="increase">прирост</string>
+
+    <!-- Log -->
+    <string name="workout_log">Журнал тренировок</string>
+    <string name="no_workouts">Тренировок пока нет.</string>
+    <string name="delete_workout">Удалить тренировку</string>
+    <string name="delete_confirm">Вы уверены, что хотите удалить эту тренировку? Это действие нельзя отменить.</string>
+    <string name="delete">Удалить</string>
+    <string name="cancel">Отмена</string>
+    <string name="workout_details">Детали тренировки</string>
+    <string name="edit">Правка</string>
+    <string name="exercises">упр.</string>
+
+    <!-- Add Workout -->
+    <string name="log_workout">Запись тренировки</string>
+    <string name="finish">Готово</string>
+    <string name="add_exercise">Добавить упражнение</string>
+    <string name="start_adding">Начните с добавления упражнения</string>
+    <string name="select_exercise">Выбор упражнения</string>
+    <string name="search_exercises">Поиск упражнений…</string>
+    <string name="target_muscles">целевых мышц</string>
+    <string name="add_set">Добавить подход</string>
+    <string name="weight_kg">Вес (кг)</string>
+    <string name="reps">Повт.</string>
+    <string name="set_label">Сет</string>
+
+    <!-- Stats -->
+    <string name="statistics">Статистика</string>
+    <string name="progress_30_days">Ваш прогресс за последние 30 дней</string>
+    <string name="workload">Нагрузка</string>
+    <string name="muscle_balance">Баланс мышц</string>
+    <string name="strength_progress">Прогресс силы (расчетный 1ПМ)</string>
+    <string name="no_progress_data">Данных о прогрессе пока нет</string>
+    <string name="add_workouts_balance">Добавьте тренировки, чтобы увидеть баланс</string>
+
+    <!-- Settings -->
+    <string name="settings">Настройки</string>
+    <string name="manage_profile">Управление профилем и предпочтениями</string>
+    <string name="language_region">Язык и регион</string>
+    <string name="app_language">Язык приложения</string>
+    <string name="physical_parameters">Физические параметры</string>
+    <string name="height_cm">Рост (см)</string>
+    <string name="weight_kg_label">Вес (кг)</string>
+    <string name="age">Возраст</string>
+    <string name="about_app">О приложении</string>
+    <string name="version">Версия</string>
+    <string name="github_repo">GitHub репозиторий</string>
+</resources>

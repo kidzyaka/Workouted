@@ -1,6 +1,8 @@
 package com.kidz.workouted.presentation.log
 
 import androidx.compose.foundation.background
+import com.kidz.workouted.R
+import androidx.compose.ui.res.stringResource
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -43,12 +45,12 @@ fun AddWorkoutScreen(
                     datePickerState.selectedDateMillis?.let { viewModel.setTimestamp(it) }
                     showDatePicker = false
                 }) {
-                    Text("OK")
+                    Text(stringResource(R.string.finish))
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showDatePicker = false }) {
-                    Text("Cancel")
+                    Text(stringResource(R.string.cancel))
                 }
             }
         ) {
@@ -68,12 +70,12 @@ fun AddWorkoutScreen(
             TopAppBar(
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
-                        Icon(Icons.Default.Close, contentDescription = "Cancel")
+                        Icon(Icons.Default.Close, contentDescription = stringResource(R.string.cancel))
                     }
                 },
                 title = {
                     Column(modifier = Modifier.clickable { showDatePicker = true }) {
-                        Text("Log Workout", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Black)
+                        Text(stringResource(R.string.log_workout), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Black)
                         Text(
                             text = SimpleDateFormat("dd MMMM, yyyy", Locale.getDefault()).format(Date(uiState.timestamp)),
                             style = MaterialTheme.typography.labelSmall,
@@ -96,7 +98,7 @@ fun AddWorkoutScreen(
                                 color = MaterialTheme.colorScheme.onPrimary
                             )
                         } else {
-                            Text("Finish")
+                            Text(stringResource(R.string.finish))
                         }
                     }
                 }
@@ -106,7 +108,7 @@ fun AddWorkoutScreen(
             ExtendedFloatingActionButton(
                 onClick = onAddExerciseClick,
                 icon = { Icon(Icons.Default.Add, contentDescription = null) },
-                text = { Text("Add Exercise") },
+                text = { Text(stringResource(R.string.add_exercise)) },
                 containerColor = MaterialTheme.colorScheme.primaryContainer,
                 contentColor = MaterialTheme.colorScheme.onPrimaryContainer
             )
@@ -120,7 +122,7 @@ fun AddWorkoutScreen(
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    "Start by adding an exercise",
+                    stringResource(R.string.start_adding),
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -194,9 +196,9 @@ fun ExerciseCard(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Text("Set", modifier = Modifier.width(40.dp), style = MaterialTheme.typography.labelMedium)
-                Text("Weight (kg)", modifier = Modifier.weight(1f), style = MaterialTheme.typography.labelMedium)
-                Text("Reps", modifier = Modifier.weight(1f), style = MaterialTheme.typography.labelMedium)
+                Text(stringResource(R.string.set_label), modifier = Modifier.width(40.dp), style = MaterialTheme.typography.labelMedium)
+                Text(stringResource(R.string.weight_kg), modifier = Modifier.weight(1f), style = MaterialTheme.typography.labelMedium)
+                Text(stringResource(R.string.reps), modifier = Modifier.weight(1f), style = MaterialTheme.typography.labelMedium)
                 Spacer(modifier = Modifier.width(40.dp))
             }
 
@@ -255,7 +257,7 @@ fun ExerciseCard(
             ) {
                 Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(18.dp))
                 Spacer(modifier = Modifier.width(8.dp))
-                Text("Add Set")
+                Text(stringResource(R.string.add_set))
             }
         }
     }

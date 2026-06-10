@@ -45,7 +45,7 @@ data class SetEntity(
 
 @Entity(tableName = "muscle_groups")
 data class MuscleGroupEntity(
-    @PrimaryKey(autoGenerate = true) val id: Long = 0,
+    @PrimaryKey val id: String,
     val name: String
 )
 
@@ -61,8 +61,8 @@ data class MuscleGroupEntity(
     ]
 )
 data class MuscleEntity(
-    @PrimaryKey(autoGenerate = true) val id: Long = 0,
-    val groupId: Long,
+    @PrimaryKey val id: String,
+    val groupId: String,
     val name: String,
     val anatomicalWeight: Double
 )
@@ -87,6 +87,6 @@ data class MuscleEntity(
 )
 data class MuscleImpactEntity(
     val exerciseId: Long,
-    val muscleId: Long,
+    val muscleId: String,
     val impactCoefficient: Double
 )

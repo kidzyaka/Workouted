@@ -25,6 +25,8 @@ import androidx.navigation.navArgument
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.compose.runtime.remember
 
+import androidx.compose.ui.res.stringResource
+
 @Composable
 fun MainScreen() {
     val navController = rememberNavController()
@@ -50,7 +52,7 @@ fun MainScreen() {
                             screen.icon?.let { icon ->
                                 Icon(
                                     imageVector = icon,
-                                    contentDescription = screen.title,
+                                    contentDescription = stringResource(screen.titleResId),
                                     tint = if (currentDestination?.hierarchy?.any { it.route == screen.route } == true) {
                                         MaterialTheme.colorScheme.primary
                                     } else {

@@ -18,6 +18,9 @@ import androidx.compose.ui.unit.dp
 import java.text.SimpleDateFormat
 import java.util.*
 
+import com.kidz.workouted.R
+import androidx.compose.ui.res.stringResource
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WorkoutDetailsScreen(
@@ -35,10 +38,10 @@ fun WorkoutDetailsScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Workout Details") },
+                title = { Text(stringResource(R.string.workout_details)) },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.cancel))
                     }
                 }
             )
@@ -48,13 +51,14 @@ fun WorkoutDetailsScreen(
                 ExtendedFloatingActionButton(
                     onClick = { onEditClick(workoutId) },
                     icon = { Icon(Icons.Default.Edit, contentDescription = null) },
-                    text = { Text("Edit") },
+                    text = { Text(stringResource(R.string.edit)) },
                     containerColor = MaterialTheme.colorScheme.primary,
                     contentColor = MaterialTheme.colorScheme.onPrimary
                 )
             }
         }
     ) { innerPadding ->
+        // ...
         if (uiState.isLoading) {
             Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 CircularProgressIndicator()
