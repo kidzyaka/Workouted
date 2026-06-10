@@ -1,6 +1,5 @@
 package com.kidz.workouted.presentation.dashboard
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.kidz.workouted.data.local.dao.WorkoutDao
@@ -41,8 +40,6 @@ class DashboardViewModel @Inject constructor(
             val muscleRatings = mutableMapOf<Long, Double>()
             val exerciseMap = exercises.associateBy { it.exercise.id }
             
-            Log.d("DashboardVM", "Processing ${sets.size} sets for ${workouts.size} workouts. Height: $height")
-            
             sets.forEach { set ->
                 val exerciseWithImpacts = exerciseMap[set.exerciseId]
                 if (exerciseWithImpacts != null) {
@@ -60,23 +57,21 @@ class DashboardViewModel @Inject constructor(
                 }
             }
             
-            Log.d("DashboardVM", "Muscle Ratings: $muscleRatings")
-            
             val groupRanks = groups.associate { groupWithMuscles ->
                 val groupMuscleRatings = groupWithMuscles.muscles.associate { it.id to (muscleRatings[it.id] ?: 0.0) }
                 val groupAnatomicalWeights = groupWithMuscles.muscles.associate { it.id to it.anatomicalWeight }
                 
                 val groupScore = aggregateGroupRating(groupMuscleRatings, groupAnatomicalWeights)
-                val rank = Rank.fromScore(groupScore.toInt())
-                
-                Log.d("DashboardVM", "Group: ${groupWithMuscles.group.name}, Score: $groupScore, Rank: $rank")
-                
-                groupWithMuscles.group.name to rank
+                groupWithMuscles.group.name to Rank.fromScore(groupScore.toInt())
             }
 
+            // Calculate weekly load
+            val last7Days = System.currentTimeMillis() - (7 * 24 * 60 * 60 * 1000L)
+            val weeklyWorkouts = workouts.filter { it.timestamp >= last7Days }
+            
             DashboardUiState.Success(
                 muscleGroupRanks = groupRanks,
-                weeklyWorkoutsCount = workouts.size,
+                weeklyWorkoutsCount = weeklyWorkouts.size,
                 strengthIncreasePercentage = 0,
                 activeEnergyKcal = 0,
                 activeTimeHours = 0.0

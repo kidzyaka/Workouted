@@ -2,10 +2,7 @@ package com.kidz.workouted.data.repository
 
 import android.content.Context
 import androidx.datastore.core.DataStore
-import androidx.datastore.preferences.core.Preferences
-import androidx.datastore.preferences.core.doublePreferencesKey
-import androidx.datastore.preferences.core.edit
-import androidx.datastore.preferences.core.emptyPreferences
+import androidx.datastore.preferences.core.*
 import androidx.datastore.preferences.preferencesDataStore
 import com.kidz.workouted.domain.repository.UserPreferencesRepository
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -25,23 +22,37 @@ class UserPreferencesRepositoryImpl @Inject constructor(
 
     private object PreferencesKeys {
         val USER_HEIGHT = doublePreferencesKey("user_height")
+        val USER_WEIGHT = doublePreferencesKey("user_weight")
+        val USER_AGE = intPreferencesKey("user_age")
     }
 
     override val userHeightCm: Flow<Double> = context.dataStore.data
         .catch { exception ->
-            if (exception is IOException) {
-                emit(emptyPreferences())
-            } else {
-                throw exception
-            }
+            if (exception is IOException) emit(emptyPreferences()) else throw exception
         }
-        .map { preferences ->
-            preferences[PreferencesKeys.USER_HEIGHT] ?: 175.0
+        .map { it[PreferencesKeys.USER_HEIGHT] ?: 175.0 }
+
+    override val userWeightKg: Flow<Double> = context.dataStore.data
+        .catch { exception ->
+            if (exception is IOException) emit(emptyPreferences()) else throw exception
         }
+        .map { it[PreferencesKeys.USER_WEIGHT] ?: 75.0 }
+
+    override val userAge: Flow<Int> = context.dataStore.data
+        .catch { exception ->
+            if (exception is IOException) emit(emptyPreferences()) else throw exception
+        }
+        .map { it[PreferencesKeys.USER_AGE] ?: 25 }
 
     override suspend fun setUserHeightCm(height: Double) {
-        context.dataStore.edit { preferences ->
-            preferences[PreferencesKeys.USER_HEIGHT] = height
-        }
+        context.dataStore.edit { it[PreferencesKeys.USER_HEIGHT] = height }
+    }
+
+    override suspend fun setUserWeightKg(weight: Double) {
+        context.dataStore.edit { it[PreferencesKeys.USER_WEIGHT] = weight }
+    }
+
+    override suspend fun setUserAge(age: Int) {
+        context.dataStore.edit { it[PreferencesKeys.USER_AGE] = age }
     }
 }

@@ -40,8 +40,35 @@ class StatsViewModel @Inject constructor(
             preferencesRepository.userHeightCm
         ) { workouts, sets, exercises, groups, height ->
             
-            // 1. Activity Calculation (Last 7 Days)
-            val calendar = Calendar.getInstance()
+            val exerciseMap = exercises.associateBy { it.exercise.id }
+            val workoutMap = workouts.associateBy { it.id }
+            
+            // Pre-calculate effort for each set to use in multiple charts
+            val setEfforts = sets.map { set ->
+                val ex = exerciseMap[set.exerciseId]
+                val effort = if (ex != null) {
+                    calculateSetEffort(set.weight, set.reps, ex.exercise.maxWeightReference, height)
+                } else 0.0
+                set to effort
+            }
+
+            // 1. Total Daily Load (Effort) for last 7 days
+            val dailyEfforts = setEfforts.groupBy { (set, _) ->
+                val workout = workoutMap[set.workoutId]
+                if (workout == null) 0L
+                else {
+                    Calendar.getInstance().apply { 
+                        timeInMillis = workout.timestamp
+                        set(Calendar.HOUR_OF_DAY, 0)
+                        set(Calendar.MINUTE, 0)
+                        set(Calendar.SECOND, 0)
+                        set(Calendar.MILLISECOND, 0)
+                    }.timeInMillis
+                }
+            }.mapValues { (_, efforts) -> efforts.sumOf { it.second } }
+
+            val maxDailyEffort = dailyEfforts.values.maxOrNull()?.coerceAtLeast(500.0) ?: 500.0
+
             val activityData = (0..6).reversed().map { daysAgo ->
                 val dayCalendar = Calendar.getInstance()
                 dayCalendar.add(Calendar.DAY_OF_YEAR, -daysAgo)
@@ -49,35 +76,22 @@ class StatsViewModel @Inject constructor(
                     set(Calendar.HOUR_OF_DAY, 0)
                     set(Calendar.MINUTE, 0)
                     set(Calendar.SECOND, 0)
-                }.timeInMillis
-                val dayEnd = dayCalendar.apply {
-                    set(Calendar.HOUR_OF_DAY, 23)
-                    set(Calendar.MINUTE, 59)
-                    set(Calendar.SECOND, 59)
+                    set(Calendar.MILLISECOND, 0)
                 }.timeInMillis
                 
-                val workoutsCount = workouts.count { it.timestamp in dayStart..dayEnd }
+                val dayEffort = dailyEfforts[dayStart] ?: 0.0
                 val dayLabel = SimpleDateFormat("E", Locale.getDefault()).format(dayCalendar.time).first().toString()
-                ActivityData(dayLabel, if (workoutsCount > 0) 0.3f + (workoutsCount * 0.2f).coerceAtMost(0.7f) else 0.05f)
+                ActivityData(dayLabel, (dayEffort / maxDailyEffort).toFloat().coerceAtLeast(0.05f))
             }
 
             // 2. Muscle Balance Calculation
             val muscleRatings = mutableMapOf<Long, Double>()
-            val exerciseMap = exercises.associateBy { it.exercise.id }
             
-            sets.forEach { set ->
-                val exerciseWithImpacts = exerciseMap[set.exerciseId]
-                if (exerciseWithImpacts != null) {
-                    val baseEffort = calculateSetEffort(
-                        weight = set.weight,
-                        reps = set.reps,
-                        maxWeightReference = exerciseWithImpacts.exercise.maxWeightReference,
-                        userHeightCm = height
-                    )
-                    exerciseWithImpacts.impacts.forEach { impact ->
-                        val points = calculateMuscleRating(baseEffort, impact.impactCoefficient)
-                        muscleRatings[impact.muscleId] = (muscleRatings[impact.muscleId] ?: 0.0) + points
-                    }
+            setEfforts.forEach { (set, baseEffort) ->
+                val ex = exerciseMap[set.exerciseId]
+                ex?.impacts?.forEach { impact ->
+                    val points = calculateMuscleRating(baseEffort, impact.impactCoefficient)
+                    muscleRatings[impact.muscleId] = (muscleRatings[impact.muscleId] ?: 0.0) + points
                 }
             }
 

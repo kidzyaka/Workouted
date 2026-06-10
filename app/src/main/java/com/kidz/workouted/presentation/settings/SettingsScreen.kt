@@ -1,5 +1,6 @@
 package com.kidz.workouted.presentation.settings
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
@@ -15,18 +16,18 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SettingsScreen() {
-    var height by remember { mutableStateOf("175") }
-    var weight by remember { mutableStateOf("75.5") }
-    var age by remember { mutableStateOf("28") }
+fun SettingsScreen(
+    viewModel: SettingsViewModel = hiltViewModel()
+) {
+    val uiState by viewModel.uiState.collectAsState()
 
     Column(
         modifier = Modifier
@@ -62,20 +63,20 @@ fun SettingsScreen() {
             ParameterInput(
                 icon = Icons.Default.Straighten,
                 label = "Height (cm)",
-                value = height,
-                onValueChange = { height = it }
+                value = uiState.height,
+                onValueChange = { viewModel.updateHeight(it) }
             )
             ParameterInput(
                 icon = Icons.Default.MonitorWeight,
                 label = "Weight (kg)",
-                value = weight,
-                onValueChange = { weight = it }
+                value = uiState.weight,
+                onValueChange = { viewModel.updateWeight(it) }
             )
             ParameterInput(
                 icon = Icons.Default.Height,
                 label = "Age",
-                value = age,
-                onValueChange = { age = it }
+                value = uiState.age,
+                onValueChange = { viewModel.updateAge(it) }
             )
         }
 
@@ -200,9 +201,15 @@ fun ParameterInput(
         Column(modifier = Modifier.weight(1f)) {
             Text(text = label, style = MaterialTheme.typography.bodyLarge)
         }
+        
+        var textValue by remember(value) { mutableStateOf(value) }
+        
         OutlinedTextField(
-            value = value,
-            onValueChange = onValueChange,
+            value = textValue,
+            onValueChange = { 
+                textValue = it
+                onValueChange(it)
+            },
             modifier = Modifier.width(80.dp),
             textStyle = LocalTextStyle.current.copy(fontSize = 14.sp),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),

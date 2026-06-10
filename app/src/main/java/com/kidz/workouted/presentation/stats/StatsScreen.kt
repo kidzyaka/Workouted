@@ -87,28 +87,36 @@ fun ActivityChart(data: List<ActivityData>) {
     ) {
         Column(modifier = Modifier.padding(20.dp)) {
             Text(
-                text = "Activity",
+                text = "Workload",
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold
             )
             Spacer(modifier = Modifier.height(20.dp))
             Row(
-                modifier = Modifier.fillMaxWidth().height(150.dp),
+                modifier = Modifier.fillMaxWidth().height(180.dp), // Increased height for labels
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.Bottom
             ) {
                 data.forEach { item ->
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        modifier = Modifier.fillMaxHeight().weight(1f)
+                    ) {
                         Box(
-                            modifier = Modifier
-                                .width(30.dp)
-                                .fillMaxHeight(item.value.coerceIn(0.05f, 1f))
-                                .background(
-                                    if (item.value > 0.1f) MaterialTheme.colorScheme.primary 
-                                    else MaterialTheme.colorScheme.primary.copy(alpha = 0.2f),
-                                    RoundedCornerShape(topStart = 4.dp, topEnd = 4.dp)
-                                )
-                        )
+                            modifier = Modifier.weight(1f).fillMaxWidth(),
+                            contentAlignment = Alignment.BottomCenter
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .width(30.dp)
+                                    .fillMaxHeight(item.value.coerceIn(0.05f, 1f))
+                                    .background(
+                                        if (item.value > 0.1f) MaterialTheme.colorScheme.primary 
+                                        else MaterialTheme.colorScheme.primary.copy(alpha = 0.2f),
+                                        RoundedCornerShape(topStart = 4.dp, topEnd = 4.dp)
+                                    )
+                            )
+                        }
                         Spacer(modifier = Modifier.height(8.dp))
                         Text(item.day, style = MaterialTheme.typography.labelSmall)
                     }
