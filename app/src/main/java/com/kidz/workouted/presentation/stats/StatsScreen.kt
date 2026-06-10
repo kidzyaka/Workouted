@@ -13,18 +13,25 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.drawText
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.rememberTextMeasurer
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.kidz.workouted.R
+import com.kidz.workouted.core.util.LocalizationUtil
+import com.kidz.workouted.domain.model.Rank
 import kotlin.math.cos
 import kotlin.math.sin
-
-import com.kidz.workouted.R
-import androidx.compose.ui.res.stringResource
 
 @Composable
 fun StatsScreen(
@@ -62,6 +69,8 @@ fun StatsScreen(
                 Spacer(modifier = Modifier.height(24.dp))
                 BalanceChart(state.muscleBalance)
                 Spacer(modifier = Modifier.height(24.dp))
+                ProgressionScales(state.muscleProgression)
+                Spacer(modifier = Modifier.height(24.dp))
                 if (state.progressData.isNotEmpty()) {
                     ProgressChart(state.progressData)
                 } else {
@@ -82,6 +91,97 @@ fun StatsScreen(
 }
 
 @Composable
+fun ProgressionScales(progression: List<MuscleProgression>) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = MaterialTheme.shapes.extraLarge,
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f))
+    ) {
+        Column(modifier = Modifier.padding(20.dp)) {
+            Text(
+                text = stringResource(R.string.muscle_map),
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold
+            )
+            Spacer(modifier = Modifier.height(24.dp))
+            
+            progression.forEach { item ->
+                MuscleProgressBar(item.name, item.currentScore)
+                Spacer(modifier = Modifier.height(20.dp))
+            }
+        }
+    }
+}
+
+@Composable
+fun MuscleProgressBar(nameKey: String, score: Float) {
+    val ranks = Rank.entries.sortedBy { it.minScore }
+    val maxRankScore = ranks.last().minScore.toFloat()
+    val maxScaleScore = maxRankScore + 100f
+    val progress = (score / maxScaleScore).coerceIn(0f, 1f)
+    
+    val primaryColor = MaterialTheme.colorScheme.primary
+    val onSurface = MaterialTheme.colorScheme.onSurface
+    val context = LocalContext.current
+
+    Column(modifier = Modifier.fillMaxWidth()) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = LocalizationUtil.getLocalizedName(context, nameKey), 
+                style = MaterialTheme.typography.bodyMedium, 
+                fontWeight = FontWeight.Bold
+            )
+            Text(
+                text = score.toInt().toString(), 
+                style = MaterialTheme.typography.labelMedium,
+                color = primaryColor
+            )
+        }
+        Spacer(modifier = Modifier.height(8.dp))
+        
+        Canvas(modifier = Modifier.fillMaxWidth().height(40.dp)) {
+            val barHeight = 8.dp.toPx()
+            val centerY = size.height / 2
+            
+            drawRoundRect(
+                color = onSurface.copy(alpha = 0.1f),
+                topLeft = Offset(0f, centerY - barHeight / 2),
+                size = Size(size.width, barHeight),
+                cornerRadius = androidx.compose.ui.geometry.CornerRadius(barHeight / 2)
+            )
+            
+            drawRoundRect(
+                color = primaryColor,
+                topLeft = Offset(0f, centerY - barHeight / 2),
+                size = Size(size.width * progress, barHeight),
+                cornerRadius = androidx.compose.ui.geometry.CornerRadius(barHeight / 2)
+            )
+            
+            ranks.forEach { rank ->
+                val x = (rank.minScore / maxScaleScore) * size.width
+                
+                drawLine(
+                    color = onSurface.copy(alpha = 0.3f),
+                    start = Offset(x, centerY - barHeight),
+                    end = Offset(x, centerY + barHeight),
+                    strokeWidth = 2.dp.toPx()
+                )
+                
+                drawCircle(
+                    color = rank.color,
+                    radius = 3.dp.toPx(),
+                    center = Offset(x, centerY)
+                )
+            }
+        }
+    }
+}
+
+@Composable
 fun ActivityChart(data: List<ActivityData>) {
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -96,7 +196,7 @@ fun ActivityChart(data: List<ActivityData>) {
             )
             Spacer(modifier = Modifier.height(20.dp))
             Row(
-                modifier = Modifier.fillMaxWidth().height(180.dp), // Increased height for labels
+                modifier = Modifier.fillMaxWidth().height(180.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.Bottom
             ) {
@@ -135,6 +235,7 @@ fun BalanceChart(balance: Map<String, Float>) {
         modifier = Modifier.fillMaxWidth(),
         shape = MaterialTheme.shapes.extraLarge
     ) {
+        val context = LocalContext.current
         Column(modifier = Modifier.padding(20.dp)) {
             Text(
                 text = stringResource(R.string.muscle_balance),
@@ -144,23 +245,23 @@ fun BalanceChart(balance: Map<String, Float>) {
             Spacer(modifier = Modifier.height(20.dp))
             
             Box(
-                modifier = Modifier.fillMaxWidth().height(250.dp),
+                modifier = Modifier.fillMaxWidth().height(300.dp),
                 contentAlignment = Alignment.Center
             ) {
                 val primaryColor = MaterialTheme.colorScheme.primary
+                val onSurfaceColor = MaterialTheme.colorScheme.onSurface
                 val labels = balance.keys.toList()
                 val values = balance.values.toList()
+                val textMeasurer = rememberTextMeasurer()
 
                 if (labels.isEmpty()) {
                     Text(stringResource(R.string.add_workouts_balance), color = MaterialTheme.colorScheme.onSurfaceVariant)
                 } else {
-                    // ... (rest of Canvas logic remains the same)
-                    Canvas(modifier = Modifier.size(200.dp)) {
+                    Canvas(modifier = Modifier.size(280.dp)) {
                         val center = Offset(size.width / 2, size.height / 2)
-                        val radius = size.width / 2 * 0.8f
+                        val radius = size.width / 2 * 0.6f
                         val angleStep = (2 * Math.PI / labels.size).toFloat()
 
-                        // Draw web
                         for (i in 1..5) {
                             val r = radius * (i / 5f)
                             val path = Path()
@@ -174,7 +275,42 @@ fun BalanceChart(balance: Map<String, Float>) {
                             drawPath(path, primaryColor.copy(alpha = 0.1f), style = Stroke(1.dp.toPx()))
                         }
 
-                        // Draw values
+                        for (i in labels.indices) {
+                            val angle = i * angleStep - Math.PI.toFloat() / 2
+                            val labelRadius = radius * 1.25f
+                            val x = center.x + labelRadius * cos(angle)
+                            val y = center.y + labelRadius * sin(angle)
+                            
+                            val localizedLabel = LocalizationUtil.getLocalizedName(context, labels[i])
+                            val textLayoutResult = textMeasurer.measure(
+                                text = localizedLabel,
+                                style = TextStyle(
+                                    fontSize = 10.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = onSurfaceColor.copy(alpha = 0.8f),
+                                    textAlign = TextAlign.Center
+                                )
+                            )
+                            
+                            drawText(
+                                textLayoutResult = textLayoutResult,
+                                topLeft = Offset(
+                                    x = x - textLayoutResult.size.width / 2,
+                                    y = y - textLayoutResult.size.height / 2
+                                )
+                            )
+                            
+                            drawLine(
+                                color = primaryColor.copy(alpha = 0.1f),
+                                start = center,
+                                end = Offset(
+                                    center.x + radius * cos(angle),
+                                    center.y + radius * sin(angle)
+                                ),
+                                strokeWidth = 1.dp.toPx()
+                            )
+                        }
+
                         val valuePath = Path()
                         for (i in values.indices) {
                             val r = radius * values[i].coerceIn(0.1f, 1f)
@@ -183,8 +319,7 @@ fun BalanceChart(balance: Map<String, Float>) {
                             val y = center.y + r * sin(angle)
                             if (i == 0) valuePath.moveTo(x, y) else valuePath.lineTo(x, y)
                             
-                            // Draw point
-                            drawCircle(primaryColor, radius = 4.dp.toPx(), center = Offset(x, y))
+                            drawCircle(primaryColor, radius = 3.dp.toPx(), center = Offset(x, y))
                         }
                         if (values.isNotEmpty()) valuePath.close()
                         
@@ -209,12 +344,10 @@ fun ProgressChart(data: List<ProgressData>) {
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold
             )
-            // ...
             Spacer(modifier = Modifier.height(20.dp))
             
             Canvas(modifier = Modifier.fillMaxWidth().height(150.dp).padding(horizontal = 16.dp)) {
                 if (data.size < 2) {
-                    // Not enough points for a line, just draw a circle
                     val valY = size.height / 2
                     drawCircle(Color(0xFFE57373), radius = 6.dp.toPx(), center = Offset(size.width / 2, valY))
                 } else {

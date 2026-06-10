@@ -10,10 +10,11 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-
 import com.kidz.workouted.R
+import com.kidz.workouted.core.util.LocalizationUtil
 import androidx.compose.ui.res.stringResource
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -25,10 +26,12 @@ fun SelectExerciseScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     var searchQuery by remember { mutableStateOf("") }
+    val context = LocalContext.current
 
-    val filteredExercises = remember(searchQuery, uiState.availableExercises) {
-        uiState.availableExercises.filter { 
-            it.exercise.name.contains(searchQuery, ignoreCase = true) 
+    val filteredExercises = remember(searchQuery, uiState.availableExercises, context) {
+        uiState.availableExercises.filter { item ->
+            val localizedName = LocalizationUtil.getLocalizedName(context, item.exercise.name)
+            localizedName.contains(searchQuery, ignoreCase = true) 
         }
     }
 
@@ -68,7 +71,7 @@ fun SelectExerciseScreen(
                     ListItem(
                         headlineContent = { 
                             Text(
-                                item.exercise.name,
+                                LocalizationUtil.getLocalizedName(context, item.exercise.name),
                                 fontWeight = FontWeight.Bold
                             ) 
                         },

@@ -1,8 +1,6 @@
 package com.kidz.workouted.presentation.log
 
 import androidx.compose.foundation.background
-import com.kidz.workouted.R
-import androidx.compose.ui.res.stringResource
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -14,18 +12,20 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-
+import com.kidz.workouted.R
+import com.kidz.workouted.core.util.LocalizationUtil
 import java.text.SimpleDateFormat
 import java.util.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddWorkoutScreen(
-    // ...
     viewModel: AddWorkoutViewModel,
     onAddExerciseClick: () -> Unit,
     onBackClick: () -> Unit,
@@ -59,7 +59,6 @@ fun AddWorkoutScreen(
     }
 
     LaunchedEffect(uiState.isFinished) {
-        // ...
         if (uiState.isFinished) {
             onFinish()
         }
@@ -84,7 +83,6 @@ fun AddWorkoutScreen(
                     }
                 },
                 actions = {
-                    // ...
                     Button(
                         onClick = { viewModel.saveWorkout() },
                         enabled = uiState.exercises.isNotEmpty() && !uiState.isSaving,
@@ -162,6 +160,7 @@ fun ExerciseCard(
     onUpdateSet: (Int, String, String) -> Unit,
     onRemoveSet: (Int) -> Unit
 ) {
+    val context = LocalContext.current
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = MaterialTheme.shapes.extraLarge,
@@ -176,7 +175,7 @@ fun ExerciseCard(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = activeExercise.exercise.name,
+                    text = LocalizationUtil.getLocalizedName(context, activeExercise.exercise.name),
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold
                 )

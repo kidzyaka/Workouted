@@ -4,7 +4,7 @@ import javax.inject.Inject
 
 /**
  * Calculates the Base Effort (E) for a single set.
- * Formula: E = (W * (1 + R / 30) / W_max) * (H / 175) * 300
+ * Formula: E = (W * (1 + R / 30) / W_max) * (H / 175) * 550
  *
  * @param weight (W): Working weight
  * @param reps (R): Repetitions
@@ -24,6 +24,6 @@ class CalculateSetEffortUseCase @Inject constructor() {
         val relativeStrength = oneRepMaxEstimate / maxWeightReference
         val heightCorrection = userHeightCm / 175.0
         
-        return relativeStrength * heightCorrection * 300.0
+        return relativeStrength * heightCorrection * 550.0
     }
 }

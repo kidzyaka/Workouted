@@ -9,8 +9,8 @@ class UseCaseTests {
     fun `CalculateSetEffortUseCase returns correct value`() {
         val useCase = CalculateSetEffortUseCase()
         // W = 100, R = 10, W_max = 200, H = 175
-        // E = (100 * (1 + 10/30.0) / 200) * (175/175) * 300
-        // E = (100 * 1.3333 / 200) * 1 * 300 = 199.999
+        // E = (100 * (1 + 10/30.0) / 200) * (175/175) * 500
+        // E = (100 * 1.3333 / 200) * 1 * 500 = 333.333
         
         val result = useCase(
             weight = 100.0,
@@ -18,7 +18,7 @@ class UseCaseTests {
             maxWeightReference = 200.0,
             userHeightCm = 175.0
         )
-        assertEquals(200.00, result, 0.01)
+        assertEquals(333.33, result, 0.01)
     }
 
     @Test
@@ -31,8 +31,8 @@ class UseCaseTests {
     @Test
     fun `AggregateGroupRatingUseCase returns correct weighted average`() {
         val useCase = AggregateGroupRatingUseCase()
-        val ratings = mapOf(1L to 50.0, 2L to 100.0)
-        val weights = mapOf(1L to 0.7, 2L to 0.3)
+        val ratings = mapOf("m1" to 50.0, "m2" to 100.0)
+        val weights = mapOf("m1" to 0.7, "m2" to 0.3)
         
         // (50 * 0.7 + 100 * 0.3) / (0.7 + 0.3) = (35 + 30) / 1.0 = 65.0
         val result = useCase(ratings, weights)

@@ -13,13 +13,14 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.kidz.workouted.R
+import com.kidz.workouted.core.util.LocalizationUtil
 import java.text.SimpleDateFormat
 import java.util.*
-
-import com.kidz.workouted.R
-import androidx.compose.ui.res.stringResource
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -30,6 +31,7 @@ fun WorkoutDetailsScreen(
     onEditClick: (Long) -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val context = LocalContext.current
 
     LaunchedEffect(workoutId) {
         viewModel.loadWorkout(workoutId)
@@ -58,7 +60,6 @@ fun WorkoutDetailsScreen(
             }
         }
     ) { innerPadding ->
-        // ...
         if (uiState.isLoading) {
             Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 CircularProgressIndicator()
@@ -82,9 +83,9 @@ fun WorkoutDetailsScreen(
                     }
                 }
 
-                items(uiState.exercises) { (name, sets) ->
+                items(uiState.exercises) { (nameKey, sets) ->
                     Text(
-                        text = name,
+                        text = LocalizationUtil.getLocalizedName(context, nameKey),
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.Bold,
                         modifier = Modifier.padding(bottom = 8.dp)

@@ -7,17 +7,17 @@ import com.kidz.workouted.ui.theme.*
 
 /**
  * Represents the progression rank for a muscle group.
- * Thresholds are calibrated for a multiplier S = 300 in the effort formula.
+ * Thresholds are calibrated for a multiplier S = 500 in the effort formula.
  */
 enum class Rank(val minScore: Int, val color: Color, @StringRes val nameRes: Int) {
     WOOD(0, RankTree, R.string.rank_wood),
-    BRONZE(100, RankBronze, R.string.rank_bronze),
-    SILVER(150, RankSilver, R.string.rank_silver),
-    GOLD(200, RankGold, R.string.rank_gold),
-    PLATINUM(260, RankPlatinum, R.string.rank_platinum),
+    BRONZE(60, RankBronze, R.string.rank_bronze),
+    SILVER(110, RankSilver, R.string.rank_silver),
+    GOLD(170, RankGold, R.string.rank_gold),
+    PLATINUM(240, RankPlatinum, R.string.rank_platinum),
     EMERALD(320, RankEmerald, R.string.rank_emerald),
-    DIAMOND(380, RankDiamond, R.string.rank_diamond),
-    ELITE(450, RankElite, R.string.rank_elite);
+    DIAMOND(420, RankDiamond, R.string.rank_diamond),
+    ELITE(550, RankElite, R.string.rank_elite);
 
     companion object {
         /**

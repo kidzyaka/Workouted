@@ -12,15 +12,16 @@ import androidx.compose.ui.BiasAlignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.kidz.workouted.R
+import com.kidz.workouted.core.util.LocalizationUtil
 import com.kidz.workouted.domain.model.Rank
 import com.kidz.workouted.presentation.components.MuscleBadge
-import com.kidz.workouted.ui.theme.WorkoutedTheme
 import java.time.LocalDate
 import java.time.YearMonth
 import java.time.ZoneId
@@ -40,6 +41,7 @@ fun DashboardScreen(
 fun DashboardContent(
     uiState: DashboardUiState
 ) {
+    val context = LocalContext.current
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -85,37 +87,37 @@ fun DashboardContent(
                 Box(Modifier.fillMaxSize()) {
                     // BACK (Center, high)
                     MuscleBadge(
-                        "Back", 
+                        LocalizationUtil.getLocalizedName(context, "group_back"), 
                         uiState.muscleGroupRanks["group_back"] ?: Rank.WOOD,
                         Modifier.align(BiasAlignment(0f, -0.7f))
                     )
                     // SHOULDERS (Sides)
                     MuscleBadge(
-                        "Shoulders", 
+                        LocalizationUtil.getLocalizedName(context, "group_shoulders"), 
                         uiState.muscleGroupRanks["group_shoulders"] ?: Rank.WOOD,
                         Modifier.align(BiasAlignment(0.45f, -0.45f))
                     )
                     // CHEST (Center, under Back)
                     MuscleBadge(
-                        "Chest", 
+                        LocalizationUtil.getLocalizedName(context, "group_chest"), 
                         uiState.muscleGroupRanks["group_chest"] ?: Rank.WOOD,
                         Modifier.align(BiasAlignment(-0.1f, -0.55f))
                     )
                     // ARMS (Left side)
                     MuscleBadge(
-                        "Arms", 
+                        LocalizationUtil.getLocalizedName(context, "group_arms"), 
                         uiState.muscleGroupRanks["group_arms"] ?: Rank.WOOD,
                         Modifier.align(BiasAlignment(-0.5f, -0.15f))
                     )
                     // CORE (Mid body)
                     MuscleBadge(
-                        "Core", 
+                        LocalizationUtil.getLocalizedName(context, "group_core"), 
                         uiState.muscleGroupRanks["group_core"] ?: Rank.WOOD,
                         Modifier.align(BiasAlignment(0f, -0.05f))
                     )
                     // LEGS (Lower body)
                     MuscleBadge(
-                        "Legs", 
+                        LocalizationUtil.getLocalizedName(context, "group_legs"), 
                         uiState.muscleGroupRanks["group_legs"] ?: Rank.WOOD,
                         Modifier.align(BiasAlignment(0f, 0.6f))
                     )
@@ -145,8 +147,6 @@ fun DashboardContent(
 fun WorkoutCalendar(workoutDates: Set<Long>) {
     val currentMonth = remember { YearMonth.now() }
     val daysInMonth = currentMonth.lengthOfMonth()
-    // Monday = 1, Sunday = 7 in java.time. DayOfWeek. 
-    // We want Monday = 0 for our grid.
     val firstDayOfMonth = currentMonth.atDay(1).dayOfWeek.value - 1
     
     val workoutLocalDates = remember(workoutDates) {
@@ -169,7 +169,6 @@ fun WorkoutCalendar(workoutDates: Set<Long>) {
             modifier = Modifier.padding(bottom = 16.dp)
         )
 
-        // Weekday labels
         Row(modifier = Modifier.fillMaxWidth()) {
             val days = listOf("M", "T", "W", "T", "F", "S", "S")
             days.forEach { day ->
@@ -185,7 +184,6 @@ fun WorkoutCalendar(workoutDates: Set<Long>) {
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        // Days grid
         val rows = (daysInMonth + firstDayOfMonth + 6) / 7
         for (row in 0 until rows) {
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
@@ -227,32 +225,6 @@ fun WorkoutCalendar(workoutDates: Set<Long>) {
                     }
                 }
             }
-        }
-    }
-}
-
-@Preview(showBackground = true, backgroundColor = 0xFF1B1B1F)
-@Composable
-fun DashboardPreview() {
-    WorkoutedTheme(darkTheme = true) {
-        Surface(color = MaterialTheme.colorScheme.background) {
-            DashboardContent(
-                uiState = DashboardUiState.Success(
-                    muscleGroupRanks = mapOf(
-                        "group_chest" to Rank.SILVER,
-                        "group_back" to Rank.GOLD,
-                        "group_legs" to Rank.BRONZE,
-                        "group_arms" to Rank.PLATINUM,
-                        "group_shoulders" to Rank.DIAMOND,
-                        "group_core" to Rank.ELITE
-                    ),
-                    workoutDates = setOf(System.currentTimeMillis()),
-                    weeklyWorkoutsCount = 12,
-                    strengthIncreasePercentage = 12,
-                    activeEnergyKcal = 1800,
-                    activeTimeHours = 4.2
-                )
-            )
         }
     }
 }
