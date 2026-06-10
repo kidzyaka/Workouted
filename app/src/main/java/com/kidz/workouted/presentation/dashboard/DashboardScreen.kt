@@ -95,7 +95,7 @@ fun DashboardContent(
                     MuscleBadge(
                         LocalizationUtil.getLocalizedName(context, "group_shoulders"), 
                         uiState.muscleGroupRanks["group_shoulders"] ?: Rank.WOOD,
-                        Modifier.align(BiasAlignment(0.45f, -0.45f))
+                        Modifier.align(BiasAlignment(0.20f, -0.60f))
                     )
                     // CHEST (Center, under Back)
                     MuscleBadge(
@@ -113,7 +113,7 @@ fun DashboardContent(
                     MuscleBadge(
                         LocalizationUtil.getLocalizedName(context, "group_core"), 
                         uiState.muscleGroupRanks["group_core"] ?: Rank.WOOD,
-                        Modifier.align(BiasAlignment(0f, -0.05f))
+                        Modifier.align(BiasAlignment(0f, -0.20f))
                     )
                     // LEGS (Lower body)
                     MuscleBadge(
