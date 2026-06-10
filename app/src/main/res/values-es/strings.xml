@@ -65,4 +65,14 @@
     <string name="about_app">Sobre la aplicación</string>
     <string name="version">Versión</string>
     <string name="github_repo">Repositorio de GitHub</string>
+
+    <!-- Ranks -->
+    <string name="rank_wood">Madera</string>
+    <string name="rank_bronze">Bronce</string>
+    <string name="rank_silver">Plata</string>
+    <string name="rank_gold">Oro</string>
+    <string name="rank_platinum">Platino</string>
+    <string name="rank_emerald">Esmeralda</string>
+    <string name="rank_diamond">Diamante</string>
+    <string name="rank_elite">Élite</string>
 </resources>

@@ -11,7 +11,8 @@ import javax.inject.Inject
 data class SettingsUiState(
     val height: String = "175",
     val weight: String = "75",
-    val age: String = "25"
+    val age: String = "25",
+    val language: String = "en"
 )
 
 @HiltViewModel
@@ -26,12 +27,14 @@ class SettingsViewModel @Inject constructor(
         combine(
             repository.userHeightCm,
             repository.userWeightKg,
-            repository.userAge
-        ) { height, weight, age ->
+            repository.userAge,
+            repository.appLanguage
+        ) { height, weight, age, language ->
             SettingsUiState(
                 height = height.toString(),
                 weight = weight.toString(),
-                age = age.toString()
+                age = age.toString(),
+                language = language
             )
         }.onEach { state ->
             _uiState.value = state
@@ -56,6 +59,12 @@ class SettingsViewModel @Inject constructor(
         val value = age.toIntOrNull() ?: return
         viewModelScope.launch {
             repository.setUserAge(value)
+        }
+    }
+
+    fun updateLanguage(languageCode: String) {
+        viewModelScope.launch {
+            repository.setAppLanguage(languageCode)
         }
     }
 }

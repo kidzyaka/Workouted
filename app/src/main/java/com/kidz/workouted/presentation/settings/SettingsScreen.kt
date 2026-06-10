@@ -1,5 +1,6 @@
 package com.kidz.workouted.presentation.settings
 
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -16,21 +17,21 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.os.LocaleListCompat
 import androidx.hilt.navigation.compose.hiltViewModel
-
 import com.kidz.workouted.R
-import androidx.compose.ui.res.stringResource
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(
     viewModel: SettingsViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    var showLanguageDialog by remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
@@ -52,11 +53,17 @@ fun SettingsScreen(
         )
 
         SettingsSection(title = stringResource(R.string.language_region)) {
+            val languageName = when (uiState.language) {
+                "ru" -> "Русский"
+                "es" -> "Español"
+                "zh" -> "中文"
+                else -> "English"
+            }
             SettingsItem(
                 icon = Icons.Default.Language,
                 title = stringResource(R.string.app_language),
-                subtitle = "English",
-                onClick = { /* TODO */ }
+                subtitle = languageName,
+                onClick = { showLanguageDialog = true }
             )
         }
 
@@ -100,6 +107,62 @@ fun SettingsScreen(
         
         Spacer(modifier = Modifier.height(80.dp))
     }
+
+    if (showLanguageDialog) {
+        LanguageSelectionDialog(
+            currentLanguage = uiState.language,
+            onLanguageSelected = { code ->
+                viewModel.updateLanguage(code)
+                AppCompatDelegate.setApplicationLocales(LocaleListCompat.forLanguageTags(code))
+                showLanguageDialog = false
+            },
+            onDismiss = { showLanguageDialog = false }
+        )
+    }
+}
+
+@Composable
+fun LanguageSelectionDialog(
+    currentLanguage: String,
+    onLanguageSelected: (String) -> Unit,
+    onDismiss: () -> Unit
+) {
+    val languages = listOf(
+        "en" to "English",
+        "ru" to "Русский",
+        "es" to "Español",
+        "zh" to "中文"
+    )
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(text = stringResource(R.string.app_language)) },
+        text = {
+            Column {
+                languages.forEach { (code, name) ->
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { onLanguageSelected(code) }
+                            .padding(vertical = 12.dp, horizontal = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        RadioButton(
+                            selected = code == currentLanguage,
+                            onClick = null // Handled by row click
+                        )
+                        Spacer(modifier = Modifier.width(12.dp))
+                        Text(text = name, style = MaterialTheme.typography.bodyLarge)
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = onDismiss) {
+                Text(text = stringResource(R.string.cancel))
+            }
+        }
+    )
 }
 
 @Composable

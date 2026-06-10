@@ -65,4 +65,14 @@
     <string name="about_app">О приложении</string>
     <string name="version">Версия</string>
     <string name="github_repo">GitHub репозиторий</string>
+
+    <!-- Ranks -->
+    <string name="rank_wood">Дерево</string>
+    <string name="rank_bronze">Бронза</string>
+    <string name="rank_silver">Серебро</string>
+    <string name="rank_gold">Золото</string>
+    <string name="rank_platinum">Платина</string>
+    <string name="rank_emerald">Изумруд</string>
+    <string name="rank_diamond">Алмаз</string>
+    <string name="rank_elite">Элита</string>
 </resources>

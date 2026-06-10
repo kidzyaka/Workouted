@@ -10,6 +10,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -40,7 +41,7 @@ fun MuscleBadge(
             letterSpacing = 1.sp
         )
         Text(
-            text = rank.name,
+            text = stringResource(rank.nameRes).uppercase(),
             style = MaterialTheme.typography.labelSmall,
             fontWeight = FontWeight.Black,
             fontSize = 8.sp,

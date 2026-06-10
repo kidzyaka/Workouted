@@ -4,7 +4,7 @@ import kotlin.math.roundToInt
 
 object RatingCalculator {
     private const val REFERENCE_HEIGHT = 175.0
-    private const val MULTIPLIER = 1000.0
+    private const val MULTIPLIER = 300.0
 
     /**
      * Calculates the Base Effort (E) for a single set.

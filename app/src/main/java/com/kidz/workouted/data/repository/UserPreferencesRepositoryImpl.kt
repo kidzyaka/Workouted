@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
 import java.io.IOException
+import java.util.Locale
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -24,6 +25,7 @@ class UserPreferencesRepositoryImpl @Inject constructor(
         val USER_HEIGHT = doublePreferencesKey("user_height")
         val USER_WEIGHT = doublePreferencesKey("user_weight")
         val USER_AGE = intPreferencesKey("user_age")
+        val APP_LANGUAGE = stringPreferencesKey("app_language")
     }
 
     override val userHeightCm: Flow<Double> = context.dataStore.data
@@ -44,6 +46,12 @@ class UserPreferencesRepositoryImpl @Inject constructor(
         }
         .map { it[PreferencesKeys.USER_AGE] ?: 25 }
 
+    override val appLanguage: Flow<String> = context.dataStore.data
+        .catch { exception ->
+            if (exception is IOException) emit(emptyPreferences()) else throw exception
+        }
+        .map { it[PreferencesKeys.APP_LANGUAGE] ?: Locale.getDefault().language }
+
     override suspend fun setUserHeightCm(height: Double) {
         context.dataStore.edit { it[PreferencesKeys.USER_HEIGHT] = height }
     }
@@ -54,5 +62,9 @@ class UserPreferencesRepositoryImpl @Inject constructor(
 
     override suspend fun setUserAge(age: Int) {
         context.dataStore.edit { it[PreferencesKeys.USER_AGE] = age }
+    }
+
+    override suspend fun setAppLanguage(languageCode: String) {
+        context.dataStore.edit { it[PreferencesKeys.APP_LANGUAGE] = languageCode }
     }
 }

@@ -17,7 +17,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.kidz.workouted.R
 import com.kidz.workouted.domain.model.Rank
 import com.kidz.workouted.presentation.components.MuscleBadge
@@ -87,37 +86,37 @@ fun DashboardContent(
                     // BACK (Center, high)
                     MuscleBadge(
                         "Back", 
-                        uiState.muscleGroupRanks["group_back"] ?: Rank.TREE,
+                        uiState.muscleGroupRanks["group_back"] ?: Rank.WOOD,
                         Modifier.align(BiasAlignment(0f, -0.7f))
                     )
                     // SHOULDERS (Sides)
                     MuscleBadge(
                         "Shoulders", 
-                        uiState.muscleGroupRanks["group_shoulders"] ?: Rank.TREE,
+                        uiState.muscleGroupRanks["group_shoulders"] ?: Rank.WOOD,
                         Modifier.align(BiasAlignment(0.45f, -0.45f))
                     )
                     // CHEST (Center, under Back)
                     MuscleBadge(
                         "Chest", 
-                        uiState.muscleGroupRanks["group_chest"] ?: Rank.TREE,
+                        uiState.muscleGroupRanks["group_chest"] ?: Rank.WOOD,
                         Modifier.align(BiasAlignment(-0.1f, -0.55f))
                     )
                     // ARMS (Left side)
                     MuscleBadge(
                         "Arms", 
-                        uiState.muscleGroupRanks["group_arms"] ?: Rank.TREE,
+                        uiState.muscleGroupRanks["group_arms"] ?: Rank.WOOD,
                         Modifier.align(BiasAlignment(-0.5f, -0.15f))
                     )
                     // CORE (Mid body)
                     MuscleBadge(
                         "Core", 
-                        uiState.muscleGroupRanks["group_core"] ?: Rank.TREE,
+                        uiState.muscleGroupRanks["group_core"] ?: Rank.WOOD,
                         Modifier.align(BiasAlignment(0f, -0.05f))
                     )
                     // LEGS (Lower body)
                     MuscleBadge(
                         "Legs", 
-                        uiState.muscleGroupRanks["group_legs"] ?: Rank.TREE,
+                        uiState.muscleGroupRanks["group_legs"] ?: Rank.WOOD,
                         Modifier.align(BiasAlignment(0f, 0.6f))
                     )
                 }
@@ -244,8 +243,8 @@ fun DashboardPreview() {
                         "group_back" to Rank.GOLD,
                         "group_legs" to Rank.BRONZE,
                         "group_arms" to Rank.PLATINUM,
-                        "group_shoulders" to Rank.TREE,
-                        "group_core" to Rank.EMERALD
+                        "group_shoulders" to Rank.DIAMOND,
+                        "group_core" to Rank.ELITE
                     ),
                     workoutDates = setOf(System.currentTimeMillis()),
                     weeklyWorkoutsCount = 12,

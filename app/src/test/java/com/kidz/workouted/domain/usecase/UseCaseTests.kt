@@ -9,8 +9,8 @@ class UseCaseTests {
     fun `CalculateSetEffortUseCase returns correct value`() {
         val useCase = CalculateSetEffortUseCase()
         // W = 100, R = 10, W_max = 200, H = 175
-        // E = (100 * (1 + 10/30.0) / 200) * (175/175) * 1000
-        // E = (100 * 1.3333 / 200) * 1 * 1000 = 666.666
+        // E = (100 * (1 + 10/30.0) / 200) * (175/175) * 300
+        // E = (100 * 1.3333 / 200) * 1 * 300 = 199.999
         
         val result = useCase(
             weight = 100.0,
@@ -18,7 +18,7 @@ class UseCaseTests {
             maxWeightReference = 200.0,
             userHeightCm = 175.0
         )
-        assertEquals(666.66, result, 0.01)
+        assertEquals(200.00, result, 0.01)
     }
 
     @Test

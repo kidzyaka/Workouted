@@ -65,4 +65,14 @@
     <string name="about_app">关于应用</string>
     <string name="version">版本</string>
     <string name="github_repo">GitHub 仓库</string>
+
+    <!-- Ranks -->
+    <string name="rank_wood">木级</string>
+    <string name="rank_bronze">青铜</string>
+    <string name="rank_silver">白银</string>
+    <string name="rank_gold">黄金</string>
+    <string name="rank_platinum">白金</string>
+    <string name="rank_emerald">翡翠</string>
+    <string name="rank_diamond">钻石</string>
+    <string name="rank_elite">精英</string>
 </resources>
