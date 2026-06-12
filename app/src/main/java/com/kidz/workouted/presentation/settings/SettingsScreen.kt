@@ -95,12 +95,12 @@ fun SettingsScreen(
         SettingsSection(title = stringResource(R.string.about_app)) {
             SettingsItem(
                 title = stringResource(R.string.version),
-                subtitle = "2.4.0 (Experimental)",
+                subtitle = "0.2.0",
                 showChevron = false
             )
             SettingsItem(
                 title = stringResource(R.string.github_repo),
-                subtitle = "kidz/workouted",
+                subtitle = "workouted",
                 onClick = { /* TODO */ }
             )
         }
