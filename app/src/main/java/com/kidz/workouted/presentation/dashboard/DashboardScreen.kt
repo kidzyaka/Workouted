@@ -17,7 +17,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.kidz.workouted.R
 import com.kidz.workouted.core.util.LocalizationUtil
 import com.kidz.workouted.domain.model.Rank
@@ -109,7 +108,7 @@ fun DashboardContent(
                         uiState.muscleGroupRanks["group_arms"] ?: Rank.WOOD,
                         Modifier.align(BiasAlignment(-0.5f, -0.15f))
                     )
-                    // CORE (Mid body)
+                    // CORE
                     MuscleBadge(
                         LocalizationUtil.getLocalizedName(context, "group_core"), 
                         uiState.muscleGroupRanks["group_core"] ?: Rank.WOOD,

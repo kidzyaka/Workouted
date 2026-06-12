@@ -1,6 +1,8 @@
 package com.kidz.workouted.presentation.navigation
 
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.ui.unit.dp
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.*
@@ -47,12 +49,14 @@ fun MainScreen() {
                                     launchSingleTop = true
                                     restoreState = true
                                 }
-                            }
+                            },
+                            modifier = Modifier.size(56.dp)
                         ) {
                             screen.icon?.let { icon ->
                                 Icon(
                                     imageVector = icon,
                                     contentDescription = stringResource(screen.titleResId),
+                                    modifier = Modifier.size(30.dp),
                                     tint = if (currentDestination?.hierarchy?.any { it.route == screen.route } == true) {
                                         MaterialTheme.colorScheme.primary
                                     } else {
@@ -68,9 +72,14 @@ fun MainScreen() {
                         onClick = { navController.navigate(Screen.AddWorkout.createRoute()) },
                         containerColor = MaterialTheme.colorScheme.primary,
                         contentColor = MaterialTheme.colorScheme.onPrimary,
-                        elevation = FloatingActionButtonDefaults.bottomAppBarFabElevation()
+                        elevation = FloatingActionButtonDefaults.bottomAppBarFabElevation(),
+                        modifier = Modifier.size(64.dp)
                     ) {
-                        Icon(Icons.Default.Add, contentDescription = "Add Workout")
+                        Icon(
+                            Icons.Default.Add, 
+                            contentDescription = "Add Workout",
+                            modifier = Modifier.size(32.dp)
+                        )
                     }
                 }
             )

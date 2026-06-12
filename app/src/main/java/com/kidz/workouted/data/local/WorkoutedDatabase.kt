@@ -1,5 +1,6 @@
 package com.kidz.workouted.data.local
 
+import androidx.room.AutoMigration
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import com.kidz.workouted.data.local.dao.WorkoutDao
@@ -14,8 +15,11 @@ import com.kidz.workouted.data.local.entity.*
         MuscleGroupEntity::class,
         MuscleImpactEntity::class
     ],
-    version = 12,
-    exportSchema = false
+    version = 13,
+    autoMigrations = [
+        AutoMigration(from = 12, to = 13)
+    ],
+    exportSchema = true
 )
 abstract class WorkoutedDatabase : RoomDatabase() {
     abstract val workoutDao: WorkoutDao

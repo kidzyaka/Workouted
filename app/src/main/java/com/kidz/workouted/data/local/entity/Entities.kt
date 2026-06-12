@@ -7,7 +7,8 @@ import androidx.room.PrimaryKey
 @Entity(tableName = "workouts")
 data class WorkoutEntity(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
-    val timestamp: Long
+    val timestamp: Long,
+    val notes: String? = null
 )
 
 @Entity(tableName = "exercises")

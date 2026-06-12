@@ -26,7 +26,6 @@ object AppModule {
             WorkoutedDatabase.DATABASE_NAME
         )
             .addCallback(callback)
-            .fallbackToDestructiveMigration()
             .build()
     }
 
