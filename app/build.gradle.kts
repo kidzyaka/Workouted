@@ -52,10 +52,12 @@ dependencies {
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
+    implementation(libs.androidx.ui.tooling.preview)
 
     // Room
     implementation(libs.room.runtime)
     implementation(libs.room.ktx)
+    debugImplementation(libs.androidx.ui.tooling)
     ksp(libs.room.compiler)
 
     // Hilt

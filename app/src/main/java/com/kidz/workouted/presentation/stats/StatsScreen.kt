@@ -25,11 +25,13 @@ import androidx.compose.ui.text.drawText
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.kidz.workouted.R
 import com.kidz.workouted.core.util.LocalizationUtil
 import com.kidz.workouted.domain.model.Rank
+import com.kidz.workouted.ui.theme.WorkoutedTheme
 import kotlin.math.cos
 import kotlin.math.sin
 
@@ -39,9 +41,17 @@ fun StatsScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
+    StatsContent(uiState = uiState)
+}
+
+@Composable
+fun StatsContent(
+    uiState: StatsUiState
+) {
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .statusBarsPadding()
             .verticalScroll(rememberScrollState())
             .padding(16.dp)
     ) {
@@ -389,5 +399,43 @@ fun ProgressChart(data: List<ProgressData>) {
                 }
             }
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun StatsPreview() {
+    WorkoutedTheme {
+        StatsContent(
+            uiState = StatsUiState.Success(
+                activityData = listOf(
+                    ActivityData("M", 0.4f),
+                    ActivityData("T", 0.7f),
+                    ActivityData("W", 0.2f),
+                    ActivityData("T", 0.9f),
+                    ActivityData("F", 0.5f),
+                    ActivityData("S", 0.3f),
+                    ActivityData("S", 0.1f)
+                ),
+                progressData = listOf(
+                    ProgressData("Jun 1", 100f),
+                    ProgressData("Jun 5", 110f),
+                    ProgressData("Jun 10", 115f)
+                ),
+                muscleBalance = mapOf(
+                    "group_chest" to 0.8f,
+                    "group_back" to 0.6f,
+                    "group_legs" to 0.9f,
+                    "group_arms" to 0.4f,
+                    "group_shoulders" to 0.7f,
+                    "group_core" to 0.5f
+                ),
+                muscleProgression = listOf(
+                    MuscleProgression("group_chest", 250f),
+                    MuscleProgression("group_back", 180f),
+                    MuscleProgression("group_legs", 450f)
+                )
+            )
+        )
     }
 }

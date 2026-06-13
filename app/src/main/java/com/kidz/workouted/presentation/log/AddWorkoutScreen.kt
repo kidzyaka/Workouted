@@ -16,14 +16,17 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.kidz.workouted.R
 import com.kidz.workouted.core.util.LocalizationUtil
+import com.kidz.workouted.data.local.entity.ExerciseEntity
+import com.kidz.workouted.ui.theme.WorkoutedTheme
 import java.text.SimpleDateFormat
 import java.util.*
 
-@OptIn(ExperimentalMaterial3Api::class)
+
 @Composable
 fun AddWorkoutScreen(
     viewModel: AddWorkoutViewModel,
@@ -32,6 +35,35 @@ fun AddWorkoutScreen(
     onFinish: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    
+    AddWorkoutContent(
+        uiState = uiState,
+        onAddExerciseClick = onAddExerciseClick,
+        onBackClick = onBackClick,
+        onFinish = onFinish,
+        onTimestampChange = { viewModel.setTimestamp(it) },
+        onSaveWorkout = { viewModel.saveWorkout() },
+        onAddSet = { viewModel.addSet(it) },
+        onRemoveExercise = { viewModel.removeExercise(it) },
+        onUpdateSet = { exIdx, setIdx, w, r -> viewModel.updateSet(exIdx, setIdx, w, r) },
+        onRemoveSet = { exIdx, setIdx -> viewModel.removeSet(exIdx, setIdx) }
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun AddWorkoutContent(
+    uiState: AddWorkoutUiState,
+    onAddExerciseClick: () -> Unit,
+    onBackClick: () -> Unit,
+    onFinish: () -> Unit,
+    onTimestampChange: (Long) -> Unit,
+    onSaveWorkout: () -> Unit,
+    onAddSet: (Int) -> Unit,
+    onRemoveExercise: (Int) -> Unit,
+    onUpdateSet: (Int, Int, String, String) -> Unit,
+    onRemoveSet: (Int, Int) -> Unit
+) {
     var showDatePicker by remember { mutableStateOf(false) }
 
     if (showDatePicker) {
@@ -42,7 +74,7 @@ fun AddWorkoutScreen(
             onDismissRequest = { showDatePicker = false },
             confirmButton = {
                 TextButton(onClick = {
-                    datePickerState.selectedDateMillis?.let { viewModel.setTimestamp(it) }
+                    datePickerState.selectedDateMillis?.let { onTimestampChange(it) }
                     showDatePicker = false
                 }) {
                     Text(stringResource(R.string.finish))
@@ -84,7 +116,7 @@ fun AddWorkoutScreen(
                 },
                 actions = {
                     Button(
-                        onClick = { viewModel.saveWorkout() },
+                        onClick = onSaveWorkout,
                         enabled = uiState.exercises.isNotEmpty() && !uiState.isSaving,
                         modifier = Modifier.padding(end = 8.dp),
                         shape = MaterialTheme.shapes.large
@@ -136,13 +168,13 @@ fun AddWorkoutScreen(
                 itemsIndexed(uiState.exercises) { exerciseIndex, activeExercise ->
                     ExerciseCard(
                         activeExercise = activeExercise,
-                        onAddSet = { viewModel.addSet(exerciseIndex) },
-                        onRemoveExercise = { viewModel.removeExercise(exerciseIndex) },
+                        onAddSet = { onAddSet(exerciseIndex) },
+                        onRemoveExercise = { onRemoveExercise(exerciseIndex) },
                         onUpdateSet = { setIndex, weight, reps ->
-                            viewModel.updateSet(exerciseIndex, setIndex, weight, reps)
+                            onUpdateSet(exerciseIndex, setIndex, weight, reps)
                         },
                         onRemoveSet = { setIndex ->
-                            viewModel.removeSet(exerciseIndex, setIndex)
+                            onRemoveSet(exerciseIndex, setIndex)
                         }
                     )
                 }
@@ -192,13 +224,32 @@ fun ExerciseCard(
 
             // Set Headers
             Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 8.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(stringResource(R.string.set_label), modifier = Modifier.width(40.dp), style = MaterialTheme.typography.labelMedium)
-                Text(stringResource(R.string.weight_kg), modifier = Modifier.weight(1f), style = MaterialTheme.typography.labelMedium)
-                Text(stringResource(R.string.reps), modifier = Modifier.weight(1f), style = MaterialTheme.typography.labelMedium)
-                Spacer(modifier = Modifier.width(40.dp))
+                Text(
+                    text = stringResource(R.string.set_label), 
+                    modifier = Modifier.width(40.dp), 
+                    style = MaterialTheme.typography.labelMedium,
+                    textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = stringResource(R.string.weight_kg), 
+                    modifier = Modifier.weight(1f), 
+                    style = MaterialTheme.typography.labelMedium,
+                    textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = stringResource(R.string.reps), 
+                    modifier = Modifier.weight(1f), 
+                    style = MaterialTheme.typography.labelMedium,
+                    textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                )
+                Spacer(modifier = Modifier.width(48.dp)) // Matching IconButton width
             }
 
             activeExercise.sets.forEachIndexed { setIndex, activeSet ->
@@ -206,15 +257,17 @@ fun ExerciseCard(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(vertical = 4.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
                         text = (setIndex + 1).toString(),
                         modifier = Modifier.width(40.dp),
                         fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.primary
+                        color = MaterialTheme.colorScheme.primary,
+                        textAlign = androidx.compose.ui.text.style.TextAlign.Center
                     )
+                    
+                    Spacer(modifier = Modifier.width(8.dp))
                     
                     OutlinedTextField(
                         value = activeSet.weight,
@@ -224,6 +277,8 @@ fun ExerciseCard(
                         singleLine = true,
                         shape = MaterialTheme.shapes.large
                     )
+                    
+                    Spacer(modifier = Modifier.width(8.dp))
                     
                     OutlinedTextField(
                         value = activeSet.reps,
@@ -236,7 +291,8 @@ fun ExerciseCard(
 
                     IconButton(
                         onClick = { onRemoveSet(setIndex) },
-                        enabled = activeExercise.sets.size > 1
+                        enabled = activeExercise.sets.size > 1,
+                        modifier = Modifier.size(48.dp)
                     ) {
                         Icon(Icons.Default.RemoveCircleOutline, contentDescription = "Remove Set")
                     }
@@ -259,5 +315,31 @@ fun ExerciseCard(
                 Text(stringResource(R.string.add_set))
             }
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun AddWorkoutPreview() {
+    WorkoutedTheme {
+        AddWorkoutContent(
+            uiState = AddWorkoutUiState(
+                exercises = listOf(
+                    ActiveExercise(
+                        exercise = ExerciseEntity(name = "ex_bench_press_classic", isWeightBased = true, maxWeightReference = 100.0),
+                        sets = listOf(ActiveSet("60", "10"), ActiveSet("65", "8"))
+                    )
+                )
+            ),
+            onAddExerciseClick = {},
+            onBackClick = {},
+            onFinish = {},
+            onTimestampChange = {},
+            onSaveWorkout = {},
+            onAddSet = {},
+            onRemoveExercise = {},
+            onUpdateSet = { _, _, _, _ -> },
+            onRemoveSet = { _, _ -> }
+        )
     }
 }

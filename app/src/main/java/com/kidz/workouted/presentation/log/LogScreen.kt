@@ -16,9 +16,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.kidz.workouted.domain.model.Workout
+import com.kidz.workouted.ui.theme.WorkoutedTheme
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -28,6 +30,20 @@ fun LogScreen(
     onWorkoutClick: (Long) -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    
+    LogContent(
+        uiState = uiState,
+        onWorkoutClick = onWorkoutClick,
+        onDeleteWorkout = { viewModel.deleteWorkout(it) }
+    )
+}
+
+@Composable
+fun LogContent(
+    uiState: LogUiState,
+    onWorkoutClick: (Long) -> Unit,
+    onDeleteWorkout: (Workout) -> Unit
+) {
     var workoutToDelete by remember { mutableStateOf<Workout?>(null) }
 
     if (workoutToDelete != null) {
@@ -38,7 +54,7 @@ fun LogScreen(
             confirmButton = {
                 TextButton(
                     onClick = {
-                        workoutToDelete?.let { viewModel.deleteWorkout(it) }
+                        workoutToDelete?.let { onDeleteWorkout(it) }
                         workoutToDelete = null
                     },
                     colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.error)
@@ -57,9 +73,9 @@ fun LogScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .statusBarsPadding()
             .padding(16.dp)
     ) {
-        // ...
         Text(
             text = stringResource(R.string.workout_log),
             style = MaterialTheme.typography.headlineMedium,
@@ -67,14 +83,14 @@ fun LogScreen(
             modifier = Modifier.padding(bottom = 24.dp)
         )
 
-        when (val state = uiState) {
+        when (uiState) {
             is LogUiState.Loading -> {
                 Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     CircularProgressIndicator()
                 }
             }
             is LogUiState.Success -> {
-                if (state.workouts.isEmpty()) {
+                if (uiState.workouts.isEmpty()) {
                     Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                         Text(stringResource(R.string.no_workouts))
                     }
@@ -84,7 +100,7 @@ fun LogScreen(
                         modifier = Modifier.fillMaxSize()
                     ) {
                         items(
-                            items = state.workouts,
+                            items = uiState.workouts,
                             key = { it.id }
                         ) { workout ->
                             WorkoutItem(
@@ -98,7 +114,7 @@ fun LogScreen(
             }
             is LogUiState.Error -> {
                 Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Text("Error: ${state.message}", color = MaterialTheme.colorScheme.error)
+                    Text("Error: ${uiState.message}", color = MaterialTheme.colorScheme.error)
                 }
             }
         }
@@ -116,16 +132,10 @@ fun WorkoutItem(
         confirmValueChange = {
             if (it == SwipeToDismissBoxValue.EndToStart) {
                 onDelete()
-                false // Don't dismiss yet, wait for confirmation
+                false
             } else false
         }
     )
-
-    LaunchedEffect(swipeToDismissState.currentValue) {
-        if (swipeToDismissState.currentValue == SwipeToDismissBoxValue.Settled) {
-            // Reset state if needed
-        }
-    }
 
     SwipeToDismissBox(
         state = swipeToDismissState,
@@ -197,5 +207,22 @@ fun WorkoutItem(
                 }
             }
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun LogPreview() {
+    WorkoutedTheme {
+        LogContent(
+            uiState = LogUiState.Success(
+                workouts = listOf(
+                    Workout(1, System.currentTimeMillis(), 1500.0, 3),
+                    Workout(2, System.currentTimeMillis() - 86400000, 800.0, 2)
+                )
+            ),
+            onWorkoutClick = {},
+            onDeleteWorkout = {}
+        )
     }
 }

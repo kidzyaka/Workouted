@@ -20,22 +20,46 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.os.LocaleListCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.kidz.workouted.R
+import com.kidz.workouted.ui.theme.WorkoutedTheme
 
 @Composable
 fun SettingsScreen(
     viewModel: SettingsViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
+
+    SettingsContent(
+        uiState = uiState,
+        onUpdateHeight = { viewModel.updateHeight(it) },
+        onUpdateWeight = { viewModel.updateWeight(it) },
+        onUpdateAge = { viewModel.updateAge(it) },
+        onUpdateLanguage = { code ->
+            viewModel.updateLanguage(code)
+            AppCompatDelegate.setApplicationLocales(LocaleListCompat.forLanguageTags(code))
+        }
+    )
+}
+
+@Composable
+fun SettingsContent(
+    uiState: SettingsUiState,
+    onUpdateHeight: (String) -> Unit,
+    onUpdateWeight: (String) -> Unit,
+    onUpdateAge: (String) -> Unit,
+    onUpdateLanguage: (String) -> Unit
+) {
     var showLanguageDialog by remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .statusBarsPadding()
             .verticalScroll(rememberScrollState())
             .padding(16.dp)
     ) {
@@ -74,19 +98,19 @@ fun SettingsScreen(
                 icon = Icons.Default.Straighten,
                 label = stringResource(R.string.height_cm),
                 value = uiState.height,
-                onValueChange = { viewModel.updateHeight(it) }
+                onValueChange = onUpdateHeight
             )
             ParameterInput(
                 icon = Icons.Default.MonitorWeight,
                 label = stringResource(R.string.weight_kg_label),
                 value = uiState.weight,
-                onValueChange = { viewModel.updateWeight(it) }
+                onValueChange = onUpdateWeight
             )
             ParameterInput(
                 icon = Icons.Default.Height,
                 label = stringResource(R.string.age),
                 value = uiState.age,
-                onValueChange = { viewModel.updateAge(it) }
+                onValueChange = onUpdateAge
             )
         }
 
@@ -95,12 +119,12 @@ fun SettingsScreen(
         SettingsSection(title = stringResource(R.string.about_app)) {
             SettingsItem(
                 title = stringResource(R.string.version),
-                subtitle = "0.2.0",
+                subtitle = "1.0.0",
                 showChevron = false
             )
             SettingsItem(
                 title = stringResource(R.string.github_repo),
-                subtitle = "workouted",
+                subtitle = "kidz/workouted",
                 onClick = { /* TODO */ }
             )
         }
@@ -112,8 +136,7 @@ fun SettingsScreen(
         LanguageSelectionDialog(
             currentLanguage = uiState.language,
             onLanguageSelected = { code ->
-                viewModel.updateLanguage(code)
-                AppCompatDelegate.setApplicationLocales(LocaleListCompat.forLanguageTags(code))
+                onUpdateLanguage(code)
                 showLanguageDialog = false
             },
             onDismiss = { showLanguageDialog = false }
@@ -149,7 +172,7 @@ fun LanguageSelectionDialog(
                     ) {
                         RadioButton(
                             selected = code == currentLanguage,
-                            onClick = null // Handled by row click
+                            onClick = null
                         )
                         Spacer(modifier = Modifier.width(12.dp))
                         Text(text = name, style = MaterialTheme.typography.bodyLarge)
@@ -273,6 +296,20 @@ fun ParameterInput(
                 unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant,
                 focusedBorderColor = MaterialTheme.colorScheme.primary
             )
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun SettingsPreview() {
+    WorkoutedTheme {
+        SettingsContent(
+            uiState = SettingsUiState(height = "180", weight = "85", age = "30", language = "en"),
+            onUpdateHeight = {},
+            onUpdateWeight = {},
+            onUpdateAge = {},
+            onUpdateLanguage = {}
         )
     }
 }

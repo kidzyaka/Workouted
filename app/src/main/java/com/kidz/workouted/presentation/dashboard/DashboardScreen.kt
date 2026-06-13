@@ -16,11 +16,14 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.kidz.workouted.R
 import com.kidz.workouted.core.util.LocalizationUtil
 import com.kidz.workouted.domain.model.Rank
 import com.kidz.workouted.presentation.components.MuscleBadge
+import com.kidz.workouted.ui.theme.WorkoutedTheme
 import java.time.LocalDate
 import java.time.YearMonth
 import java.time.ZoneId
@@ -44,6 +47,7 @@ fun DashboardContent(
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .statusBarsPadding()
             .verticalScroll(rememberScrollState())
             .padding(16.dp)
     ) {
@@ -225,5 +229,29 @@ fun WorkoutCalendar(workoutDates: Set<Long>) {
                 }
             }
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun DashboardPreview() {
+    WorkoutedTheme {
+        DashboardContent(
+            uiState = DashboardUiState.Success(
+                muscleGroupRanks = mapOf(
+                    "group_chest" to Rank.SILVER,
+                    "group_back" to Rank.GOLD,
+                    "group_legs" to Rank.BRONZE,
+                    "group_arms" to Rank.PLATINUM,
+                    "group_shoulders" to Rank.DIAMOND,
+                    "group_core" to Rank.ELITE
+                ),
+                workoutDates = setOf(System.currentTimeMillis()),
+                weeklyWorkoutsCount = 12,
+                strengthIncreasePercentage = 12,
+                activeEnergyKcal = 1800,
+                activeTimeHours = 4.2
+            )
+        )
     }
 }

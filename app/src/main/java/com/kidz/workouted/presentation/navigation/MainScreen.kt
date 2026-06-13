@@ -2,32 +2,30 @@ package com.kidz.workouted.presentation.navigation
 
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.ui.unit.dp
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavDestination
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.kidz.workouted.presentation.dashboard.DashboardScreen
 import com.kidz.workouted.presentation.log.*
-import com.kidz.workouted.presentation.stats.StatsScreen
-import com.kidz.workouted.presentation.stats.StatsViewModel
 import com.kidz.workouted.presentation.settings.SettingsScreen
-import androidx.navigation.NavType
-import androidx.navigation.navArgument
-import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.compose.runtime.remember
-
-import androidx.compose.ui.res.stringResource
+import com.kidz.workouted.presentation.stats.StatsScreen
+import com.kidz.workouted.ui.theme.WorkoutedTheme
 
 @Composable
 fun MainScreen() {
@@ -35,21 +33,38 @@ fun MainScreen() {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
 
+    MainContent(
+        navController = navController,
+        currentDestination = currentDestination,
+        onNavigate = { route ->
+            navController.navigate(route) {
+                popUpTo(navController.graph.findStartDestination().id) {
+                    saveState = true
+                }
+                launchSingleTop = true
+                restoreState = true
+            }
+        },
+        onAddWorkoutClick = {
+            navController.navigate(Screen.AddWorkout.createRoute())
+        }
+    )
+}
+
+@Composable
+fun MainContent(
+    navController: NavHostController,
+    currentDestination: NavDestination?,
+    onNavigate: (String) -> Unit,
+    onAddWorkoutClick: () -> Unit
+) {
     Scaffold(
         bottomBar = {
             BottomAppBar(
                 actions = {
                     bottomNavItems.forEach { screen ->
                         IconButton(
-                            onClick = {
-                                navController.navigate(screen.route) {
-                                    popUpTo(navController.graph.findStartDestination().id) {
-                                        saveState = true
-                                    }
-                                    launchSingleTop = true
-                                    restoreState = true
-                                }
-                            },
+                            onClick = { onNavigate(screen.route) },
                             modifier = Modifier.size(56.dp)
                         ) {
                             screen.icon?.let { icon ->
@@ -69,7 +84,7 @@ fun MainScreen() {
                 },
                 floatingActionButton = {
                     FloatingActionButton(
-                        onClick = { navController.navigate(Screen.AddWorkout.createRoute()) },
+                        onClick = onAddWorkoutClick,
                         containerColor = MaterialTheme.colorScheme.primary,
                         contentColor = MaterialTheme.colorScheme.onPrimary,
                         elevation = FloatingActionButtonDefaults.bottomAppBarFabElevation(),
@@ -88,7 +103,7 @@ fun MainScreen() {
         NavHost(
             navController = navController,
             startDestination = Screen.Dashboard.route,
-            modifier = Modifier.padding(innerPadding)
+            modifier = Modifier.padding(bottom = innerPadding.calculateBottomPadding())
         ) {
             composable(Screen.Dashboard.route) {
                 DashboardScreen(viewModel = hiltViewModel())
@@ -161,5 +176,18 @@ fun MainScreen() {
                 )
             }
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun MainScreenPreview() {
+    WorkoutedTheme {
+        MainContent(
+            navController = rememberNavController(),
+            currentDestination = null,
+            onNavigate = {},
+            onAddWorkoutClick = {}
+        )
     }
 }
