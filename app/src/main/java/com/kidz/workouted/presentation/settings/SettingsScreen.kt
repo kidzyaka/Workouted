@@ -17,6 +17,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -55,6 +56,7 @@ fun SettingsContent(
     onUpdateLanguage: (String) -> Unit
 ) {
     var showLanguageDialog by remember { mutableStateOf(false) }
+    val uriHandler = LocalUriHandler.current
 
     Column(
         modifier = Modifier
@@ -124,8 +126,8 @@ fun SettingsContent(
             )
             SettingsItem(
                 title = stringResource(R.string.github_repo),
-                subtitle = "kidz/workouted",
-                onClick = { /* TODO */ }
+                subtitle = "kidzyaka/Workouted",
+                onClick = { uriHandler.openUri("https://github.com/kidzyaka/Workouted") }
             )
         }
         
