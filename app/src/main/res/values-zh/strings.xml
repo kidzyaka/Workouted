@@ -8,6 +8,12 @@
     <string name="nav_profile">个人资料</string>
     <string name="add_workout">添加训练</string>
 
+    <!-- Onboarding -->
+    <string name="welcome_to_workouted">欢迎来到 Workouted</string>
+    <string name="set_parameters_desc">设置您的参数以开始</string>
+    <string name="get_started">开始使用</string>
+    <string name="reset_onboarding">重置引导 (Debug)</string>
+
     <!-- Dashboard -->
     <string name="muscle_map">肌肉图</string>
     <string name="progress_by_muscle">肌肉进度</string>

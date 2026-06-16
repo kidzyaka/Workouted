@@ -8,6 +8,12 @@
     <string name="nav_profile">Profile</string>
     <string name="add_workout">Add Workout</string>
 
+    <!-- Onboarding -->
+    <string name="welcome_to_workouted">Welcome to Workouted</string>
+    <string name="set_parameters_desc">Set your parameters to get started</string>
+    <string name="get_started">Get Started</string>
+    <string name="reset_onboarding">Reset Onboarding (Debug)</string>
+
     <!-- Dashboard -->
     <string name="muscle_map">Muscle Map</string>
     <string name="progress_by_muscle">Your progress by muscle</string>

@@ -26,6 +26,7 @@ class UserPreferencesRepositoryImpl @Inject constructor(
         val USER_WEIGHT = doublePreferencesKey("user_weight")
         val USER_AGE = intPreferencesKey("user_age")
         val APP_LANGUAGE = stringPreferencesKey("app_language")
+        val IS_ONBOARDING_COMPLETED = booleanPreferencesKey("is_onboarding_completed")
     }
 
     override val userHeightCm: Flow<Double> = context.dataStore.data
@@ -52,6 +53,12 @@ class UserPreferencesRepositoryImpl @Inject constructor(
         }
         .map { it[PreferencesKeys.APP_LANGUAGE] ?: Locale.getDefault().language }
 
+    override val isOnboardingCompleted: Flow<Boolean> = context.dataStore.data
+        .catch { exception ->
+            if (exception is IOException) emit(emptyPreferences()) else throw exception
+        }
+        .map { it[PreferencesKeys.IS_ONBOARDING_COMPLETED] ?: false }
+
     override suspend fun setUserHeightCm(height: Double) {
         context.dataStore.edit { it[PreferencesKeys.USER_HEIGHT] = height }
     }
@@ -66,5 +73,9 @@ class UserPreferencesRepositoryImpl @Inject constructor(
 
     override suspend fun setAppLanguage(languageCode: String) {
         context.dataStore.edit { it[PreferencesKeys.APP_LANGUAGE] = languageCode }
+    }
+
+    override suspend fun setOnboardingCompleted(completed: Boolean) {
+        context.dataStore.edit { it[PreferencesKeys.IS_ONBOARDING_COMPLETED] = completed }
     }
 }

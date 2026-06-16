@@ -10,6 +10,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import com.kidz.workouted.R
 
 sealed class Screen(val route: String, val titleResId: Int, val icon: ImageVector? = null) {
+    object Onboarding : Screen("onboarding", R.string.app_name)
     object Dashboard : Screen("dashboard", R.string.nav_home, Icons.Default.Home)
     object Log : Screen("log", R.string.nav_log, Icons.Default.History)
     object Stats : Screen("stats", R.string.nav_stats, Icons.Default.Assessment)
