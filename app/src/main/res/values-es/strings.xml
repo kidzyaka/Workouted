@@ -25,6 +25,9 @@
     <string name="strength">Fuerza</string>
     <string name="this_week">esta semana</string>
     <string name="increase">aumento</string>
+    <string name="group_progression">Progreso del grupo</string>
+    <string name="individual_muscles">Músculos individuales</string>
+    <string name="rank_up_title">¡Nuevo rango!</string>
 
     <!-- Log -->
     <string name="workout_log">Registro de entrenamientos</string>

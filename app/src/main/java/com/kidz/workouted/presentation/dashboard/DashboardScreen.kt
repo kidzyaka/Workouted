@@ -23,6 +23,8 @@ import com.kidz.workouted.R
 import com.kidz.workouted.core.util.LocalizationUtil
 import com.kidz.workouted.domain.model.Rank
 import com.kidz.workouted.presentation.components.MuscleBadge
+import com.kidz.workouted.presentation.components.MuscleProgressionDialog
+import com.kidz.workouted.presentation.dashboard.RankUpOverlay
 import com.kidz.workouted.ui.theme.WorkoutedTheme
 import java.time.LocalDate
 import java.time.YearMonth
@@ -36,113 +38,199 @@ fun DashboardScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
-    DashboardContent(uiState = uiState)
+    DashboardContent(uiState = uiState, viewModel = viewModel)
 }
 
 @Composable
 fun DashboardContent(
-    uiState: DashboardUiState
+    uiState: DashboardUiState,
+    viewModel: DashboardViewModel
 ) {
     val context = LocalContext.current
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .statusBarsPadding()
-            .verticalScroll(rememberScrollState())
-            .padding(16.dp)
-    ) {
-        Text(
-            text = stringResource(R.string.muscle_map),
-            style = MaterialTheme.typography.headlineMedium,
-            fontWeight = FontWeight.Black,
-            modifier = Modifier.padding(bottom = 8.dp)
-        )
-        Text(
-            text = stringResource(R.string.progress_by_muscle),
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f),
-            modifier = Modifier.padding(bottom = 24.dp)
-        )
+    var selectedGroupProgression by remember { mutableStateOf<MuscleGroupProgression?>(null) }
+    var selectedGroupName by remember { mutableStateOf("") }
+    
+    var currentRankUp by remember { mutableStateOf<RankUpData?>(null) }
 
-        // Muscle Map with Body Silhouette
-        Box(
+    LaunchedEffect(uiState) {
+        if (uiState is DashboardUiState.Success) {
+            val nextRankUp = uiState.rankUps.firstOrNull()
+            if (nextRankUp != null) {
+                currentRankUp = nextRankUp
+            }
+        }
+    }
+
+    currentRankUp?.let { rankUp ->
+        RankUpOverlay(
+            groupName = LocalizationUtil.getLocalizedName(context, rankUp.groupId),
+            newRank = rankUp.newRank,
+            onFinished = {
+                viewModel.onRankUpSeen(rankUp.groupId, rankUp.newRank)
+                currentRankUp = null
+            }
+        )
+    }
+
+    if (selectedGroupProgression != null) {
+        MuscleProgressionDialog(
+            progression = selectedGroupProgression!!,
+            localizedGroupName = selectedGroupName,
+            onDismiss = { selectedGroupProgression = null },
+            onSeen = {
+                (uiState as? DashboardUiState.Success)?.muscleGroupsProgression?.get(selectedGroupProgression?.id)?.let {
+                    viewModel.onMuscleGroupSeen(it)
+                }
+            }
+        )
+    }
+
+    Box(modifier = Modifier.fillMaxSize()) {
+        Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .height(400.dp),
-            contentAlignment = Alignment.Center
+                .fillMaxSize()
+                .statusBarsPadding()
+                .verticalScroll(rememberScrollState())
+                .padding(16.dp)
         ) {
+            Text(
+                text = stringResource(R.string.muscle_map),
+                style = MaterialTheme.typography.headlineMedium,
+                fontWeight = FontWeight.Black,
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
+            Text(
+                text = stringResource(R.string.progress_by_muscle),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f),
+                modifier = Modifier.padding(bottom = 24.dp)
+            )
+
+            // Muscle Map with Body Silhouette
             Box(
                 modifier = Modifier
-                    .fillMaxHeight()
-                    .width(200.dp)
-                    .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.2f), MaterialTheme.shapes.extraLarge)
-            )
+                    .fillMaxWidth()
+                    .height(400.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxHeight()
+                        .width(200.dp)
+                        .background(
+                            MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.2f),
+                            MaterialTheme.shapes.extraLarge
+                        )
+                )
 
-            androidx.compose.foundation.Image(
-                painter = androidx.compose.ui.res.painterResource(id = R.drawable.body_silhouette),
-                contentDescription = null,
-                modifier = Modifier.fillMaxHeight(),
-                alpha = 0.5f,
-                contentScale = androidx.compose.ui.layout.ContentScale.Fit
-            )
+                androidx.compose.foundation.Image(
+                    painter = androidx.compose.ui.res.painterResource(id = R.drawable.body_silhouette),
+                    contentDescription = null,
+                    modifier = Modifier.fillMaxHeight(),
+                    alpha = 0.5f,
+                    contentScale = androidx.compose.ui.layout.ContentScale.Fit
+                )
 
-            if (uiState is DashboardUiState.Success) {
-                Box(Modifier.fillMaxSize()) {
-                    // BACK (Center, high)
-                    MuscleBadge(
-                        LocalizationUtil.getLocalizedName(context, "group_back"), 
-                        uiState.muscleGroupRanks["group_back"] ?: Rank.WOOD,
-                        Modifier.align(BiasAlignment(0f, -0.7f))
-                    )
-                    // SHOULDERS (Sides)
-                    MuscleBadge(
-                        LocalizationUtil.getLocalizedName(context, "group_shoulders"), 
-                        uiState.muscleGroupRanks["group_shoulders"] ?: Rank.WOOD,
-                        Modifier.align(BiasAlignment(0.20f, -0.60f))
-                    )
-                    // CHEST (Center, under Back)
-                    MuscleBadge(
-                        LocalizationUtil.getLocalizedName(context, "group_chest"), 
-                        uiState.muscleGroupRanks["group_chest"] ?: Rank.WOOD,
-                        Modifier.align(BiasAlignment(-0.1f, -0.55f))
-                    )
-                    // ARMS (Left side)
-                    MuscleBadge(
-                        LocalizationUtil.getLocalizedName(context, "group_arms"), 
-                        uiState.muscleGroupRanks["group_arms"] ?: Rank.WOOD,
-                        Modifier.align(BiasAlignment(-0.5f, -0.15f))
-                    )
-                    // CORE
-                    MuscleBadge(
-                        LocalizationUtil.getLocalizedName(context, "group_core"), 
-                        uiState.muscleGroupRanks["group_core"] ?: Rank.WOOD,
-                        Modifier.align(BiasAlignment(0f, -0.20f))
-                    )
-                    // LEGS (Lower body)
-                    MuscleBadge(
-                        LocalizationUtil.getLocalizedName(context, "group_legs"), 
-                        uiState.muscleGroupRanks["group_legs"] ?: Rank.WOOD,
-                        Modifier.align(BiasAlignment(0f, 0.6f))
-                    )
+                if (uiState is DashboardUiState.Success) {
+                    Box(Modifier.fillMaxSize()) {
+                        // BACK (Center, high)
+                        MuscleBadge(
+                            LocalizationUtil.getLocalizedName(context, "group_back"),
+                            uiState.muscleGroupRanks["group_back"] ?: Rank.WOOD,
+                            Modifier.align(BiasAlignment(0f, -0.7f)),
+                            hasUnseenProgression = uiState.muscleGroupsProgression["group_back"]?.hasUnseenProgression ?: false,
+                            onClick = {
+                                selectedGroupProgression = uiState.muscleGroupsProgression["group_back"]
+                                selectedGroupName = LocalizationUtil.getLocalizedName(context, "group_back")
+                            }
+                        )
+                        // SHOULDERS (Sides)
+                        MuscleBadge(
+                            LocalizationUtil.getLocalizedName(context, "group_shoulders"),
+                            uiState.muscleGroupRanks["group_shoulders"] ?: Rank.WOOD,
+                            Modifier.align(BiasAlignment(0.20f, -0.60f)),
+                            hasUnseenProgression = uiState.muscleGroupsProgression["group_shoulders"]?.hasUnseenProgression ?: false,
+                            onClick = {
+                                selectedGroupProgression = uiState.muscleGroupsProgression["group_shoulders"]
+                                selectedGroupName =
+                                    LocalizationUtil.getLocalizedName(context, "group_shoulders")
+                            }
+                        )
+                        // CHEST (Center, under Back)
+                        MuscleBadge(
+                            LocalizationUtil.getLocalizedName(context, "group_chest"),
+                            uiState.muscleGroupRanks["group_chest"] ?: Rank.WOOD,
+                            Modifier.align(BiasAlignment(-0.1f, -0.55f)),
+                            hasUnseenProgression = uiState.muscleGroupsProgression["group_chest"]?.hasUnseenProgression ?: false,
+                            onClick = {
+                                selectedGroupProgression = uiState.muscleGroupsProgression["group_chest"]
+                                selectedGroupName = LocalizationUtil.getLocalizedName(context, "group_chest")
+                            }
+                        )
+                        // ARMS (Left side)
+                        MuscleBadge(
+                            LocalizationUtil.getLocalizedName(context, "group_arms"),
+                            uiState.muscleGroupRanks["group_arms"] ?: Rank.WOOD,
+                            Modifier.align(BiasAlignment(-0.5f, -0.15f)),
+                            hasUnseenProgression = uiState.muscleGroupsProgression["group_arms"]?.hasUnseenProgression ?: false,
+                            onClick = {
+                                selectedGroupProgression = uiState.muscleGroupsProgression["group_arms"]
+                                selectedGroupName = LocalizationUtil.getLocalizedName(context, "group_arms")
+                            }
+                        )
+                        // CORE
+                        MuscleBadge(
+                            LocalizationUtil.getLocalizedName(context, "group_core"),
+                            uiState.muscleGroupRanks["group_core"] ?: Rank.WOOD,
+                            Modifier.align(BiasAlignment(0f, -0.20f)),
+                            hasUnseenProgression = uiState.muscleGroupsProgression["group_core"]?.hasUnseenProgression ?: false,
+                            onClick = {
+                                selectedGroupProgression = uiState.muscleGroupsProgression["group_core"]
+                                selectedGroupName = LocalizationUtil.getLocalizedName(context, "group_core")
+                            }
+                        )
+                        // LEGS (Lower body)
+                        MuscleBadge(
+                            LocalizationUtil.getLocalizedName(context, "group_legs"),
+                            uiState.muscleGroupRanks["group_legs"] ?: Rank.WOOD,
+                            Modifier.align(BiasAlignment(0f, 0.6f)),
+                            hasUnseenProgression = uiState.muscleGroupsProgression["group_legs"]?.hasUnseenProgression ?: false,
+                            onClick = {
+                                selectedGroupProgression = uiState.muscleGroupsProgression["group_legs"]
+                                selectedGroupName = LocalizationUtil.getLocalizedName(context, "group_legs")
+                            }
+                        )
+                    }
                 }
             }
-        }
 
-        Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(32.dp))
 
-        when (uiState) {
-            is DashboardUiState.Success -> {
-                WorkoutCalendar(uiState.workoutDates)
-            }
-            is DashboardUiState.Loading -> {
-                Box(Modifier.fillMaxWidth().height(200.dp), contentAlignment = Alignment.Center) {
-                    CircularProgressIndicator()
+            when (uiState) {
+                is DashboardUiState.Success -> {
+                    WorkoutCalendar(uiState.workoutDates)
                 }
+                is DashboardUiState.Loading -> {
+                    Box(Modifier.fillMaxWidth().height(200.dp), contentAlignment = Alignment.Center) {
+                        CircularProgressIndicator()
+                    }
+                }
+                else -> {}
             }
-            else -> {}
+
+            Spacer(modifier = Modifier.height(80.dp)) // Space for bottom bar
         }
-        
-        Spacer(modifier = Modifier.height(80.dp)) // Space for bottom bar
+
+        currentRankUp?.let { rankUp ->
+            RankUpOverlay(
+                groupName = LocalizationUtil.getLocalizedName(context, rankUp.groupId),
+                newRank = rankUp.newRank,
+                onFinished = {
+                    viewModel.onRankUpSeen(rankUp.groupId, rankUp.newRank)
+                    currentRankUp = null
+                }
+            )
+        }
     }
 }
 
@@ -246,12 +334,22 @@ fun DashboardPreview() {
                     "group_shoulders" to Rank.DIAMOND,
                     "group_core" to Rank.ELITE
                 ),
+                muscleGroupsProgression = mapOf(
+                    "group_chest" to MuscleGroupProgression("group_chest", 120.0, Rank.SILVER, emptyList(), false),
+                    "group_back" to MuscleGroupProgression("group_back", 180.0, Rank.GOLD, emptyList(), false),
+                    "group_legs" to MuscleGroupProgression("group_legs", 70.0, Rank.BRONZE, emptyList(), false),
+                    "group_arms" to MuscleGroupProgression("group_arms", 250.0, Rank.PLATINUM, emptyList(), false),
+                    "group_shoulders" to MuscleGroupProgression("group_shoulders", 450.0, Rank.DIAMOND, emptyList(), false),
+                    "group_core" to MuscleGroupProgression("group_core", 600.0, Rank.ELITE, emptyList(), false)
+                ),
                 workoutDates = setOf(System.currentTimeMillis()),
                 weeklyWorkoutsCount = 12,
                 strengthIncreasePercentage = 12,
                 activeEnergyKcal = 1800,
-                activeTimeHours = 4.2
-            )
+                activeTimeHours = 4.2,
+                rankUps = emptyList()
+            ),
+            viewModel = androidx.lifecycle.viewmodel.compose.viewModel() // Mock VM for preview
         )
     }
 }

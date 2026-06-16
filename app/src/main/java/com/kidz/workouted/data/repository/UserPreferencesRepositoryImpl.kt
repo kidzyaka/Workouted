@@ -27,6 +27,7 @@ class UserPreferencesRepositoryImpl @Inject constructor(
         val USER_AGE = intPreferencesKey("user_age")
         val APP_LANGUAGE = stringPreferencesKey("app_language")
         val IS_ONBOARDING_COMPLETED = booleanPreferencesKey("is_onboarding_completed")
+        val LAST_SEEN_MUSCLE_RANKS = stringPreferencesKey("last_seen_muscle_ranks")
     }
 
     override val userHeightCm: Flow<Double> = context.dataStore.data
@@ -59,6 +60,19 @@ class UserPreferencesRepositoryImpl @Inject constructor(
         }
         .map { it[PreferencesKeys.IS_ONBOARDING_COMPLETED] ?: false }
 
+    override val lastSeenMuscleRanks: Flow<Map<String, String>> = context.dataStore.data
+        .catch { exception ->
+            if (exception is IOException) emit(emptyPreferences()) else throw exception
+        }
+        .map { prefs ->
+            val serialized = prefs[PreferencesKeys.LAST_SEEN_MUSCLE_RANKS] ?: ""
+            if (serialized.isEmpty()) emptyMap()
+            else serialized.split(",").associate {
+                val parts = it.split(":")
+                if (parts.size == 2) parts[0] to parts[1] else "" to ""
+            }.filterKeys { it.isNotEmpty() }
+        }
+
     override suspend fun setUserHeightCm(height: Double) {
         context.dataStore.edit { it[PreferencesKeys.USER_HEIGHT] = height }
     }
@@ -77,5 +91,10 @@ class UserPreferencesRepositoryImpl @Inject constructor(
 
     override suspend fun setOnboardingCompleted(completed: Boolean) {
         context.dataStore.edit { it[PreferencesKeys.IS_ONBOARDING_COMPLETED] = completed }
+    }
+
+    override suspend fun updateLastSeenMuscleRanks(ranks: Map<String, String>) {
+        val serialized = ranks.entries.joinToString(",") { "${it.key}:${it.value}" }
+        context.dataStore.edit { it[PreferencesKeys.LAST_SEEN_MUSCLE_RANKS] = serialized }
     }
 }

@@ -1,7 +1,13 @@
 package com.kidz.workouted.presentation.navigation
 
+import androidx.compose.animation.core.*
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.draw.clip
+import androidx.compose.runtime.getValue
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.*
@@ -33,6 +39,7 @@ import com.kidz.workouted.ui.theme.WorkoutedTheme
 @Composable
 fun MainScreen() {
     val settingsViewModel: SettingsViewModel = hiltViewModel()
+    val dashboardViewModel: com.kidz.workouted.presentation.dashboard.DashboardViewModel = hiltViewModel()
     val repository: UserPreferencesRepository = settingsViewModel.repository
     val isOnboardingCompleted by repository.isOnboardingCompleted.collectAsState(initial = null)
 
@@ -44,6 +51,9 @@ fun MainScreen() {
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
+    
+    val dashboardUiState by dashboardViewModel.uiState.collectAsState()
+    val hasRankUp = (dashboardUiState as? com.kidz.workouted.presentation.dashboard.DashboardUiState.Success)?.rankUps?.isNotEmpty() == true
 
     val startDestination = if (isOnboardingCompleted == true) Screen.Dashboard.route else Screen.Onboarding.route
 
@@ -51,6 +61,8 @@ fun MainScreen() {
         navController = navController,
         currentDestination = currentDestination,
         startDestination = startDestination,
+        hasRankUp = hasRankUp,
+        dashboardViewModel = dashboardViewModel,
         onNavigate = { route ->
             navController.navigate(route) {
                 popUpTo(navController.graph.findStartDestination().id) {
@@ -71,6 +83,8 @@ fun MainContent(
     navController: NavHostController,
     currentDestination: NavDestination?,
     startDestination: String,
+    hasRankUp: Boolean,
+    dashboardViewModel: com.kidz.workouted.presentation.dashboard.DashboardViewModel,
     onNavigate: (String) -> Unit,
     onAddWorkoutClick: () -> Unit
 ) {
@@ -82,21 +96,45 @@ fun MainContent(
                 BottomAppBar(
                     actions = {
                         bottomNavItems.forEach { screen ->
+                            val isSelected = currentDestination?.hierarchy?.any { it.route == screen.route } == true
+                            val shouldHighlight = screen.route == Screen.Dashboard.route && hasRankUp && !isSelected
+                            
                             IconButton(
                                 onClick = { onNavigate(screen.route) },
                                 modifier = Modifier.size(56.dp)
                             ) {
                                 screen.icon?.let { icon ->
-                                    Icon(
-                                        imageVector = icon,
-                                        contentDescription = stringResource(screen.titleResId),
-                                        modifier = Modifier.size(30.dp),
-                                        tint = if (currentDestination?.hierarchy?.any { it.route == screen.route } == true) {
-                                            MaterialTheme.colorScheme.primary
-                                        } else {
-                                            MaterialTheme.colorScheme.onSurfaceVariant
+                                    Box(contentAlignment = Alignment.Center) {
+                                        if (shouldHighlight) {
+                                            val infiniteTransition = rememberInfiniteTransition(label = "glow")
+                                            val alpha by infiniteTransition.animateFloat(
+                                                initialValue = 0.2f,
+                                                targetValue = 0.8f,
+                                                animationSpec = infiniteRepeatable(
+                                                    animation = tween(1000),
+                                                    repeatMode = RepeatMode.Reverse
+                                                ),
+                                                label = "alpha"
+                                            )
+                                            Box(
+                                                modifier = Modifier
+                                                    .size(40.dp)
+                                                    .clip(androidx.compose.foundation.shape.CircleShape)
+                                                    .background(MaterialTheme.colorScheme.primary.copy(alpha = alpha))
+                                            )
                                         }
-                                    )
+                                        
+                                        Icon(
+                                            imageVector = icon,
+                                            contentDescription = stringResource(screen.titleResId),
+                                            modifier = Modifier.size(30.dp),
+                                            tint = if (isSelected) {
+                                                MaterialTheme.colorScheme.primary
+                                            } else {
+                                                MaterialTheme.colorScheme.onSurfaceVariant
+                                            }
+                                        )
+                                    }
                                 }
                             }
                         }
@@ -217,6 +255,8 @@ fun MainScreenPreview() {
             navController = rememberNavController(),
             currentDestination = null,
             startDestination = Screen.Dashboard.route,
+            hasRankUp = true,
+            dashboardViewModel = hiltViewModel(),
             onNavigate = {},
             onAddWorkoutClick = {}
         )
