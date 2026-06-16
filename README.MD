@@ -1,6 +1,6 @@
 # Workouted 🏋️‍♂️
 
-A modern, privacy-focused fitness tracker for Android. Log workouts, visualize muscle progress, and reach your strength goals with an intuitive interface.
+A modern fitness tracker for Android. Log workouts, visualize muscle progress, and reach your strength goals with an intuitive interface.
 
 ## 🌟 Key Features
 - **Smart Logging:** Efficiently track exercises, sets, and reps.
