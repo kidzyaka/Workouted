@@ -17,7 +17,7 @@ data class SettingsUiState(
 
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
-    private val repository: UserPreferencesRepository
+    val repository: UserPreferencesRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(SettingsUiState())
@@ -65,6 +65,12 @@ class SettingsViewModel @Inject constructor(
     fun updateLanguage(languageCode: String) {
         viewModelScope.launch {
             repository.setAppLanguage(languageCode)
+        }
+    }
+
+    fun resetOnboarding() {
+        viewModelScope.launch {
+            repository.setOnboardingCompleted(false)
         }
     }
 }

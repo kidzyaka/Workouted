@@ -8,6 +8,12 @@
     <string name="nav_profile">Профиль</string>
     <string name="add_workout">Добавить тренировку</string>
 
+    <!-- Onboarding -->
+    <string name="welcome_to_workouted">Добро пожаловать в Workouted</string>
+    <string name="set_parameters_desc">Укажите свои данные, чтобы начать</string>
+    <string name="get_started">Начать</string>
+    <string name="reset_onboarding">Сброс онбординга (Debug)</string>
+
     <!-- Dashboard -->
     <string name="muscle_map">Карта мышц</string>
     <string name="progress_by_muscle">Прогресс по мышцам</string>

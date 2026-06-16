@@ -43,7 +43,8 @@ fun SettingsScreen(
         onUpdateLanguage = { code ->
             viewModel.updateLanguage(code)
             AppCompatDelegate.setApplicationLocales(LocaleListCompat.forLanguageTags(code))
-        }
+        },
+        onResetOnboarding = { viewModel.resetOnboarding() }
     )
 }
 
@@ -53,7 +54,8 @@ fun SettingsContent(
     onUpdateHeight: (String) -> Unit,
     onUpdateWeight: (String) -> Unit,
     onUpdateAge: (String) -> Unit,
-    onUpdateLanguage: (String) -> Unit
+    onUpdateLanguage: (String) -> Unit,
+    onResetOnboarding: () -> Unit
 ) {
     var showLanguageDialog by remember { mutableStateOf(false) }
     val uriHandler = LocalUriHandler.current
@@ -129,6 +131,14 @@ fun SettingsContent(
                 subtitle = "kidzyaka/Workouted",
                 onClick = { uriHandler.openUri("https://github.com/kidzyaka/Workouted") }
             )
+
+            if (com.kidz.workouted.BuildConfig.DEBUG) {
+                SettingsItem(
+                    title = stringResource(R.string.reset_onboarding),
+                    subtitle = "Debug only",
+                    onClick = onResetOnboarding
+                )
+            }
         }
         
         Spacer(modifier = Modifier.height(80.dp))
@@ -311,7 +321,8 @@ fun SettingsPreview() {
             onUpdateHeight = {},
             onUpdateWeight = {},
             onUpdateAge = {},
-            onUpdateLanguage = {}
+            onUpdateLanguage = {},
+            onResetOnboarding = {}
         )
     }
 }

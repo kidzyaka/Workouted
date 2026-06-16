@@ -21,21 +21,36 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.kidz.workouted.domain.repository.UserPreferencesRepository
 import com.kidz.workouted.presentation.dashboard.DashboardScreen
 import com.kidz.workouted.presentation.log.*
+import com.kidz.workouted.presentation.onboarding.OnboardingScreen
 import com.kidz.workouted.presentation.settings.SettingsScreen
+import com.kidz.workouted.presentation.settings.SettingsViewModel
 import com.kidz.workouted.presentation.stats.StatsScreen
 import com.kidz.workouted.ui.theme.WorkoutedTheme
 
 @Composable
 fun MainScreen() {
+    val settingsViewModel: SettingsViewModel = hiltViewModel()
+    val repository: UserPreferencesRepository = settingsViewModel.repository
+    val isOnboardingCompleted by repository.isOnboardingCompleted.collectAsState(initial = null)
+
+    if (isOnboardingCompleted == null) {
+        // Still loading preferences
+        return
+    }
+
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
 
+    val startDestination = if (isOnboardingCompleted == true) Screen.Dashboard.route else Screen.Onboarding.route
+
     MainContent(
         navController = navController,
         currentDestination = currentDestination,
+        startDestination = startDestination,
         onNavigate = { route ->
             navController.navigate(route) {
                 popUpTo(navController.graph.findStartDestination().id) {
@@ -55,56 +70,71 @@ fun MainScreen() {
 fun MainContent(
     navController: NavHostController,
     currentDestination: NavDestination?,
+    startDestination: String,
     onNavigate: (String) -> Unit,
     onAddWorkoutClick: () -> Unit
 ) {
+    val showBottomBar = currentDestination?.route != Screen.Onboarding.route
+
     Scaffold(
         bottomBar = {
-            BottomAppBar(
-                actions = {
-                    bottomNavItems.forEach { screen ->
-                        IconButton(
-                            onClick = { onNavigate(screen.route) },
-                            modifier = Modifier.size(56.dp)
-                        ) {
-                            screen.icon?.let { icon ->
-                                Icon(
-                                    imageVector = icon,
-                                    contentDescription = stringResource(screen.titleResId),
-                                    modifier = Modifier.size(30.dp),
-                                    tint = if (currentDestination?.hierarchy?.any { it.route == screen.route } == true) {
-                                        MaterialTheme.colorScheme.primary
-                                    } else {
-                                        MaterialTheme.colorScheme.onSurfaceVariant
-                                    }
-                                )
+            if (showBottomBar) {
+                BottomAppBar(
+                    actions = {
+                        bottomNavItems.forEach { screen ->
+                            IconButton(
+                                onClick = { onNavigate(screen.route) },
+                                modifier = Modifier.size(56.dp)
+                            ) {
+                                screen.icon?.let { icon ->
+                                    Icon(
+                                        imageVector = icon,
+                                        contentDescription = stringResource(screen.titleResId),
+                                        modifier = Modifier.size(30.dp),
+                                        tint = if (currentDestination?.hierarchy?.any { it.route == screen.route } == true) {
+                                            MaterialTheme.colorScheme.primary
+                                        } else {
+                                            MaterialTheme.colorScheme.onSurfaceVariant
+                                        }
+                                    )
+                                }
                             }
                         }
+                    },
+                    floatingActionButton = {
+                        FloatingActionButton(
+                            onClick = onAddWorkoutClick,
+                            containerColor = MaterialTheme.colorScheme.primary,
+                            contentColor = MaterialTheme.colorScheme.onPrimary,
+                            elevation = FloatingActionButtonDefaults.bottomAppBarFabElevation(),
+                            modifier = Modifier.size(64.dp)
+                        ) {
+                            Icon(
+                                Icons.Default.Add, 
+                                contentDescription = "Add Workout",
+                                modifier = Modifier.size(32.dp)
+                            )
+                        }
                     }
-                },
-                floatingActionButton = {
-                    FloatingActionButton(
-                        onClick = onAddWorkoutClick,
-                        containerColor = MaterialTheme.colorScheme.primary,
-                        contentColor = MaterialTheme.colorScheme.onPrimary,
-                        elevation = FloatingActionButtonDefaults.bottomAppBarFabElevation(),
-                        modifier = Modifier.size(64.dp)
-                    ) {
-                        Icon(
-                            Icons.Default.Add, 
-                            contentDescription = "Add Workout",
-                            modifier = Modifier.size(32.dp)
-                        )
-                    }
-                }
-            )
+                )
+            }
         }
     ) { innerPadding ->
         NavHost(
             navController = navController,
-            startDestination = Screen.Dashboard.route,
-            modifier = Modifier.padding(bottom = innerPadding.calculateBottomPadding())
+            startDestination = startDestination,
+            modifier = Modifier.padding(bottom = if (showBottomBar) innerPadding.calculateBottomPadding() else 0.dp)
         ) {
+            composable(Screen.Onboarding.route) {
+                OnboardingScreen(
+                    viewModel = hiltViewModel(),
+                    onComplete = {
+                        navController.navigate(Screen.Dashboard.route) {
+                            popUpTo(Screen.Onboarding.route) { inclusive = true }
+                        }
+                    }
+                )
+            }
             composable(Screen.Dashboard.route) {
                 DashboardScreen(viewModel = hiltViewModel())
             }
@@ -186,6 +216,7 @@ fun MainScreenPreview() {
         MainContent(
             navController = rememberNavController(),
             currentDestination = null,
+            startDestination = Screen.Dashboard.route,
             onNavigate = {},
             onAddWorkoutClick = {}
         )
