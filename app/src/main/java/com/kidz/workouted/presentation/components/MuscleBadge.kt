@@ -16,22 +16,64 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.kidz.workouted.domain.model.Rank
 
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.runtime.remember
+
+import androidx.compose.animation.core.*
+import androidx.compose.foundation.border
+import androidx.compose.runtime.getValue
+
 @Composable
 fun MuscleBadge(
     muscleName: String,
     rank: Rank,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    hasUnseenProgression: Boolean = false,
+    onClick: () -> Unit = {}
 ) {
+    val infiniteTransition = rememberInfiniteTransition(label = "glow")
+    val alpha by infiniteTransition.animateFloat(
+        initialValue = 0f,
+        targetValue = 0.6f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(1000, easing = FastOutSlowInEasing),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "alpha"
+    )
+
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = modifier
+        modifier = modifier.clickable(
+            interactionSource = remember { MutableInteractionSource() },
+            indication = null,
+            onClick = onClick
+        )
     ) {
         Box(
-            modifier = Modifier
-                .size(12.dp)
-                .clip(CircleShape)
-                .background(rank.color)
-        )
+            contentAlignment = Alignment.Center
+        ) {
+            if (hasUnseenProgression) {
+                Box(
+                    modifier = Modifier
+                        .size(18.dp)
+                        .clip(CircleShape)
+                        .background(rank.color.copy(alpha = alpha))
+                )
+            }
+            Box(
+                modifier = Modifier
+                    .size(12.dp)
+                    .clip(CircleShape)
+                    .background(rank.color)
+                    .then(
+                        if (hasUnseenProgression) {
+                            Modifier.border(1.dp, Color.White.copy(alpha = 0.5f), CircleShape)
+                        } else Modifier
+                    )
+            )
+        }
         Spacer(modifier = Modifier.height(4.dp))
         Text(
             text = muscleName.uppercase(),
