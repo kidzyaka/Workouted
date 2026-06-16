@@ -27,6 +27,7 @@
     <string name="increase">增长</string>
     <string name="group_progression">肌肉组进度</string>
     <string name="individual_muscles">具体肌肉</string>
+    <string name="rank_up_title">等级提升！</string>
 
     <!-- Log -->
     <string name="workout_log">训练日志</string>

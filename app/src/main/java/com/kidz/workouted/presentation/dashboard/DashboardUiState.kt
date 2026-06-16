@@ -11,17 +11,25 @@ sealed class DashboardUiState {
         val weeklyWorkoutsCount: Int,
         val strengthIncreasePercentage: Int,
         val activeEnergyKcal: Int,
-        val activeTimeHours: Double
+        val activeTimeHours: Double,
+        val rankUps: List<RankUpData> = emptyList()
     ) : DashboardUiState()
     data class Error(val message: String) : DashboardUiState()
 }
+
+data class RankUpData(
+    val groupId: String,
+    val groupName: String,
+    val newRank: Rank
+)
 
 data class MuscleGroupProgression(
     val id: String,
     val score: Double,
     val rank: Rank,
     val muscles: List<MuscleProgression>,
-    val hasUnseenProgression: Boolean = false
+    val hasUnseenProgression: Boolean = false,
+    val isRankIncreased: Boolean = false
 )
 
 data class MuscleProgression(

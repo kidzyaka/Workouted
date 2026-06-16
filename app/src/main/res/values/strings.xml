@@ -27,6 +27,7 @@
     <string name="increase">increase</string>
     <string name="group_progression">Group Progression</string>
     <string name="individual_muscles">Individual Muscles</string>
+    <string name="rank_up_title">Rank Up!</string>
 
     <!-- Log -->
     <string name="workout_log">Workout Log</string>

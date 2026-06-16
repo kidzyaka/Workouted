@@ -54,6 +54,7 @@ class DashboardViewModel @Inject constructor(
                 
                 val groupScore = aggregateGroupRating(groupMuscleRatings, groupAnatomicalWeights)
                 val groupId = groupWithMuscles.group.id
+                val groupRank = Rank.fromScore(groupScore.toInt())
                 
                 var groupHasUnseen = false
                 val musclesProgression = groupWithMuscles.muscles.map { muscle ->
@@ -69,7 +70,8 @@ class DashboardViewModel @Inject constructor(
                             false
                         }
                     } else {
-                        false
+                        // If map is not empty, assume new progress beyond WOOD is an increase
+                        lastSeenRanks.isNotEmpty() && currentRank.minScore > Rank.WOOD.minScore
                     }
                     
                     if (isIncreased) groupHasUnseen = true
@@ -81,17 +83,41 @@ class DashboardViewModel @Inject constructor(
                         isRankIncreased = isIncreased
                     )
                 }
+
+                val lastSeenGroupRankName = lastSeenRanks[groupId]
+                val groupRankIncreased = if (lastSeenGroupRankName != null) {
+                    try {
+                        groupRank.minScore > Rank.valueOf(lastSeenGroupRankName).minScore
+                    } catch (_: Exception) { false }
+                } else {
+                    lastSeenRanks.isNotEmpty() && groupRank.minScore > Rank.WOOD.minScore
+                }
                 
                 groupId to MuscleGroupProgression(
                     id = groupId,
                     score = groupScore,
-                    rank = Rank.fromScore(groupScore.toInt()),
+                    rank = groupRank,
                     muscles = musclesProgression,
-                    hasUnseenProgression = groupHasUnseen
+                    hasUnseenProgression = groupHasUnseen,
+                    isRankIncreased = groupRankIncreased
                 )
             }
 
             val groupRanks = muscleGroupsProgression.mapValues { it.value.rank }
+
+            // Detect Rank Ups for full-screen animation
+            val rankUps = muscleGroupsProgression.values
+                .filter { it.isRankIncreased }
+                .map { prog ->
+                    RankUpData(
+                        groupId = prog.id,
+                        groupName = prog.id.replace("group_", "").replace("_", " ").uppercase(),
+                        newRank = prog.rank
+                    )
+                }
+                .distinctBy { it.groupId }
+            
+            Log.d("DashboardVM", "RankUps detected: ${rankUps.size} for groups: ${rankUps.map { it.groupId }}")
 
             // Calculate weekly load
             val last7Days = System.currentTimeMillis() - (7 * 24 * 60 * 60 * 1000L)
@@ -104,11 +130,22 @@ class DashboardViewModel @Inject constructor(
                 weeklyWorkoutsCount = weeklyWorkouts.size,
                 strengthIncreasePercentage = 0,
                 activeEnergyKcal = 0,
-                activeTimeHours = 0.0
+                activeTimeHours = 0.0,
+                rankUps = rankUps
             )
         }.onEach { state ->
             _uiState.value = state
         }.launchIn(viewModelScope)
+    }
+
+    fun onRankUpSeen(groupId: String, newRank: Rank) {
+        viewModelScope.launch {
+            val currentLastSeen = preferencesRepository.lastSeenMuscleRanks.first().toMutableMap()
+            if (currentLastSeen[groupId] != newRank.name) {
+                currentLastSeen[groupId] = newRank.name
+                preferencesRepository.updateLastSeenMuscleRanks(currentLastSeen)
+            }
+        }
     }
 
     fun onMuscleGroupSeen(progression: MuscleGroupProgression) {
@@ -122,6 +159,13 @@ class DashboardViewModel @Inject constructor(
                     changed = true
                 }
             }
+            
+            // Also update the group's seen rank
+            if (currentLastSeen[progression.id] != progression.rank.name) {
+                currentLastSeen[progression.id] = progression.rank.name
+                changed = true
+            }
+
             if (changed) {
                 preferencesRepository.updateLastSeenMuscleRanks(currentLastSeen)
             }
