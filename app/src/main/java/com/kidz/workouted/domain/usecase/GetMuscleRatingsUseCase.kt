@@ -56,13 +56,13 @@ class GetMuscleRatingsUseCase @Inject constructor(
                 } else null
             }
             
-            val top3Scores = scoresForMuscle
+            val activeScores = scoresForMuscle
                 .sortedByDescending { it.first }
                 .take(3)
                 .map { it.second }
             
-            if (top3Scores.isEmpty()) 0.0
-            else top3Scores.sum() / 3.0 // Requirement: average of last 3 (missing are 0)
+            if (activeScores.isEmpty()) 0.0
+            else activeScores.maxOrNull() ?: 0.0 // Rank reflects current peak capability
         }
     }
 }
