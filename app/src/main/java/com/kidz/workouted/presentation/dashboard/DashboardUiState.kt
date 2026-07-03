@@ -19,7 +19,6 @@ sealed class DashboardUiState {
 
 data class RankUpData(
     val groupId: String,
-    val groupName: String,
     val newRank: Rank
 )
 

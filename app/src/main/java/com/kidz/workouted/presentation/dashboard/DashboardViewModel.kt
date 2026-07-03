@@ -111,7 +111,6 @@ class DashboardViewModel @Inject constructor(
                 .map { prog ->
                     RankUpData(
                         groupId = prog.id,
-                        groupName = prog.id.replace("group_", "").replace("_", " ").uppercase(),
                         newRank = prog.rank
                     )
                 }

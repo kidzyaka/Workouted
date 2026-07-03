@@ -11,11 +11,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import com.kidz.workouted.R
+import com.kidz.workouted.core.util.LocalizationUtil
 import com.kidz.workouted.domain.model.Rank
 import com.kidz.workouted.presentation.dashboard.MuscleGroupProgression
 import com.kidz.workouted.presentation.dashboard.MuscleProgression
@@ -88,10 +90,11 @@ fun MuscleProgressionDialog(
                 }
                 
                 items(progression.muscles) { muscle ->
+                    val context = LocalContext.current
                     Column {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Text(
-                                text = muscle.id.replace("muscle_", "").replace("_", " ").uppercase(),
+                                text = LocalizationUtil.getLocalizedName(context, muscle.id),
                                 style = MaterialTheme.typography.labelLarge,
                                 fontWeight = FontWeight.Bold,
                                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f)
@@ -129,8 +132,8 @@ fun MuscleProgressionDialogPreview() {
                 score = 125.0,
                 rank = Rank.SILVER,
                 muscles = listOf(
-                    MuscleProgression("muscle_chest_upper", 80.0, Rank.BRONZE),
-                    MuscleProgression("muscle_chest_mid", 150.0, Rank.SILVER)
+                    MuscleProgression("m_chest_upper", 80.0, Rank.BRONZE),
+                    MuscleProgression("m_chest_mid", 150.0, Rank.SILVER)
                 )
             ),
             localizedGroupName = "Chest",
