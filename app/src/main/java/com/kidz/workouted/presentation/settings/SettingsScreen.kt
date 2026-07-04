@@ -123,7 +123,7 @@ fun SettingsContent(
         SettingsSection(title = stringResource(R.string.about_app)) {
             SettingsItem(
                 title = stringResource(R.string.version),
-                subtitle = "1.0.0",
+                subtitle = "0.3 BETA",
                 showChevron = false
             )
             SettingsItem(
