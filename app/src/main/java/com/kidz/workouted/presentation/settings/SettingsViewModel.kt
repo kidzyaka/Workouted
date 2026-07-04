@@ -2,6 +2,7 @@ package com.kidz.workouted.presentation.settings
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.kidz.workouted.domain.repository.BackupRepository
 import com.kidz.workouted.domain.repository.UserPreferencesRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
@@ -12,12 +13,15 @@ data class SettingsUiState(
     val height: String = "175",
     val weight: String = "75",
     val age: String = "25",
-    val language: String = "en"
+    val language: String = "en",
+    val backupSuccess: Boolean? = null,
+    val backupError: String? = null
 )
 
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
-    val repository: UserPreferencesRepository
+    val repository: UserPreferencesRepository,
+    private val backupRepository: BackupRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(SettingsUiState())
@@ -72,5 +76,24 @@ class SettingsViewModel @Inject constructor(
         viewModelScope.launch {
             repository.setOnboardingCompleted(false)
         }
+    }
+
+    suspend fun getExportJson(): String {
+        return backupRepository.exportData()
+    }
+
+    fun importFromJson(json: String) {
+        viewModelScope.launch {
+            val result = backupRepository.importData(json)
+            if (result.isSuccess) {
+                _uiState.update { it.copy(backupSuccess = true, backupError = null) }
+            } else {
+                _uiState.update { it.copy(backupSuccess = false, backupError = result.exceptionOrNull()?.message) }
+            }
+        }
+    }
+
+    fun clearBackupState() {
+        _uiState.update { it.copy(backupSuccess = null, backupError = null) }
     }
 }

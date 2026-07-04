@@ -2,8 +2,10 @@ package com.kidz.workouted.di
 
 import com.kidz.workouted.data.repository.WorkoutRepositoryImpl
 import com.kidz.workouted.data.repository.UserPreferencesRepositoryImpl
+import com.kidz.workouted.data.repository.BackupRepositoryImpl
 import com.kidz.workouted.domain.repository.WorkoutRepository
 import com.kidz.workouted.domain.repository.UserPreferencesRepository
+import com.kidz.workouted.domain.repository.BackupRepository
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -25,4 +27,10 @@ abstract class RepositoryModule {
     abstract fun bindUserPreferencesRepository(
         userPreferencesRepositoryImpl: UserPreferencesRepositoryImpl
     ): UserPreferencesRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindBackupRepository(
+        backupRepositoryImpl: BackupRepositoryImpl
+    ): BackupRepository
 }

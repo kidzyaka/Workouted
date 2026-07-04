@@ -74,6 +74,17 @@
     <string name="about_app">关于应用</string>
     <string name="version">版本</string>
     <string name="github_repo">GitHub 仓库</string>
+    <string name="data_management">数据管理</string>
+    <string name="export_data">导出数据</string>
+    <string name="export_data_desc">将训练和设置保存到文件</string>
+    <string name="import_data">导入数据</string>
+    <string name="import_data_desc">从之前导出的文件中恢复数据</string>
+    <string name="import_confirm_title">导入数据？</string>
+    <string name="import_confirm_message">这将用文件中的数据替换您所有当前的训练和设置。此操作无法撤销。</string>
+    <string name="import_success">数据导入成功！</string>
+    <string name="import_error">导入失败：%s</string>
+    <string name="export_success">数据导出成功！</string>
+    <string name="export_error">导出失败</string>
 
     <!-- Ranks -->
     <string name="rank_wood">木级</string>

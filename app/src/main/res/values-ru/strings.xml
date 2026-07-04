@@ -74,6 +74,17 @@
     <string name="about_app">О приложении</string>
     <string name="version">Версия</string>
     <string name="github_repo">GitHub репозиторий</string>
+    <string name="data_management">Управление данными</string>
+    <string name="export_data">Экспорт данных</string>
+    <string name="export_data_desc">Сохранить тренировки и настройки в файл</string>
+    <string name="import_data">Импорт данных</string>
+    <string name="import_data_desc">Восстановить данные из файла резервной копии</string>
+    <string name="import_confirm_title">Импортировать данные?</string>
+    <string name="import_confirm_message">Это заменит ВСЕ ваши текущие тренировки и настройки данными из файла. Это действие нельзя отменить.</string>
+    <string name="import_success">Данные успешно импортированы!</string>
+    <string name="import_error">Ошибка импорта: %s</string>
+    <string name="export_success">Данные успешно экспортированы!</string>
+    <string name="export_error">Ошибка экспорта</string>
 
     <!-- Ranks -->
     <string name="rank_wood">Дерево</string>

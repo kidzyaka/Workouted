@@ -3,7 +3,9 @@ package com.kidz.workouted.data.local.entity
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
+import kotlinx.serialization.Serializable
 
+@Serializable
 @Entity(tableName = "workouts")
 data class WorkoutEntity(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
@@ -11,6 +13,7 @@ data class WorkoutEntity(
     val notes: String? = null
 )
 
+@Serializable
 @Entity(tableName = "exercises")
 data class ExerciseEntity(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
@@ -19,6 +22,7 @@ data class ExerciseEntity(
     val maxWeightReference: Double
 )
 
+@Serializable
 @Entity(
     tableName = "sets",
     foreignKeys = [
@@ -44,12 +48,14 @@ data class SetEntity(
     val reps: Int
 )
 
+@Serializable
 @Entity(tableName = "muscle_groups")
 data class MuscleGroupEntity(
     @PrimaryKey val id: String,
     val name: String
 )
 
+@Serializable
 @Entity(
     tableName = "muscles",
     foreignKeys = [
@@ -68,6 +74,7 @@ data class MuscleEntity(
     val anatomicalWeight: Double
 )
 
+@Serializable
 @Entity(
     tableName = "muscle_impacts",
     primaryKeys = ["exerciseId", "muscleId"],

@@ -73,6 +73,20 @@ interface WorkoutDao {
     @Transaction
     @Query("SELECT * FROM exercises")
     fun getExercisesWithMuscleImpacts(): Flow<List<ExerciseWithImpacts>>
+
+    @Query("DELETE FROM workouts")
+    suspend fun clearWorkouts()
+
+    @Query("DELETE FROM sets")
+    suspend fun clearSets()
+
+    @Transaction
+    suspend fun importWorkoutsAndSets(workouts: List<WorkoutEntity>, sets: List<SetEntity>) {
+        clearSets()
+        clearWorkouts()
+        workouts.forEach { insertWorkout(it) }
+        insertSets(sets)
+    }
 }
 
 data class WorkoutWithSets(

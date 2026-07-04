@@ -74,6 +74,17 @@
     <string name="about_app">About App</string>
     <string name="version">Version</string>
     <string name="github_repo">GitHub Repository</string>
+    <string name="data_management">Data Management</string>
+    <string name="export_data">Export Data</string>
+    <string name="export_data_desc">Save your workouts and settings to a file</string>
+    <string name="import_data">Import Data</string>
+    <string name="import_data_desc">Restore data from a previously exported file</string>
+    <string name="import_confirm_title">Import Data?</string>
+    <string name="import_confirm_message">This will replace ALL your current workouts and settings with the data from the file. This cannot be undone.</string>
+    <string name="import_success">Data imported successfully!</string>
+    <string name="import_error">Failed to import data: %s</string>
+    <string name="export_success">Data exported successfully!</string>
+    <string name="export_error">Failed to export data</string>
 
     <!-- Ranks -->
     <string name="rank_wood">Wood</string>
