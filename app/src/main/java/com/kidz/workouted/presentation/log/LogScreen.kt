@@ -11,10 +11,12 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.FitnessCenter
 import androidx.compose.material3.*
+import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -27,7 +29,7 @@ import java.util.*
 @Composable
 fun LogScreen(
     viewModel: LogViewModel,
-    onWorkoutClick: (Long) -> Unit
+    onWorkoutClick: (Long) -> Unit,
 ) {
     val uiState by viewModel.uiState.collectAsState()
     
@@ -95,12 +97,57 @@ fun LogContent(
                         Text(stringResource(R.string.no_workouts))
                     }
                 } else {
+                    val locale = LocalConfiguration.current.locales[0]
+                    val groupedWorkouts = remember(uiState.workouts, locale) {
+                        uiState.workouts.groupBy { workout ->
+                            val cal = Calendar.getInstance().apply { timeInMillis = workout.timestamp }
+                            SimpleDateFormat("MMMM yyyy", locale).format(cal.time)
+                        }
+                    }
+                    val months = groupedWorkouts.keys.toList()
+                    var selectedMonthIndex by remember(months) { mutableIntStateOf(0) }
+                    
+                    // Safety check if index out of bounds after deletion
+                    val safeIndex = selectedMonthIndex.coerceIn(0, months.size - 1)
+                    val currentMonth = months.getOrNull(safeIndex)
+                    val workoutsInMonth = currentMonth?.let { groupedWorkouts[it] } ?: emptyList()
+
+                    ScrollableTabRow(
+                        selectedTabIndex = safeIndex,
+                        edgePadding = 0.dp,
+                        containerColor = Color.Transparent,
+                        divider = {},
+                        indicator = { tabPositions ->
+                            if (safeIndex < tabPositions.size) {
+                                TabRowDefaults.SecondaryIndicator(
+                                    modifier = Modifier.tabIndicatorOffset(tabPositions[safeIndex]),
+                                    color = MaterialTheme.colorScheme.primary
+                                )
+                            }
+                        },
+                        modifier = Modifier.padding(bottom = 16.dp)
+                    ) {
+                        months.forEachIndexed { index, month ->
+                            Tab(
+                                selected = safeIndex == index,
+                                onClick = { selectedMonthIndex = index },
+                                text = {
+                                    Text(
+                                        text = month.replaceFirstChar { it.uppercase() },
+                                        style = MaterialTheme.typography.titleSmall,
+                                        fontWeight = if (safeIndex == index) FontWeight.Bold else FontWeight.Normal
+                                    )
+                                }
+                            )
+                        }
+                    }
+
                     LazyColumn(
                         verticalArrangement = Arrangement.spacedBy(16.dp),
                         modifier = Modifier.fillMaxSize()
                     ) {
                         items(
-                            items = uiState.workouts,
+                            items = workoutsInMonth,
                             key = { it.id }
                         ) { workout ->
                             WorkoutItem(
@@ -192,9 +239,10 @@ fun WorkoutItem(
                 
                 Spacer(modifier = Modifier.width(16.dp))
                 
+                val locale = LocalConfiguration.current.locales[0]
                 Column {
                     Text(
-                        text = SimpleDateFormat("EEEE, HH:mm", Locale.getDefault())
+                        text = SimpleDateFormat("EEEE, HH:mm", locale)
                             .format(Date(workout.timestamp)),
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold
@@ -218,7 +266,7 @@ fun LogPreview() {
             uiState = LogUiState.Success(
                 workouts = listOf(
                     Workout(1, System.currentTimeMillis(), 1500.0, 3),
-                    Workout(2, System.currentTimeMillis() - 86400000, 800.0, 2)
+                    Workout(2, System.currentTimeMillis() - 86400000 * 35, 800.0, 2)
                 )
             ),
             onWorkoutClick = {},
