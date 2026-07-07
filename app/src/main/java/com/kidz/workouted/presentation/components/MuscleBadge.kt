@@ -3,8 +3,7 @@ package com.kidz.workouted.presentation.components
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -21,6 +20,7 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.runtime.remember
 
 import androidx.compose.animation.core.*
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.border
 import androidx.compose.runtime.getValue
 
@@ -34,10 +34,10 @@ fun MuscleBadge(
 ) {
     val infiniteTransition = rememberInfiniteTransition(label = "glow")
     val alpha by infiniteTransition.animateFloat(
-        initialValue = 0f,
-        targetValue = 0.6f,
+        initialValue = 0.2f,
+        targetValue = 0.8f,
         animationSpec = infiniteRepeatable(
-            animation = tween(1000, easing = FastOutSlowInEasing),
+            animation = tween(1200, easing = LinearOutSlowInEasing),
             repeatMode = RepeatMode.Reverse
         ),
         label = "alpha"
@@ -52,42 +52,48 @@ fun MuscleBadge(
         )
     ) {
         Box(
-            contentAlignment = Alignment.Center
+            contentAlignment = Alignment.Center,
+            modifier = Modifier.padding(bottom = 6.dp)
         ) {
             if (hasUnseenProgression) {
                 Box(
                     modifier = Modifier
-                        .size(18.dp)
+                        .size(24.dp)
                         .clip(CircleShape)
-                        .background(rank.color.copy(alpha = alpha))
+                        .background(rank.color.copy(alpha = alpha * 0.4f))
                 )
             }
-            Box(
-                modifier = Modifier
-                    .size(12.dp)
-                    .clip(CircleShape)
-                    .background(rank.color)
-                    .then(
-                        if (hasUnseenProgression) {
-                            Modifier.border(1.dp, Color.White.copy(alpha = 0.5f), CircleShape)
-                        } else Modifier
-                    )
+            Surface(
+                shape = CircleShape,
+                color = rank.color,
+                modifier = Modifier.size(14.dp),
+                shadowElevation = if (hasUnseenProgression) 4.dp else 0.dp,
+                border = if (hasUnseenProgression) BorderStroke(1.dp, Color.White.copy(alpha = 0.5f)) else null
+            ) {}
+        }
+        
+        Surface(
+            shape = MaterialTheme.shapes.extraSmall,
+            color = MaterialTheme.colorScheme.surfaceContainerHighest.copy(alpha = 0.8f),
+            modifier = Modifier.clip(MaterialTheme.shapes.extraSmall)
+        ) {
+            Text(
+                text = muscleName.uppercase(),
+                style = MaterialTheme.typography.labelSmall,
+                fontWeight = FontWeight.Black,
+                color = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
+                fontSize = 9.sp
             )
         }
-        Spacer(modifier = Modifier.height(4.dp))
+        
         Text(
-            text = muscleName.uppercase(),
+            text = stringResource(rank.nameRes),
             style = MaterialTheme.typography.labelSmall,
             fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f),
-            letterSpacing = 1.sp
-        )
-        Text(
-            text = stringResource(rank.nameRes).uppercase(),
-            style = MaterialTheme.typography.labelSmall,
-            fontWeight = FontWeight.Black,
-            fontSize = 8.sp,
-            color = rank.color
+            fontSize = 10.sp,
+            color = rank.color,
+            modifier = Modifier.padding(top = 2.dp)
         )
     }
 }

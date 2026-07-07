@@ -31,6 +31,7 @@ import androidx.compose.ui.unit.sp
 import com.kidz.workouted.R
 import com.kidz.workouted.core.util.LocalizationUtil
 import com.kidz.workouted.domain.model.Rank
+import com.kidz.workouted.presentation.components.StaggeredEntranceItem
 import com.kidz.workouted.ui.theme.WorkoutedTheme
 import kotlin.math.cos
 import kotlin.math.sin
@@ -53,20 +54,24 @@ fun StatsContent(
             .fillMaxSize()
             .statusBarsPadding()
             .verticalScroll(rememberScrollState())
-            .padding(16.dp)
+            .padding(horizontal = 20.dp, vertical = 16.dp)
     ) {
-        Text(
-            text = stringResource(R.string.statistics),
-            style = MaterialTheme.typography.headlineLarge,
-            fontWeight = FontWeight.Black,
-            modifier = Modifier.padding(bottom = 8.dp)
-        )
-        Text(
-            text = stringResource(R.string.progress_30_days),
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f),
-            modifier = Modifier.padding(bottom = 24.dp)
-        )
+        StaggeredEntranceItem(index = 0) {
+            Column {
+                Text(
+                    text = stringResource(R.string.statistics),
+                    style = MaterialTheme.typography.headlineLarge,
+                    fontWeight = FontWeight.Black,
+                    modifier = Modifier.padding(bottom = 8.dp)
+                )
+                Text(
+                    text = stringResource(R.string.progress_30_days),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f),
+                    modifier = Modifier.padding(bottom = 24.dp)
+                )
+            }
+        }
 
         when (val state = uiState) {
             is StatsUiState.Loading -> {
@@ -75,18 +80,34 @@ fun StatsContent(
                 }
             }
             is StatsUiState.Success -> {
-                ActivityChart(state.activityData)
+                StaggeredEntranceItem(index = 1) {
+                    ActivityChart(state.activityData)
+                }
                 Spacer(modifier = Modifier.height(24.dp))
-                BalanceChart(state.muscleBalance)
+                StaggeredEntranceItem(index = 2) {
+                    BalanceChart(state.muscleBalance)
+                }
                 Spacer(modifier = Modifier.height(24.dp))
-                ProgressionScales(state.muscleProgression)
+                StaggeredEntranceItem(index = 3) {
+                    ProgressionScales(state.muscleProgression)
+                }
                 Spacer(modifier = Modifier.height(24.dp))
-                if (state.progressData.isNotEmpty()) {
-                    ProgressChart(state.progressData)
-                } else {
-                    Card(modifier = Modifier.fillMaxWidth()) {
-                        Box(Modifier.padding(32.dp).fillMaxWidth(), contentAlignment = Alignment.Center) {
-                            Text(stringResource(R.string.no_progress_data), style = MaterialTheme.typography.bodyMedium)
+                StaggeredEntranceItem(index = 4) {
+                    if (state.progressData.isNotEmpty()) {
+                        ProgressChart(state.progressData)
+                    } else {
+                        Card(modifier = Modifier.fillMaxWidth()) {
+                            Box(
+                                Modifier
+                                    .padding(32.dp)
+                                    .fillMaxWidth(),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text(
+                                    stringResource(R.string.no_progress_data),
+                                    style = MaterialTheme.typography.bodyMedium
+                                )
+                            }
                         }
                     }
                 }

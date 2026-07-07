@@ -26,6 +26,7 @@ import androidx.compose.ui.unit.sp
 import androidx.core.os.LocaleListCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.kidz.workouted.R
+import com.kidz.workouted.presentation.components.StaggeredEntranceItem
 import com.kidz.workouted.ui.theme.WorkoutedTheme
 import kotlinx.coroutines.launch
 import java.io.InputStreamReader
@@ -137,96 +138,112 @@ fun SettingsContent(
                 .statusBarsPadding()
                 .padding(innerPadding)
                 .verticalScroll(rememberScrollState())
-                .padding(16.dp)
+                .padding(horizontal = 20.dp, vertical = 16.dp)
         ) {
-            Text(
-                text = stringResource(R.string.settings),
-                style = MaterialTheme.typography.headlineLarge,
-                fontWeight = FontWeight.Black,
-                modifier = Modifier.padding(bottom = 8.dp)
-            )
-            Text(
-                text = stringResource(R.string.manage_profile),
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f),
-                modifier = Modifier.padding(bottom = 24.dp)
-            )
-
-            SettingsSection(title = stringResource(R.string.language_region)) {
-                val languageName = when (uiState.language) {
-                    "ru" -> "Русский"
-                    "es" -> "Español"
-                    "zh" -> "中文"
-                    else -> "English"
-                }
-                SettingsItem(
-                    icon = Icons.Default.Language,
-                    title = stringResource(R.string.app_language),
-                    subtitle = languageName,
-                    onClick = { showLanguageDialog = true }
-                )
-            }
-
-            Spacer(modifier = Modifier.height(24.dp))
-
-            SettingsSection(title = stringResource(R.string.physical_parameters)) {
-                ParameterInput(
-                    icon = Icons.Default.Straighten,
-                    label = stringResource(R.string.height_cm),
-                    value = uiState.height,
-                    onValueChange = onUpdateHeight
-                )
-                ParameterInput(
-                    icon = Icons.Default.MonitorWeight,
-                    label = stringResource(R.string.weight_kg_label),
-                    value = uiState.weight,
-                    onValueChange = onUpdateWeight
-                )
-                ParameterInput(
-                    icon = Icons.Default.Height,
-                    label = stringResource(R.string.age),
-                    value = uiState.age,
-                    onValueChange = onUpdateAge
-                )
-            }
-
-            Spacer(modifier = Modifier.height(24.dp))
-
-            SettingsSection(title = stringResource(R.string.data_management)) {
-                SettingsItem(
-                    icon = Icons.Default.FileUpload,
-                    title = stringResource(R.string.export_data),
-                    subtitle = stringResource(R.string.export_data_desc),
-                    onClick = { createDocumentLauncher.launch("workouted_backup_${System.currentTimeMillis()}.json") }
-                )
-                SettingsItem(
-                    icon = Icons.Default.FileDownload,
-                    title = stringResource(R.string.import_data),
-                    subtitle = stringResource(R.string.import_data_desc),
-                    onClick = { openDocumentLauncher.launch(arrayOf("application/json")) }
-                )
-            }
-
-            Spacer(modifier = Modifier.height(24.dp))
-
-            SettingsSection(title = stringResource(R.string.about_app)) {
-                SettingsItem(
-                    title = stringResource(R.string.version),
-                    subtitle = "1.0",
-                    showChevron = false
-                )
-                SettingsItem(
-                    title = stringResource(R.string.github_repo),
-                    subtitle = "kidzyaka/Workouted",
-                    onClick = { uriHandler.openUri("https://github.com/kidzyaka/Workouted") }
-                )
-
-                if (com.kidz.workouted.BuildConfig.DEBUG) {
-                    SettingsItem(
-                        title = stringResource(R.string.reset_onboarding),
-                        subtitle = "Debug only",
-                        onClick = onResetOnboarding
+            StaggeredEntranceItem(index = 0) {
+                Column {
+                    Text(
+                        text = stringResource(R.string.settings),
+                        style = MaterialTheme.typography.headlineLarge,
+                        fontWeight = FontWeight.Black,
+                        modifier = Modifier.padding(bottom = 8.dp)
                     )
+                    Text(
+                        text = stringResource(R.string.manage_profile),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f),
+                        modifier = Modifier.padding(bottom = 24.dp)
+                    )
+                }
+            }
+
+            StaggeredEntranceItem(index = 1) {
+                SettingsSection(title = stringResource(R.string.language_region)) {
+                    val languageName = when (uiState.language) {
+                        "ru" -> "Русский"
+                        "es" -> "Español"
+                        "zh" -> "中文"
+                        else -> "English"
+                    }
+                    SettingsItem(
+                        icon = Icons.Default.Language,
+                        title = stringResource(R.string.app_language),
+                        subtitle = languageName,
+                        onClick = { showLanguageDialog = true }
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            StaggeredEntranceItem(index = 2) {
+                SettingsSection(title = stringResource(R.string.physical_parameters)) {
+                    ParameterInput(
+                        icon = Icons.Default.Straighten,
+                        label = stringResource(R.string.height_cm),
+                        value = uiState.height,
+                        onValueChange = onUpdateHeight
+                    )
+                    ParameterInput(
+                        icon = Icons.Default.MonitorWeight,
+                        label = stringResource(R.string.weight_kg_label),
+                        value = uiState.weight,
+                        onValueChange = onUpdateWeight
+                    )
+                    ParameterInput(
+                        icon = Icons.Default.Height,
+                        label = stringResource(R.string.age),
+                        value = uiState.age,
+                        onValueChange = onUpdateAge
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            StaggeredEntranceItem(index = 3) {
+                SettingsSection(title = stringResource(R.string.data_management)) {
+                    SettingsItem(
+                        icon = Icons.Default.FileUpload,
+                        title = stringResource(R.string.export_data),
+                        subtitle = stringResource(R.string.export_data_desc),
+                        onClick = {
+                            createDocumentLauncher.launch(
+                                "workouted_backup_${System.currentTimeMillis()}.json"
+                            )
+                        }
+                    )
+                    SettingsItem(
+                        icon = Icons.Default.FileDownload,
+                        title = stringResource(R.string.import_data),
+                        subtitle = stringResource(R.string.import_data_desc),
+                        onClick = { openDocumentLauncher.launch(arrayOf("application/json")) }
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            StaggeredEntranceItem(index = 4) {
+                SettingsSection(title = stringResource(R.string.about_app)) {
+                    SettingsItem(
+                        title = stringResource(R.string.version),
+                        subtitle = "1.0",
+                        showChevron = false
+                    )
+                    SettingsItem(
+                        title = stringResource(R.string.github_repo),
+                        subtitle = "kidzyaka/Workouted",
+                        onClick = { uriHandler.openUri("https://github.com/kidzyaka/Workouted") }
+                    )
+
+                    if (com.kidz.workouted.BuildConfig.DEBUG) {
+                        SettingsItem(
+                            title = stringResource(R.string.reset_onboarding),
+                            subtitle = "Debug only",
+                            onClick = onResetOnboarding
+                        )
+                    }
                 }
             }
             

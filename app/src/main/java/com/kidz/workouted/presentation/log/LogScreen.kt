@@ -6,7 +6,7 @@ import androidx.compose.animation.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.FitnessCenter
@@ -23,6 +23,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.kidz.workouted.domain.model.Workout
+import com.kidz.workouted.presentation.components.StaggeredEntranceItem
 import com.kidz.workouted.ui.theme.WorkoutedTheme
 import java.text.SimpleDateFormat
 import java.util.*
@@ -77,14 +78,16 @@ fun LogContent(
         modifier = Modifier
             .fillMaxSize()
             .statusBarsPadding()
-            .padding(16.dp)
+            .padding(horizontal = 20.dp, vertical = 16.dp)
     ) {
-        Text(
-            text = stringResource(R.string.workout_log),
-            style = MaterialTheme.typography.headlineMedium,
-            fontWeight = FontWeight.Black,
-            modifier = Modifier.padding(bottom = 24.dp)
-        )
+        StaggeredEntranceItem(index = 0) {
+            Text(
+                text = stringResource(R.string.workout_log),
+                style = MaterialTheme.typography.headlineMedium,
+                fontWeight = FontWeight.Black,
+                modifier = Modifier.padding(bottom = 24.dp)
+            )
+        }
 
         when (uiState) {
             is LogUiState.Loading -> {
@@ -125,33 +128,35 @@ fun LogContent(
                     val currentMonth = months.getOrNull(safeIndex)
                     val workoutsInMonth = (currentMonth?.let { groupedWorkouts[it] } ?: emptyList()).reversed()
 
-                    ScrollableTabRow(
-                        selectedTabIndex = safeIndex,
-                        edgePadding = 16.dp,
-                        containerColor = Color.Transparent,
-                        divider = {},
-                        indicator = { tabPositions ->
-                            if (safeIndex < tabPositions.size) {
-                                TabRowDefaults.SecondaryIndicator(
-                                    modifier = Modifier.tabIndicatorOffset(tabPositions[safeIndex]),
-                                    color = MaterialTheme.colorScheme.primary
-                                )
-                            }
-                        },
-                        modifier = Modifier.padding(bottom = 16.dp)
-                    ) {
-                        months.forEachIndexed { index, month ->
-                            Tab(
-                                selected = safeIndex == index,
-                                onClick = { selectedMonthIndex = index },
-                                text = {
-                                    Text(
-                                        text = month.replaceFirstChar { it.uppercase() },
-                                        style = MaterialTheme.typography.titleSmall,
-                                        fontWeight = if (safeIndex == index) FontWeight.Bold else FontWeight.Normal
+                    StaggeredEntranceItem(index = 1) {
+                        ScrollableTabRow(
+                            selectedTabIndex = safeIndex,
+                            edgePadding = 16.dp,
+                            containerColor = Color.Transparent,
+                            divider = {},
+                            indicator = { tabPositions ->
+                                if (safeIndex < tabPositions.size) {
+                                    TabRowDefaults.SecondaryIndicator(
+                                        modifier = Modifier.tabIndicatorOffset(tabPositions[safeIndex]),
+                                        color = MaterialTheme.colorScheme.primary
                                     )
                                 }
-                            )
+                            },
+                            modifier = Modifier.padding(bottom = 16.dp)
+                        ) {
+                            months.forEachIndexed { index, month ->
+                                Tab(
+                                    selected = safeIndex == index,
+                                    onClick = { selectedMonthIndex = index },
+                                    text = {
+                                        Text(
+                                            text = month.replaceFirstChar { it.uppercase() },
+                                            style = MaterialTheme.typography.titleSmall,
+                                            fontWeight = if (safeIndex == index) FontWeight.Bold else FontWeight.Normal
+                                        )
+                                    }
+                                )
+                            }
                         }
                     }
 
@@ -159,15 +164,17 @@ fun LogContent(
                         verticalArrangement = Arrangement.spacedBy(16.dp),
                         modifier = Modifier.fillMaxSize()
                     ) {
-                        items(
+                        itemsIndexed(
                             items = workoutsInMonth,
-                            key = { it.id }
-                        ) { workout ->
-                            WorkoutItem(
-                                workout = workout,
-                                onClick = { onWorkoutClick(workout.id) },
-                                onDelete = { workoutToDelete = workout }
-                            )
+                            key = { _, workout -> workout.id }
+                        ) { index, workout ->
+                            StaggeredEntranceItem(index = index + 2) {
+                                WorkoutItem(
+                                    workout = workout,
+                                    onClick = { onWorkoutClick(workout.id) },
+                                    onDelete = { workoutToDelete = workout }
+                                )
+                            }
                         }
                     }
                 }

@@ -5,13 +5,14 @@ import com.kidz.workouted.domain.model.Rank
 sealed class DashboardUiState {
     object Loading : DashboardUiState()
     data class Success(
-        val muscleGroupRanks: Map<String, Rank>, // Keep for compatibility if needed, or replace
+        val muscleGroupRanks: Map<String, Rank>,
         val muscleGroupsProgression: Map<String, MuscleGroupProgression>,
         val workoutDates: Set<Long>,
         val weeklyWorkoutsCount: Int,
         val strengthIncreasePercentage: Int,
         val activeEnergyKcal: Int,
         val activeTimeHours: Double,
+        val greetingTitleResId: Int,
         val rankUps: List<RankUpData> = emptyList()
     ) : DashboardUiState()
     data class Error(val message: String) : DashboardUiState()

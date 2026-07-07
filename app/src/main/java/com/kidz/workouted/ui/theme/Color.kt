@@ -50,10 +50,15 @@ val OnSurfaceVariantLight = Color(0xFF47464F)
 
 // Rank Colors
 val RankTree = Color(0xFF4F3B3A)
-val RankBronze = Color(0xFFD96D3D) // Using purple shades as per design
-val RankSilver = Color(0xFFBFDCFD)
-val RankGold = Color(0xFFEECF37)
-val RankPlatinum = Color(0xFFFFFFFF)
-val RankEmerald = Color(0xFF3DC42C)
-val RankDiamond = Color(0xFF5AC8FF)
-val RankElite = Color(0xFFFF5252)
+val RankBronze = Color(0xFFCD7F32)
+val RankSilver = Color(0xFFC0C0C0)
+val RankGold = Color(0xFFFFD700)
+val RankPlatinum = Color(0xFFE5E4E2)
+val RankEmerald = Color(0xFF50C878)
+val RankDiamond = Color(0xFFB9F2FF)
+val RankElite = Color(0xFFFF4D4D)
+
+// Expressive Accents
+val ExpressiveGradientStart = Color(0xFF6A11CB)
+val ExpressiveGradientEnd = Color(0xFF2575FC)
+val GlassBackground = Color(0x33FFFFFF)

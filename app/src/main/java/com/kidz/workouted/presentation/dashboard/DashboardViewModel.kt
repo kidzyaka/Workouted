@@ -3,6 +3,7 @@ package com.kidz.workouted.presentation.dashboard
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.kidz.workouted.R
 import com.kidz.workouted.data.local.dao.WorkoutDao
 import com.kidz.workouted.domain.model.Rank
 import com.kidz.workouted.domain.repository.UserPreferencesRepository
@@ -23,6 +24,15 @@ class DashboardViewModel @Inject constructor(
 
     private val _uiState = MutableStateFlow<DashboardUiState>(DashboardUiState.Loading)
     val uiState: StateFlow<DashboardUiState> = _uiState.asStateFlow()
+
+    private val sessionGreetingTitleResId = listOf(
+        R.string.title_warrior,
+        R.string.title_champion,
+        R.string.title_athlete,
+        R.string.title_legend,
+        R.string.title_hero,
+        R.string.title_titan
+    ).random()
 
     init {
         loadDashboardData()
@@ -130,6 +140,7 @@ class DashboardViewModel @Inject constructor(
                 strengthIncreasePercentage = 0,
                 activeEnergyKcal = 0,
                 activeTimeHours = 0.0,
+                greetingTitleResId = sessionGreetingTitleResId,
                 rankUps = rankUps
             )
         }.onEach { state ->

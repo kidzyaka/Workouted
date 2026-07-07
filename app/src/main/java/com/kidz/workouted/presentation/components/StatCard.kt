@@ -15,8 +15,8 @@ fun StatCard(
     value: String,
     unit: String,
     modifier: Modifier = Modifier,
-    containerColor: Color = MaterialTheme.colorScheme.surfaceVariant,
-    contentColor: Color = MaterialTheme.colorScheme.onSurfaceVariant
+    containerColor: Color = MaterialTheme.colorScheme.surfaceContainerHigh,
+    contentColor: Color = MaterialTheme.colorScheme.onSurface
 ) {
     Card(
         modifier = modifier,
@@ -24,34 +24,38 @@ fun StatCard(
             containerColor = containerColor,
             contentColor = contentColor
         ),
-        shape = MaterialTheme.shapes.extraLarge
+        shape = MaterialTheme.shapes.extraLarge,
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Column(
             modifier = Modifier
-                .padding(16.dp)
+                .padding(20.dp)
                 .fillMaxSize(),
             verticalArrangement = Arrangement.SpaceBetween
         ) {
             Text(
                 text = title,
                 style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Bold,
+                color = contentColor.copy(alpha = 0.8f)
             )
             Row(
                 verticalAlignment = androidx.compose.ui.Alignment.Bottom
             ) {
                 Text(
                     text = value,
-                    style = MaterialTheme.typography.headlineMedium,
-                    fontWeight = FontWeight.Black,
-                    fontSize = 28.sp
+                    style = MaterialTheme.typography.displaySmall,
+                    fontWeight = FontWeight.Black
                 )
-                Spacer(modifier = Modifier.width(4.dp))
-                Text(
-                    text = unit,
-                    style = MaterialTheme.typography.labelMedium,
-                    modifier = Modifier.padding(bottom = 4.dp)
-                )
+                if (unit.isNotEmpty()) {
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(
+                        text = unit,
+                        style = MaterialTheme.typography.labelMedium,
+                        modifier = Modifier.padding(bottom = 6.dp),
+                        color = contentColor.copy(alpha = 0.6f)
+                    )
+                }
             }
         }
     }

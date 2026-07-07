@@ -14,7 +14,18 @@
     <string name="get_started">开始使用</string>
     <string name="reset_onboarding">重置引导 (Debug)</string>
 
-    <!-- Dashboard -->
+    <!-- Dashboard Greetings -->
+    <string name="greeting_morning">早上好，</string>
+    <string name="greeting_day">你好，</string>
+    <string name="greeting_evening">晚上好，</string>
+    <string name="greeting_night">晚安，</string>
+    <string name="title_warrior">战士！</string>
+    <string name="title_champion">冠军！</string>
+    <string name="title_athlete">运动员！</string>
+    <string name="title_legend">传奇！</string>
+    <string name="title_hero">英雄！</string>
+    <string name="title_titan">巨人！</string>
+
     <string name="muscle_map">肌肉图</string>
     <string name="progress_by_muscle">肌肉进度</string>
     <string name="weekly_summary">每周总结</string>

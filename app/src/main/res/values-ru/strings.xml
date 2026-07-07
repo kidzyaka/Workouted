@@ -14,7 +14,18 @@
     <string name="get_started">Начать</string>
     <string name="reset_onboarding">Сброс онбординга (Debug)</string>
 
-    <!-- Dashboard -->
+    <!-- Dashboard Greetings -->
+    <string name="greeting_morning">Доброе утро,</string>
+    <string name="greeting_day">Добрый день,</string>
+    <string name="greeting_evening">Добрый вечер,</string>
+    <string name="greeting_night">Доброй ночи,</string>
+    <string name="title_warrior">Воин!</string>
+    <string name="title_champion">Чемпион!</string>
+    <string name="title_athlete">Атлет!</string>
+    <string name="title_legend">Легенда!</string>
+    <string name="title_hero">Герой!</string>
+    <string name="title_titan">Титан!</string>
+
     <string name="muscle_map">Карта мышц</string>
     <string name="progress_by_muscle">Прогресс по мышцам</string>
     <string name="weekly_summary">Итоги недели</string>
