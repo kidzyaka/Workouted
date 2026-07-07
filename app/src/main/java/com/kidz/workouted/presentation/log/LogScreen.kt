@@ -13,6 +13,7 @@ import androidx.compose.material.icons.filled.FitnessCenter
 import androidx.compose.material3.*
 import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -99,22 +100,34 @@ fun LogContent(
                 } else {
                     val locale = LocalConfiguration.current.locales[0]
                     val groupedWorkouts = remember(uiState.workouts, locale) {
-                        uiState.workouts.groupBy { workout ->
-                            val cal = Calendar.getInstance().apply { timeInMillis = workout.timestamp }
-                            SimpleDateFormat("MMMM yyyy", locale).format(cal.time)
-                        }
+                        uiState.workouts
+                            .sortedBy { it.timestamp }
+                            .groupBy { workout ->
+                                val cal = Calendar.getInstance().apply { timeInMillis = workout.timestamp }
+                                SimpleDateFormat("MMMM yyyy", locale).format(cal.time)
+                            }
                     }
                     val months = groupedWorkouts.keys.toList()
-                    var selectedMonthIndex by remember(months) { mutableIntStateOf(0) }
+                    
+                    val currentMonthName = remember(locale) {
+                        SimpleDateFormat("MMMM yyyy", locale).format(Date())
+                    }
+                    
+                    val initialIndex = remember(months) {
+                        val idx = months.indexOf(currentMonthName)
+                        if (idx != -1) idx else (months.size - 1).coerceAtLeast(0)
+                    }
+
+                    var selectedMonthIndex by rememberSaveable(months) { mutableIntStateOf(initialIndex) }
                     
                     // Safety check if index out of bounds after deletion
                     val safeIndex = selectedMonthIndex.coerceIn(0, months.size - 1)
                     val currentMonth = months.getOrNull(safeIndex)
-                    val workoutsInMonth = currentMonth?.let { groupedWorkouts[it] } ?: emptyList()
+                    val workoutsInMonth = (currentMonth?.let { groupedWorkouts[it] } ?: emptyList()).reversed()
 
                     ScrollableTabRow(
                         selectedTabIndex = safeIndex,
-                        edgePadding = 0.dp,
+                        edgePadding = 16.dp,
                         containerColor = Color.Transparent,
                         divider = {},
                         indicator = { tabPositions ->
