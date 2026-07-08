@@ -112,19 +112,13 @@ fun DashboardContent(
         ) {
             // Header Section
             StaggeredEntranceItem(index = 0) {
-                Column(modifier = Modifier.padding(bottom = 32.dp)) {
-                    Text(
-                        text = stringResource(greeting),
-                        style = MaterialTheme.typography.titleLarge,
-                        color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f)
-                    )
-                    Text(
-                        text = stringResource(warriorTitle),
-                        style = MaterialTheme.typography.displayMedium,
-                        fontWeight = FontWeight.Black,
-                        color = MaterialTheme.colorScheme.primary
-                    )
-                }
+                Text(
+                    text = "${stringResource(greeting)} ${stringResource(warriorTitle)}",
+                    style = MaterialTheme.typography.displayMedium,
+                    fontWeight = FontWeight.Black,
+                    color = MaterialTheme.colorScheme.onBackground,
+                    modifier = Modifier.padding(bottom = 32.dp)
+                )
             }
 
             Spacer(modifier = Modifier.height(16.dp))
