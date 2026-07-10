@@ -107,8 +107,7 @@ fun OnboardingScreen(
 
         Button(
             onClick = {
-                viewModel.completeOnboarding()
-                onComplete()
+                viewModel.completeOnboarding(onComplete)
             },
             modifier = Modifier
                 .fillMaxWidth()

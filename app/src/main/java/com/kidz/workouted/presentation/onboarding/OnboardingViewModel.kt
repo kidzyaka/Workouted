@@ -36,12 +36,13 @@ class OnboardingViewModel @Inject constructor(
         _age.value = age
     }
 
-    fun completeOnboarding() {
+    fun completeOnboarding(onSuccess: () -> Unit) {
         viewModelScope.launch {
             repository.setUserHeightCm(_heightCm.value)
             repository.setUserWeightKg(_weightKg.value)
             repository.setUserAge(_age.value)
             repository.setOnboardingCompleted(true)
+            onSuccess()
         }
     }
 }

@@ -114,10 +114,10 @@ fun DashboardContent(
             StaggeredEntranceItem(index = 0) {
                 Text(
                     text = "${stringResource(greeting)} ${stringResource(warriorTitle)}",
-                    style = MaterialTheme.typography.displayMedium,
-                    fontWeight = FontWeight.Black,
+                    style = MaterialTheme.typography.displaySmall,
+                    fontWeight = FontWeight.Light,
                     color = MaterialTheme.colorScheme.onBackground,
-                    modifier = Modifier.padding(bottom = 32.dp)
+                    modifier = Modifier.padding(bottom = 2.dp)
                 )
             }
 
@@ -160,7 +160,7 @@ fun DashboardContent(
                             MuscleBadge(
                                 LocalizationUtil.getLocalizedName(context, "group_back"),
                                 uiState.muscleGroupRanks["group_back"] ?: Rank.WOOD,
-                                Modifier.align(BiasAlignment(0f, -0.75f)),
+                                Modifier.align(BiasAlignment(-0f, -0.63f)),
                                 hasUnseenProgression = uiState.muscleGroupsProgression["group_back"]?.hasUnseenProgression ?: false,
                                 onClick = {
                                     selectedGroupProgression =
@@ -173,7 +173,7 @@ fun DashboardContent(
                             MuscleBadge(
                                 LocalizationUtil.getLocalizedName(context, "group_shoulders"),
                                 uiState.muscleGroupRanks["group_shoulders"] ?: Rank.WOOD,
-                                Modifier.align(BiasAlignment(0.65f, -0.65f)),
+                                Modifier.align(BiasAlignment(0.35f, -0.55f)),
                                 hasUnseenProgression = uiState.muscleGroupsProgression["group_shoulders"]?.hasUnseenProgression ?: false,
                                 onClick = {
                                     selectedGroupProgression =
@@ -186,7 +186,7 @@ fun DashboardContent(
                             MuscleBadge(
                                 LocalizationUtil.getLocalizedName(context, "group_chest"),
                                 uiState.muscleGroupRanks["group_chest"] ?: Rank.WOOD,
-                                Modifier.align(BiasAlignment(-0.65f, -0.65f)),
+                                Modifier.align(BiasAlignment(-0.15f, -0.45f)),
                                 hasUnseenProgression = uiState.muscleGroupsProgression["group_chest"]?.hasUnseenProgression ?: false,
                                 onClick = {
                                     selectedGroupProgression =
@@ -199,7 +199,7 @@ fun DashboardContent(
                             MuscleBadge(
                                 LocalizationUtil.getLocalizedName(context, "group_arms"),
                                 uiState.muscleGroupRanks["group_arms"] ?: Rank.WOOD,
-                                Modifier.align(BiasAlignment(-0.75f, -0.15f)),
+                                Modifier.align(BiasAlignment(-0.40f, -0.15f)),
                                 hasUnseenProgression = uiState.muscleGroupsProgression["group_arms"]?.hasUnseenProgression ?: false,
                                 onClick = {
                                     selectedGroupProgression =
@@ -212,7 +212,7 @@ fun DashboardContent(
                             MuscleBadge(
                                 LocalizationUtil.getLocalizedName(context, "group_core"),
                                 uiState.muscleGroupRanks["group_core"] ?: Rank.WOOD,
-                                Modifier.align(BiasAlignment(0.75f, -0.15f)),
+                                Modifier.align(BiasAlignment(0f, -0.20f)),
                                 hasUnseenProgression = uiState.muscleGroupsProgression["group_core"]?.hasUnseenProgression ?: false,
                                 onClick = {
                                     selectedGroupProgression =
