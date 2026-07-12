@@ -105,25 +105,23 @@ class StatsViewModel @Inject constructor(
             val maxScore = groupScores.values.maxOrNull()?.coerceAtLeast(100f) ?: 100f
             val normalizedBalance = groupScores.mapValues { it.value / maxScore }
 
-            // 4. 1RM Progress (for the most frequent exercise)
+            // 4. Total Workout Volume Progression
             val progressData = if (sets.isNotEmpty()) {
-                val mostFrequentExerciseId = sets.groupBy { it.exerciseId }
-                    .maxByOrNull { it.value.size }?.key
-                
-                val exerciseSets = sets.filter { it.exerciseId == mostFrequentExerciseId }
-                
-                exerciseSets.groupBy { it.workoutId }
-                    .mapNotNull { (workoutId, sets) ->
+                sets.groupBy { it.workoutId }
+                    .mapNotNull { (workoutId, wSets) ->
                         val workout = workoutMap[workoutId] ?: return@mapNotNull null
-                        val max1RM = sets.maxOf { calculateOneRepMax(it.weight, it.reps) }
-                        workout.timestamp to max1RM
+                        val totalVolume = wSets.sumOf { 
+                            val weightToUse = if (it.weight > 0.0) it.weight else 1.0
+                            weightToUse * it.reps 
+                        }
+                        workout.timestamp to totalVolume
                     }
                     .sortedBy { it.first }
                     .takeLast(6)
-                    .map { (timestamp, oneRM) ->
+                    .map { (timestamp, volume) ->
                         ProgressData(
                             SimpleDateFormat("MMM d", Locale.getDefault()).format(Date(timestamp)),
-                            oneRM.toFloat()
+                            volume.toFloat()
                         )
                     }
             } else emptyList()

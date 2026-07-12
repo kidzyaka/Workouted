@@ -22,7 +22,7 @@ class BackupRepositoryImpl @Inject constructor(
         prettyPrint = true 
     }
 
-    override suspend fun exportData(): String {
+    override suspend fun getBackupData(): BackupData {
         val workouts = workoutDao.getAllWorkouts().first()
         val sets = workoutDao.getAllSets().first()
         
@@ -32,8 +32,9 @@ class BackupRepositoryImpl @Inject constructor(
         val language = preferencesRepository.appLanguage.first()
         val onboarding = preferencesRepository.isOnboardingCompleted.first()
         val ranks = preferencesRepository.lastSeenMuscleRanks.first()
+        val color = preferencesRepository.userColor.first()
 
-        val backupData = BackupData(
+        return BackupData(
             workouts = workouts,
             sets = sets,
             preferences = UserPreferencesBackup(
@@ -42,16 +43,18 @@ class BackupRepositoryImpl @Inject constructor(
                 age = age,
                 language = language,
                 isOnboardingCompleted = onboarding,
+                defaultColor = color,
                 lastSeenMuscleRanks = ranks
             )
         )
-        return json.encodeToString(backupData)
     }
 
-    override suspend fun importData(jsonString: String): Result<Unit> {
+    override suspend fun exportData(): String {
+        return json.encodeToString(getBackupData())
+    }
+
+    override suspend fun restoreFromBackupData(data: BackupData): Result<Unit> {
         return try {
-            val data = json.decodeFromString<BackupData>(jsonString)
-            
             // Restore Preferences
             preferencesRepository.setUserHeightCm(data.preferences.height)
             preferencesRepository.setUserWeightKg(data.preferences.weight)
@@ -59,11 +62,23 @@ class BackupRepositoryImpl @Inject constructor(
             preferencesRepository.setAppLanguage(data.preferences.language)
             preferencesRepository.setOnboardingCompleted(data.preferences.isOnboardingCompleted)
             preferencesRepository.updateLastSeenMuscleRanks(data.preferences.lastSeenMuscleRanks)
+            if (data.preferences.defaultColor != null) {
+                preferencesRepository.setUserColor(data.preferences.defaultColor)
+            }
 
             // Restore Database
             workoutDao.importWorkoutsAndSets(data.workouts, data.sets)
             
             Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun importData(jsonString: String): Result<Unit> {
+        return try {
+            val data = json.decodeFromString<BackupData>(jsonString)
+            restoreFromBackupData(data)
         } catch (e: Exception) {
             Result.failure(e)
         }

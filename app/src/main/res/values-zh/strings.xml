@@ -69,7 +69,7 @@
     <string name="progress_30_days">过去30天的进度</string>
     <string name="workload">工作量</string>
     <string name="muscle_balance">肌肉平衡</string>
-    <string name="strength_progress">力量进度 (预估1RM)</string>
+    <string name="strength_progress">总训练容量</string>
     <string name="no_progress_data">暂无进度数据</string>
     <string name="add_workouts_balance">添加训练以查看平衡</string>
 
@@ -245,4 +245,45 @@
     <string name="ex_captain_chair_leg_raises">仰卧悬垂举腿 (垂直)</string>
     <string name="ex_cable_woodchopper">绳索伐木</string>
     <string name="ex_swiss_ball_crunches">健身球卷腹</string>
+
+    <!-- Social / Stats Additions -->
+    <string name="social_server_title">社交与服务器</string>
+    <string name="social_server_desc">与朋友竞争并同步数据</string>
+    <string name="friend_requests">好友请求</string>
+    <string name="action_accept">接受</string>
+    <string name="friends_leaderboard">好友排行榜</string>
+    <string name="no_friends_yet">还没有朋友。</string>
+    <string name="score_prefix">分数: </string>
+    <string name="friend_profiles">朋友资料</string>
+    <string name="code_prefix">代码: </string>
+    <string name="change_color">更改颜色</string>
+    <string name="height_short_prefix">高: </string>
+    <string name="weight_short_prefix">重: </string>
+    <string name="age_prefix">年龄: </string>
+    <string name="muscle_ranks">肌肉等级:</string>
+    <string name="add_friend">添加朋友</string>
+    <string name="friend_code">朋友代码</string>
+    <string name="send_request">发送请求</string>
+    <string name="you">你</string>
+    <string name="friend">朋友</string>
+
+    <!-- Settings Server/Auth Additions -->
+    <string name="nav_social">朋友</string>
+    <string name="profile_color">个人资料颜色</string>
+    <string name="server_account_sync">服务器帐户和同步</string>
+    <string name="login_register">登录 / 注册</string>
+    <string name="connect_to_cloud">连接到Workouted云</string>
+    <string name="logged_in">已登录</string>
+    <string name="push_to_cloud">推送到云端</string>
+    <string name="backup_to_server">将本地数据备份到服务器</string>
+    <string name="pull_from_cloud">从云端提取</string>
+    <string name="restore_from_server">从服务器恢复数据</string>
+    <string name="logout">登出</string>
+    <string name="disconnect_account">断开帐户连接</string>
+    <string name="server_account">服务器帐户</string>
+    <string name="username">用户名</string>
+    <string name="password">密码</string>
+    <string name="action_register">注册</string>
+    <string name="action_login">登录</string>
+    <string name="select_profile_color">选择配置文件颜色</string>
 </resources>

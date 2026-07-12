@@ -47,10 +47,16 @@ fun SettingsScreen(
             viewModel.updateLanguage(code)
             AppCompatDelegate.setApplicationLocales(LocaleListCompat.forLanguageTags(code))
         },
+        onUpdateUserColor = { viewModel.updateUserColor(it) },
         onResetOnboarding = { viewModel.resetOnboarding() },
         onExportData = { viewModel.getExportJson() },
         onImportData = { viewModel.importFromJson(it) },
-        onClearBackupState = { viewModel.clearBackupState() }
+        onClearBackupState = { viewModel.clearBackupState() },
+        onLogin = { u, p -> viewModel.login(u, p) },
+        onRegister = { u, p -> viewModel.register(u, p) },
+        onLogout = { viewModel.logout() },
+        onPushBackup = { viewModel.pushBackupToCloud() },
+        onPullBackup = { viewModel.pullBackupFromCloud() }
     )
 }
 
@@ -61,12 +67,20 @@ fun SettingsContent(
     onUpdateWeight: (String) -> Unit,
     onUpdateAge: (String) -> Unit,
     onUpdateLanguage: (String) -> Unit,
+    onUpdateUserColor: (String) -> Unit,
     onResetOnboarding: () -> Unit,
     onExportData: suspend () -> String,
     onImportData: (String) -> Unit,
-    onClearBackupState: () -> Unit
+    onClearBackupState: () -> Unit,
+    onLogin: (String, String) -> Unit,
+    onRegister: (String, String) -> Unit,
+    onLogout: () -> Unit,
+    onPushBackup: () -> Unit,
+    onPullBackup: () -> Unit
 ) {
     var showLanguageDialog by remember { mutableStateOf(false) }
+    var showColorDialog by remember { mutableStateOf(false) }
+    var showAuthDialog by remember { mutableStateOf(false) }
     var showImportConfirmDialog by remember { mutableStateOf(false) }
     var pendingImportJson by remember { mutableStateOf<String?>(null) }
     
@@ -128,6 +142,13 @@ fun SettingsContent(
         }
     }
 
+    LaunchedEffect(uiState.authError) {
+        if (uiState.authError != null) {
+            snackbarHostState.showSnackbar("Auth Error: ${uiState.authError}")
+            onClearBackupState()
+        }
+    }
+
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) },
         containerColor = Color.Transparent
@@ -171,6 +192,12 @@ fun SettingsContent(
                         subtitle = languageName,
                         onClick = { showLanguageDialog = true }
                     )
+                    SettingsItem(
+                        icon = Icons.Default.Palette,
+                        title = stringResource(R.string.profile_color),
+                        subtitle = uiState.userColor ?: "Default",
+                        onClick = { showColorDialog = true }
+                    )
                 }
             }
 
@@ -202,6 +229,47 @@ fun SettingsContent(
             Spacer(modifier = Modifier.height(24.dp))
 
             StaggeredEntranceItem(index = 3) {
+                SettingsSection(title = stringResource(R.string.server_account_sync)) {
+                    if (uiState.token.isNullOrEmpty()) {
+                        SettingsItem(
+                            icon = Icons.Default.Person,
+                            title = stringResource(R.string.login_register),
+                            subtitle = stringResource(R.string.connect_to_cloud),
+                            onClick = { showAuthDialog = true }
+                        )
+                    } else {
+                        SettingsItem(
+                            icon = Icons.Default.PersonOutline,
+                            title = stringResource(R.string.logged_in),
+                            subtitle = stringResource(R.string.friend_code) + ": ${uiState.friendCode}",
+                            onClick = null,
+                            showChevron = false
+                        )
+                        SettingsItem(
+                            icon = Icons.Default.CloudUpload,
+                            title = stringResource(R.string.push_to_cloud),
+                            subtitle = stringResource(R.string.backup_to_server),
+                            onClick = onPushBackup
+                        )
+                        SettingsItem(
+                            icon = Icons.Default.CloudDownload,
+                            title = stringResource(R.string.pull_from_cloud),
+                            subtitle = stringResource(R.string.restore_from_server),
+                            onClick = onPullBackup
+                        )
+                        SettingsItem(
+                            icon = Icons.Default.Logout,
+                            title = stringResource(R.string.logout),
+                            subtitle = stringResource(R.string.disconnect_account),
+                            onClick = onLogout
+                        )
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            StaggeredEntranceItem(index = 4) {
                 SettingsSection(title = stringResource(R.string.data_management)) {
                     SettingsItem(
                         icon = Icons.Default.FileUpload,
@@ -285,6 +353,140 @@ fun SettingsContent(
             }
         )
     }
+
+    if (showColorDialog) {
+        ColorSelectionDialog(
+            currentColor = uiState.userColor ?: "#FF9800",
+            onColorSelected = { 
+                onUpdateUserColor(it)
+                showColorDialog = false 
+            },
+            onDismiss = { showColorDialog = false }
+        )
+    }
+
+    if (showAuthDialog) {
+        AuthDialog(
+            onLogin = { u, p -> 
+                onLogin(u, p)
+                showAuthDialog = false 
+            },
+            onRegister = { u, p -> 
+                onRegister(u, p)
+                showAuthDialog = false 
+            },
+            onDismiss = { showAuthDialog = false },
+            isLoading = uiState.isLoading
+        )
+    }
+}
+
+@Composable
+fun AuthDialog(
+    onLogin: (String, String) -> Unit,
+    onRegister: (String, String) -> Unit,
+    onDismiss: () -> Unit,
+    isLoading: Boolean
+) {
+    var username by remember { mutableStateOf("") }
+    var password by remember { mutableStateOf("") }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(stringResource(R.string.server_account)) },
+        text = {
+            Column {
+                OutlinedTextField(
+                    value = username,
+                    onValueChange = { username = it },
+                    label = { Text(stringResource(R.string.username)) },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp)
+                )
+                OutlinedTextField(
+                    value = password,
+                    onValueChange = { password = it },
+                    label = { Text(stringResource(R.string.password)) },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+        },
+        confirmButton = {
+            Row {
+                TextButton(
+                    onClick = { onRegister(username, password) },
+                    enabled = username.isNotBlank() && password.isNotBlank() && !isLoading
+                ) {
+                    Text(stringResource(R.string.action_register))
+                }
+                Spacer(modifier = Modifier.width(8.dp))
+                Button(
+                    onClick = { onLogin(username, password) },
+                    enabled = username.isNotBlank() && password.isNotBlank() && !isLoading
+                ) {
+                    Text(stringResource(R.string.action_login))
+                }
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(stringResource(R.string.cancel))
+            }
+        }
+    )
+}
+
+@Composable
+fun ColorSelectionDialog(
+    currentColor: String,
+    onColorSelected: (String) -> Unit,
+    onDismiss: () -> Unit
+) {
+    val colors = listOf(
+        "#F44336", "#E91E63", "#9C27B0", "#673AB7",
+        "#3F51B5", "#2196F3", "#03A9F4", "#00BCD4",
+        "#009688", "#4CAF50", "#8BC34A", "#CDDC39",
+        "#FFEB3B", "#FFC107", "#FF9800", "#FF5722"
+    )
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(stringResource(R.string.select_profile_color)) },
+        text = {
+            // Using a simple column/row layout for the colors
+            Column {
+                for (i in colors.indices step 4) {
+                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
+                        for (j in 0 until 4) {
+                            if (i + j < colors.size) {
+                                val colorHex = colors[i + j]
+                                Box(
+                                    modifier = Modifier
+                                        .size(48.dp)
+                                        .padding(4.dp)
+                                        .clickable { onColorSelected(colorHex) },
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    androidx.compose.foundation.Canvas(modifier = Modifier.fillMaxSize()) {
+                                        drawCircle(color = Color(android.graphics.Color.parseColor(colorHex)))
+                                    }
+                                    if (currentColor.equals(colorHex, ignoreCase = true)) {
+                                        Icon(Icons.Default.Check, contentDescription = null, tint = Color.White)
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = onDismiss) {
+                Text(stringResource(R.string.cancel))
+            }
+        }
+    )
 }
 
 @Composable
@@ -453,10 +655,16 @@ fun SettingsPreview() {
             onUpdateWeight = {},
             onUpdateAge = {},
             onUpdateLanguage = {},
+            onUpdateUserColor = {},
             onResetOnboarding = {},
             onExportData = { "" },
             onImportData = {},
-            onClearBackupState = {}
+            onClearBackupState = {},
+            onLogin = { _, _ -> },
+            onRegister = { _, _ -> },
+            onLogout = {},
+            onPushBackup = {},
+            onPullBackup = {}
         )
     }
 }

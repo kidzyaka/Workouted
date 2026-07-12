@@ -41,6 +41,7 @@ import com.kidz.workouted.presentation.onboarding.OnboardingScreen
 import com.kidz.workouted.presentation.settings.SettingsScreen
 import com.kidz.workouted.presentation.settings.SettingsViewModel
 import com.kidz.workouted.presentation.stats.StatsScreen
+import com.kidz.workouted.presentation.social.SocialScreen
 import com.kidz.workouted.ui.theme.WorkoutedTheme
 
 @Composable

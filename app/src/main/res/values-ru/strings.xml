@@ -69,7 +69,7 @@
     <string name="progress_30_days">Ваш прогресс за последние 30 дней</string>
     <string name="workload">Нагрузка</string>
     <string name="muscle_balance">Баланс мышц</string>
-    <string name="strength_progress">Прогресс силы (расчетный 1ПМ)</string>
+    <string name="strength_progress">Тренировочный объем</string>
     <string name="no_progress_data">Данных о прогрессе пока нет</string>
     <string name="add_workouts_balance">Добавьте тренировки, чтобы увидеть баланс</string>
 
@@ -245,4 +245,45 @@
     <string name="ex_captain_chair_leg_raises">Подъем коленей на брусьях</string>
     <string name="ex_cable_woodchopper">Дровосек в кроссовере</string>
     <string name="ex_swiss_ball_crunches">Скручивания на фитболе</string>
+
+    <!-- Social / Stats Additions -->
+    <string name="social_server_title">Общение и Сервер</string>
+    <string name="social_server_desc">Соревнуйтесь с друзьями и синхронизируйте данные</string>
+    <string name="friend_requests">Запросы в друзья</string>
+    <string name="action_accept">Принять</string>
+    <string name="friends_leaderboard">Таблица лидеров</string>
+    <string name="no_friends_yet">Пока нет друзей.</string>
+    <string name="score_prefix">Очки: </string>
+    <string name="friend_profiles">Профили друзей</string>
+    <string name="code_prefix">Код: </string>
+    <string name="change_color">Изменить цвет</string>
+    <string name="height_short_prefix">Р: </string>
+    <string name="weight_short_prefix">В: </string>
+    <string name="age_prefix">Возр: </string>
+    <string name="muscle_ranks">Ранги мышц:</string>
+    <string name="add_friend">Добавить друга</string>
+    <string name="friend_code">Код друга</string>
+    <string name="send_request">Отправить</string>
+    <string name="you">Вы</string>
+    <string name="friend">Друг</string>
+
+    <!-- Settings Server/Auth Additions -->
+    <string name="nav_social">Друзья</string>
+    <string name="profile_color">Цвет профиля</string>
+    <string name="server_account_sync">Аккаунт сервера и синхронизация</string>
+    <string name="login_register">Вход / Регистрация</string>
+    <string name="connect_to_cloud">Подключиться к облаку Workouted</string>
+    <string name="logged_in">В сети</string>
+    <string name="push_to_cloud">Отправить в облако</string>
+    <string name="backup_to_server">Сохранить данные на сервере</string>
+    <string name="pull_from_cloud">Скачать из облака</string>
+    <string name="restore_from_server">Восстановить данные с сервера</string>
+    <string name="logout">Выйти</string>
+    <string name="disconnect_account">Отключить аккаунт</string>
+    <string name="server_account">Аккаунт сервера</string>
+    <string name="username">Имя пользователя</string>
+    <string name="password">Пароль</string>
+    <string name="action_register">Регистрация</string>
+    <string name="action_login">Войти</string>
+    <string name="select_profile_color">Выберите цвет профиля</string>
 </resources>

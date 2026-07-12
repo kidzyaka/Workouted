@@ -28,6 +28,10 @@ class UserPreferencesRepositoryImpl @Inject constructor(
         val APP_LANGUAGE = stringPreferencesKey("app_language")
         val IS_ONBOARDING_COMPLETED = booleanPreferencesKey("is_onboarding_completed")
         val LAST_SEEN_MUSCLE_RANKS = stringPreferencesKey("last_seen_muscle_ranks")
+        val JWT_TOKEN = stringPreferencesKey("jwt_token")
+        val FRIEND_CODE = stringPreferencesKey("friend_code")
+        val USER_COLOR = stringPreferencesKey("user_color")
+        val FRIEND_COLOR_OVERRIDES = stringPreferencesKey("friend_color_overrides")
     }
 
     override val userHeightCm: Flow<Double> = context.dataStore.data
@@ -73,6 +77,29 @@ class UserPreferencesRepositoryImpl @Inject constructor(
             }.filterKeys { it.isNotEmpty() }
         }
 
+    override val jwtToken: Flow<String?> = context.dataStore.data
+        .catch { exception -> if (exception is IOException) emit(emptyPreferences()) else throw exception }
+        .map { it[PreferencesKeys.JWT_TOKEN] }
+
+    override val friendCode: Flow<String?> = context.dataStore.data
+        .catch { exception -> if (exception is IOException) emit(emptyPreferences()) else throw exception }
+        .map { it[PreferencesKeys.FRIEND_CODE] }
+
+    override val userColor: Flow<String?> = context.dataStore.data
+        .catch { exception -> if (exception is IOException) emit(emptyPreferences()) else throw exception }
+        .map { it[PreferencesKeys.USER_COLOR] }
+
+    override val friendColorOverrides: Flow<Map<Long, String>> = context.dataStore.data
+        .catch { exception -> if (exception is IOException) emit(emptyPreferences()) else throw exception }
+        .map { prefs ->
+            val serialized = prefs[PreferencesKeys.FRIEND_COLOR_OVERRIDES] ?: ""
+            if (serialized.isEmpty()) emptyMap()
+            else serialized.split(",").associate {
+                val parts = it.split(":")
+                if (parts.size == 2) (parts[0].toLongOrNull() ?: 0L) to parts[1] else 0L to ""
+            }.filterKeys { it != 0L }
+        }
+
     override suspend fun setUserHeightCm(height: Double) {
         context.dataStore.edit { it[PreferencesKeys.USER_HEIGHT] = height }
     }
@@ -96,5 +123,42 @@ class UserPreferencesRepositoryImpl @Inject constructor(
     override suspend fun updateLastSeenMuscleRanks(ranks: Map<String, String>) {
         val serialized = ranks.entries.joinToString(",") { "${it.key}:${it.value}" }
         context.dataStore.edit { it[PreferencesKeys.LAST_SEEN_MUSCLE_RANKS] = serialized }
+    }
+
+    override suspend fun setJwtToken(token: String?) {
+        context.dataStore.edit {
+            if (token == null) it.remove(PreferencesKeys.JWT_TOKEN)
+            else it[PreferencesKeys.JWT_TOKEN] = token
+        }
+    }
+
+    override suspend fun setFriendCode(code: String?) {
+        context.dataStore.edit {
+            if (code == null) it.remove(PreferencesKeys.FRIEND_CODE)
+            else it[PreferencesKeys.FRIEND_CODE] = code
+        }
+    }
+
+    override suspend fun setUserColor(color: String?) {
+        context.dataStore.edit {
+            if (color == null) it.remove(PreferencesKeys.USER_COLOR)
+            else it[PreferencesKeys.USER_COLOR] = color
+        }
+    }
+
+    override suspend fun setFriendColorOverride(friendId: Long, color: String) {
+        context.dataStore.edit { prefs ->
+            val currentSerialized = prefs[PreferencesKeys.FRIEND_COLOR_OVERRIDES] ?: ""
+            val currentMap = if (currentSerialized.isEmpty()) mutableMapOf<Long, String>()
+            else currentSerialized.split(",").associate {
+                val parts = it.split(":")
+                if (parts.size == 2) (parts[0].toLongOrNull() ?: 0L) to parts[1] else 0L to ""
+            }.filterKeys { it != 0L }.toMutableMap()
+            
+            currentMap[friendId] = color
+            
+            val newSerialized = currentMap.entries.joinToString(",") { "${it.key}:${it.value}" }
+            prefs[PreferencesKeys.FRIEND_COLOR_OVERRIDES] = newSerialized
+        }
     }
 }

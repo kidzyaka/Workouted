@@ -69,7 +69,7 @@
     <string name="progress_30_days">Tu progreso en los últimos 30 días</string>
     <string name="workload">Carga de trabajo</string>
     <string name="muscle_balance">Equilibrio muscular</string>
-    <string name="strength_progress">Progreso de fuerza (1RM estimado)</string>
+    <string name="strength_progress">Volumen total de entrenamiento</string>
     <string name="no_progress_data">Sin datos de progreso</string>
     <string name="add_workouts_balance">Añade entrenamientos para ver el equilibrio</string>
 
@@ -245,4 +245,45 @@
     <string name="ex_captain_chair_leg_raises">Elevación de piernas en silla romana</string>
     <string name="ex_cable_woodchopper">Leñador en polea</string>
     <string name="ex_swiss_ball_crunches">Crunches en fitball</string>
+
+    <!-- Social / Stats Additions -->
+    <string name="social_server_title">Social y Servidor</string>
+    <string name="social_server_desc">Compite con amigos y sincroniza datos</string>
+    <string name="friend_requests">Solicitudes de amistad</string>
+    <string name="action_accept">Aceptar</string>
+    <string name="friends_leaderboard">Tabla de clasificación</string>
+    <string name="no_friends_yet">Aún no hay amigos.</string>
+    <string name="score_prefix">Puntuación: </string>
+    <string name="friend_profiles">Perfiles de amigos</string>
+    <string name="code_prefix">Código: </string>
+    <string name="change_color">Cambiar color</string>
+    <string name="height_short_prefix">A: </string>
+    <string name="weight_short_prefix">P: </string>
+    <string name="age_prefix">Edad: </string>
+    <string name="muscle_ranks">Rangos musculares:</string>
+    <string name="add_friend">Añadir amigo</string>
+    <string name="friend_code">Código de amigo</string>
+    <string name="send_request">Enviar</string>
+    <string name="you">Tú</string>
+    <string name="friend">Amigo</string>
+
+    <!-- Settings Server/Auth Additions -->
+    <string name="nav_social">Amigos</string>
+    <string name="profile_color">Color de perfil</string>
+    <string name="server_account_sync">Cuenta de Servidor y Sincronización</string>
+    <string name="login_register">Iniciar sesión / Registrarse</string>
+    <string name="connect_to_cloud">Conectar a la nube Workouted</string>
+    <string name="logged_in">Sesión iniciada</string>
+    <string name="push_to_cloud">Subir a la nube</string>
+    <string name="backup_to_server">Hacer copia de seguridad</string>
+    <string name="pull_from_cloud">Descargar de la nube</string>
+    <string name="restore_from_server">Restaurar datos</string>
+    <string name="logout">Cerrar sesión</string>
+    <string name="disconnect_account">Desconectar cuenta</string>
+    <string name="server_account">Cuenta de servidor</string>
+    <string name="username">Usuario</string>
+    <string name="password">Contraseña</string>
+    <string name="action_register">Registrarse</string>
+    <string name="action_login">Entrar</string>
+    <string name="select_profile_color">Seleccionar color de perfil</string>
 </resources>

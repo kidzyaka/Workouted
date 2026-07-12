@@ -9,6 +9,10 @@ interface UserPreferencesRepository {
     val appLanguage: Flow<String>
     val isOnboardingCompleted: Flow<Boolean>
     val lastSeenMuscleRanks: Flow<Map<String, String>>
+    val jwtToken: Flow<String?>
+    val friendCode: Flow<String?>
+    val userColor: Flow<String?>
+    val friendColorOverrides: Flow<Map<Long, String>>
     
     suspend fun setUserHeightCm(height: Double)
     suspend fun setUserWeightKg(weight: Double)
@@ -16,4 +20,8 @@ interface UserPreferencesRepository {
     suspend fun setAppLanguage(languageCode: String)
     suspend fun setOnboardingCompleted(completed: Boolean)
     suspend fun updateLastSeenMuscleRanks(ranks: Map<String, String>)
+    suspend fun setJwtToken(token: String?)
+    suspend fun setFriendCode(code: String?)
+    suspend fun setUserColor(color: String?)
+    suspend fun setFriendColorOverride(friendId: Long, color: String)
 }
