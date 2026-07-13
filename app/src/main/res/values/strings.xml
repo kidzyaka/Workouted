@@ -286,4 +286,5 @@
     <string name="action_register">Register</string>
     <string name="action_login">Login</string>
     <string name="select_profile_color">Select Profile Color</string>
+    <string name="social_login_prompt">You need to log in or register to sync your data and view your friends\' progress.</string>
 </resources>

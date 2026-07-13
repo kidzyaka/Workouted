@@ -43,7 +43,8 @@ import com.kidz.workouted.presentation.social.SocialScreen
 
 @Composable
 fun StatsScreen(
-    viewModel: StatsViewModel
+    viewModel: StatsViewModel,
+    onNavigateToSettingsLogin: () -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsState()
     var selectedTabIndex by remember { mutableStateOf(0) }
@@ -65,7 +66,7 @@ fun StatsScreen(
         
         when (selectedTabIndex) {
             0 -> StatsContent(uiState = uiState)
-            1 -> SocialScreen()
+            1 -> SocialScreen(onNavigateToLogin = onNavigateToSettingsLogin)
         }
     }
 }

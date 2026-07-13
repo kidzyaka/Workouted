@@ -3,6 +3,7 @@ package com.kidz.workouted.presentation.settings
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -12,6 +13,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.animation.core.animateFloat
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -34,12 +36,14 @@ import java.io.OutputStreamWriter
 
 @Composable
 fun SettingsScreen(
-    viewModel: SettingsViewModel = hiltViewModel()
+    viewModel: SettingsViewModel = hiltViewModel(),
+    highlightLogin: Boolean = false
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
     SettingsContent(
         uiState = uiState,
+        highlightLogin = highlightLogin,
         onUpdateHeight = { viewModel.updateHeight(it) },
         onUpdateWeight = { viewModel.updateWeight(it) },
         onUpdateAge = { viewModel.updateAge(it) },
@@ -63,6 +67,7 @@ fun SettingsScreen(
 @Composable
 fun SettingsContent(
     uiState: SettingsUiState,
+    highlightLogin: Boolean = false,
     onUpdateHeight: (String) -> Unit,
     onUpdateWeight: (String) -> Unit,
     onUpdateAge: (String) -> Unit,
@@ -231,7 +236,20 @@ fun SettingsContent(
             StaggeredEntranceItem(index = 3) {
                 SettingsSection(title = stringResource(R.string.server_account_sync)) {
                     if (uiState.token.isNullOrEmpty()) {
+                        val infiniteTransition = androidx.compose.animation.core.rememberInfiniteTransition(label = "highlight")
+                        val highlightAlpha by infiniteTransition.animateFloat(
+                            initialValue = 0.0f,
+                            targetValue = 0.5f,
+                            animationSpec = androidx.compose.animation.core.infiniteRepeatable(
+                                animation = androidx.compose.animation.core.tween(800),
+                                repeatMode = androidx.compose.animation.core.RepeatMode.Reverse
+                            ),
+                            label = "alpha"
+                        )
+                        val highlightMod = if (highlightLogin) Modifier.background(MaterialTheme.colorScheme.primary.copy(alpha = highlightAlpha)) else Modifier
+                        
                         SettingsItem(
+                            modifier = highlightMod,
                             icon = Icons.Default.Person,
                             title = stringResource(R.string.login_register),
                             subtitle = stringResource(R.string.connect_to_cloud),
@@ -555,6 +573,7 @@ fun SettingsSection(title: String, content: @Composable ColumnScope.() -> Unit) 
 
 @Composable
 fun SettingsItem(
+    modifier: Modifier = Modifier,
     title: String,
     subtitle: String,
     icon: androidx.compose.ui.graphics.vector.ImageVector? = null,
@@ -562,6 +581,7 @@ fun SettingsItem(
     showChevron: Boolean = true
 ) {
     Surface(
+        modifier = modifier,
         onClick = onClick ?: {},
         color = Color.Transparent,
         enabled = onClick != null
@@ -651,6 +671,7 @@ fun SettingsPreview() {
     WorkoutedTheme {
         SettingsContent(
             uiState = SettingsUiState(height = "180", weight = "85", age = "30", language = "en"),
+            highlightLogin = false,
             onUpdateHeight = {},
             onUpdateWeight = {},
             onUpdateAge = {},

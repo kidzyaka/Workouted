@@ -286,4 +286,5 @@
     <string name="action_register">注册</string>
     <string name="action_login">登录</string>
     <string name="select_profile_color">选择配置文件颜色</string>
+    <string name="social_login_prompt">您需要登录或注册以同步数据并查看朋友的进度。</string>
 </resources>

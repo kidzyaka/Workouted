@@ -286,4 +286,5 @@
     <string name="action_register">Регистрация</string>
     <string name="action_login">Войти</string>
     <string name="select_profile_color">Выберите цвет профиля</string>
+    <string name="social_login_prompt">Войдите или зарегистрируйтесь, чтобы синхронизировать данные и видеть прогресс друзей.</string>
 </resources>

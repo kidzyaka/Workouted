@@ -16,7 +16,9 @@ sealed class Screen(val route: String, val titleResId: Int, val icon: ImageVecto
     object Log : Screen("log", R.string.nav_log, Icons.Default.History)
     object Stats : Screen("stats", R.string.nav_stats, Icons.Default.Assessment)
     object Social : Screen("social", R.string.nav_social, Icons.Default.People)
-    object Settings : Screen("settings", R.string.nav_profile, Icons.Default.Settings)
+    object Settings : Screen("settings?highlightLogin={highlightLogin}", R.string.nav_profile, Icons.Default.Settings) {
+        fun createRoute(highlightLogin: Boolean = false) = "settings?highlightLogin=$highlightLogin"
+    }
     object AddWorkout : Screen("add_workout?workoutId={workoutId}", R.string.add_workout) {
         fun createRoute(workoutId: Long? = null) = if (workoutId != null) "add_workout?workoutId=$workoutId" else "add_workout"
     }

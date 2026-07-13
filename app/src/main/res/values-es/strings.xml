@@ -286,4 +286,5 @@
     <string name="action_register">Registrarse</string>
     <string name="action_login">Entrar</string>
     <string name="select_profile_color">Seleccionar color de perfil</string>
+    <string name="social_login_prompt">Inicia sesión o regístrate para sincronizar tus datos y ver el progreso de tus amigos.</string>
 </resources>
