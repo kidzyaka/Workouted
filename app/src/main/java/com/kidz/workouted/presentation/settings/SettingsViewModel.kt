@@ -22,7 +22,8 @@ data class SettingsUiState(
     val friendCode: String? = null,
     val userColor: String? = null,
     val isLoading: Boolean = false,
-    val authError: String? = null
+    val authError: String? = null,
+    val customServerUrl: String? = null
 )
 
 @HiltViewModel
@@ -44,7 +45,8 @@ class SettingsViewModel @Inject constructor(
             repository.appLanguage,
             repository.jwtToken,
             repository.friendCode,
-            repository.userColor
+            repository.userColor,
+            repository.customServerUrl
         ) { values ->
             val height = values[0] as Double
             val weight = values[1] as Double
@@ -53,6 +55,7 @@ class SettingsViewModel @Inject constructor(
             val token = values[4] as String?
             val friendCode = values[5] as String?
             val userColor = values[6] as String?
+            val customServerUrl = values[7] as String?
 
             _uiState.value.copy(
                 height = height.toString(),
@@ -61,11 +64,32 @@ class SettingsViewModel @Inject constructor(
                 language = language,
                 token = token,
                 friendCode = friendCode,
-                userColor = userColor
+                userColor = userColor,
+                customServerUrl = customServerUrl
             )
         }.onEach { state ->
             _uiState.value = state
         }.launchIn(viewModelScope)
+    }
+
+    fun setCustomServerUrl(url: String) {
+        viewModelScope.launch {
+            if (url.isBlank()) {
+                repository.setCustomServerUrl(null)
+            } else {
+                var formatted = url.trim()
+                if (!formatted.startsWith("http://") && !formatted.startsWith("https://")) {
+                    formatted = "http://$formatted"
+                }
+                if (!formatted.endsWith("/api/") && !formatted.endsWith("/api")) {
+                    if (formatted.endsWith("/")) formatted += "api/"
+                    else formatted += "/api/"
+                } else if (formatted.endsWith("/api")) {
+                    formatted += "/"
+                }
+                repository.setCustomServerUrl(formatted)
+            }
+        }
     }
 
     fun updateHeight(height: String) {

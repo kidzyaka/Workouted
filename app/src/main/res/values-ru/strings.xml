@@ -1,20 +1,15 @@
+<?xml version='1.0' encoding='utf-8'?>
 <resources>
     <string name="app_name">Workouted</string>
-
-    <!-- Navigation -->
     <string name="nav_home">Главная</string>
     <string name="nav_log">Журнал</string>
     <string name="nav_stats">Статистика</string>
     <string name="nav_profile">Профиль</string>
     <string name="add_workout">Добавить тренировку</string>
-
-    <!-- Onboarding -->
     <string name="welcome_to_workouted">Добро пожаловать в Workouted</string>
     <string name="set_parameters_desc">Укажите свои данные, чтобы начать</string>
     <string name="get_started">Начать</string>
     <string name="reset_onboarding">Сброс онбординга (Debug)</string>
-
-    <!-- Dashboard Greetings -->
     <string name="greeting_morning">Доброе утро,</string>
     <string name="greeting_day">Добрый день,</string>
     <string name="greeting_evening">Добрый вечер,</string>
@@ -25,7 +20,6 @@
     <string name="title_legend">Легенда!</string>
     <string name="title_hero">Герой!</string>
     <string name="title_titan">Титан!</string>
-
     <string name="muscle_map">Карта мышц</string>
     <string name="progress_by_muscle">Прогресс по мышцам</string>
     <string name="weekly_summary">Итоги недели</string>
@@ -39,8 +33,6 @@
     <string name="group_progression">Прогресс группы</string>
     <string name="individual_muscles">Отдельные мышцы</string>
     <string name="rank_up_title">Новый ранг!</string>
-
-    <!-- Log -->
     <string name="workout_log">Журнал тренировок</string>
     <string name="no_workouts">Тренировок пока нет.</string>
     <string name="delete_workout">Удалить тренировку</string>
@@ -50,8 +42,6 @@
     <string name="workout_details">Детали тренировки</string>
     <string name="edit">Правка</string>
     <string name="exercises">упр.</string>
-
-    <!-- Add Workout -->
     <string name="log_workout">Запись тренировки</string>
     <string name="finish">Готово</string>
     <string name="add_exercise">Добавить упражнение</string>
@@ -63,8 +53,6 @@
     <string name="weight_kg">Вес (кг)</string>
     <string name="reps">Повт.</string>
     <string name="set_label">Сет</string>
-
-    <!-- Stats -->
     <string name="statistics">Статистика</string>
     <string name="progress_30_days">Ваш прогресс за последние 30 дней</string>
     <string name="workload">Нагрузка</string>
@@ -72,8 +60,6 @@
     <string name="strength_progress">Тренировочный объем</string>
     <string name="no_progress_data">Данных о прогрессе пока нет</string>
     <string name="add_workouts_balance">Добавьте тренировки, чтобы увидеть баланс</string>
-
-    <!-- Settings -->
     <string name="settings">Настройки</string>
     <string name="manage_profile">Управление профилем и предпочтениями</string>
     <string name="language_region">Язык и регион</string>
@@ -96,8 +82,6 @@
     <string name="import_error">Ошибка импорта: %s</string>
     <string name="export_success">Данные успешно экспортированы!</string>
     <string name="export_error">Ошибка экспорта</string>
-
-    <!-- Ranks -->
     <string name="rank_wood">Дерево</string>
     <string name="rank_bronze">Бронза</string>
     <string name="rank_silver">Серебро</string>
@@ -106,16 +90,12 @@
     <string name="rank_emerald">Изумруд</string>
     <string name="rank_diamond">Алмаз</string>
     <string name="rank_elite">Элита</string>
-
-    <!-- Muscle Groups -->
     <string name="group_chest">Грудь</string>
     <string name="group_back">Спина</string>
     <string name="group_legs">Ноги</string>
     <string name="group_shoulders">Плечи</string>
     <string name="group_arms">Руки</string>
     <string name="group_core">Кор</string>
-
-    <!-- Muscles -->
     <string name="m_chest_mid">Большая грудная</string>
     <string name="m_chest_upper">Верхняя часть груди</string>
     <string name="m_lats">Широчайшие</string>
@@ -134,8 +114,6 @@
     <string name="m_forearms">Предплечья</string>
     <string name="m_abs">Пресс</string>
     <string name="m_obliques">Косые мышцы</string>
-
-    <!-- Exercises -->
     <string name="ex_bench_press_classic">Жим штанги лежа (классический)</string>
     <string name="ex_incline_bench_press">Жим штанги на наклонной скамье</string>
     <string name="ex_dumbbell_press">Жим гантелей лежа</string>
@@ -245,8 +223,6 @@
     <string name="ex_captain_chair_leg_raises">Подъем коленей на брусьях</string>
     <string name="ex_cable_woodchopper">Дровосек в кроссовере</string>
     <string name="ex_swiss_ball_crunches">Скручивания на фитболе</string>
-
-    <!-- Social / Stats Additions -->
     <string name="social_server_title">Общение и Сервер</string>
     <string name="social_server_desc">Соревнуйтесь с друзьями и синхронизируйте данные</string>
     <string name="friend_requests">Запросы в друзья</string>
@@ -266,8 +242,6 @@
     <string name="send_request">Отправить</string>
     <string name="you">Вы</string>
     <string name="friend">Друг</string>
-
-    <!-- Settings Server/Auth Additions -->
     <string name="nav_social">Друзья</string>
     <string name="profile_color">Цвет профиля</string>
     <string name="server_account_sync">Аккаунт сервера и синхронизация</string>
@@ -287,4 +261,9 @@
     <string name="action_login">Войти</string>
     <string name="select_profile_color">Выберите цвет профиля</string>
     <string name="social_login_prompt">Войдите или зарегистрируйтесь, чтобы синхронизировать данные и видеть прогресс друзей.</string>
+    <string name="custom_server">Свой сервер</string>
+    <string name="custom_server_subtitle">Подключиться к своему серверу</string>
+    <string name="custom_server_dialog_title">Введите адрес сервера</string>
+    <string name="custom_server_dialog_placeholder">напр., http://192.168.0.52:8080/api/</string>
+    <string name="custom_server_default_btn">По умолчанию</string>
 </resources>

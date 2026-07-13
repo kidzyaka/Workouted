@@ -1,20 +1,15 @@
+<?xml version='1.0' encoding='utf-8'?>
 <resources>
     <string name="app_name">Workouted</string>
-
-    <!-- Navigation -->
     <string name="nav_home">首页</string>
     <string name="nav_log">日志</string>
     <string name="nav_stats">统计</string>
     <string name="nav_profile">个人资料</string>
     <string name="add_workout">添加训练</string>
-
-    <!-- Onboarding -->
     <string name="welcome_to_workouted">欢迎来到 Workouted</string>
     <string name="set_parameters_desc">设置您的参数以开始</string>
     <string name="get_started">开始使用</string>
     <string name="reset_onboarding">重置引导 (Debug)</string>
-
-    <!-- Dashboard Greetings -->
     <string name="greeting_morning">早上好，</string>
     <string name="greeting_day">你好，</string>
     <string name="greeting_evening">晚上好，</string>
@@ -25,7 +20,6 @@
     <string name="title_legend">传奇！</string>
     <string name="title_hero">英雄！</string>
     <string name="title_titan">巨人！</string>
-
     <string name="muscle_map">肌肉图</string>
     <string name="progress_by_muscle">肌肉进度</string>
     <string name="weekly_summary">每周总结</string>
@@ -39,8 +33,6 @@
     <string name="group_progression">肌肉组进度</string>
     <string name="individual_muscles">具体肌肉</string>
     <string name="rank_up_title">等级提升！</string>
-
-    <!-- Log -->
     <string name="workout_log">训练日志</string>
     <string name="no_workouts">暂无训练记录。</string>
     <string name="delete_workout">删除训练</string>
@@ -50,8 +42,6 @@
     <string name="workout_details">训练详情</string>
     <string name="edit">编辑</string>
     <string name="exercises">项练习</string>
-
-    <!-- Add Workout -->
     <string name="log_workout">记录训练</string>
     <string name="finish">完成</string>
     <string name="add_exercise">添加练习</string>
@@ -63,8 +53,6 @@
     <string name="weight_kg">重量 (kg)</string>
     <string name="reps">次数</string>
     <string name="set_label">组</string>
-
-    <!-- Stats -->
     <string name="statistics">统计</string>
     <string name="progress_30_days">过去30天的进度</string>
     <string name="workload">工作量</string>
@@ -72,8 +60,6 @@
     <string name="strength_progress">总训练容量</string>
     <string name="no_progress_data">暂无进度数据</string>
     <string name="add_workouts_balance">添加训练以查看平衡</string>
-
-    <!-- Settings -->
     <string name="settings">设置</string>
     <string name="manage_profile">管理您的个人资料和偏好</string>
     <string name="language_region">语言和地区</string>
@@ -96,8 +82,6 @@
     <string name="import_error">导入失败：%s</string>
     <string name="export_success">数据导出成功！</string>
     <string name="export_error">导出失败</string>
-
-    <!-- Ranks -->
     <string name="rank_wood">木级</string>
     <string name="rank_bronze">青铜</string>
     <string name="rank_silver">白银</string>
@@ -106,16 +90,12 @@
     <string name="rank_emerald">翡翠</string>
     <string name="rank_diamond">钻石</string>
     <string name="rank_elite">精英</string>
-
-    <!-- Muscle Groups -->
     <string name="group_chest">胸部</string>
     <string name="group_back">背部</string>
     <string name="group_legs">腿部</string>
     <string name="group_shoulders">肩部</string>
     <string name="group_arms">手臂</string>
     <string name="group_core">核心</string>
-
-    <!-- Muscles -->
     <string name="m_chest_mid">中胸</string>
     <string name="m_chest_upper">上胸</string>
     <string name="m_lats">背阔肌</string>
@@ -134,8 +114,6 @@
     <string name="m_forearms">前臂</string>
     <string name="m_abs">腹肌</string>
     <string name="m_obliques">斜腹肌</string>
-
-    <!-- Exercises -->
     <string name="ex_bench_press_classic">杠铃平卧推举</string>
     <string name="ex_incline_bench_press">杠铃上斜卧推</string>
     <string name="ex_dumbbell_press">哑铃卧推</string>
@@ -245,8 +223,6 @@
     <string name="ex_captain_chair_leg_raises">仰卧悬垂举腿 (垂直)</string>
     <string name="ex_cable_woodchopper">绳索伐木</string>
     <string name="ex_swiss_ball_crunches">健身球卷腹</string>
-
-    <!-- Social / Stats Additions -->
     <string name="social_server_title">社交与服务器</string>
     <string name="social_server_desc">与朋友竞争并同步数据</string>
     <string name="friend_requests">好友请求</string>
@@ -266,8 +242,6 @@
     <string name="send_request">发送请求</string>
     <string name="you">你</string>
     <string name="friend">朋友</string>
-
-    <!-- Settings Server/Auth Additions -->
     <string name="nav_social">朋友</string>
     <string name="profile_color">个人资料颜色</string>
     <string name="server_account_sync">服务器帐户和同步</string>
@@ -287,4 +261,9 @@
     <string name="action_login">登录</string>
     <string name="select_profile_color">选择配置文件颜色</string>
     <string name="social_login_prompt">您需要登录或注册以同步数据并查看朋友的进度。</string>
+    <string name="custom_server">自定义服务器</string>
+    <string name="custom_server_subtitle">连接到自建服务器</string>
+    <string name="custom_server_dialog_title">输入服务器地址</string>
+    <string name="custom_server_dialog_placeholder">例如：http://192.168.0.52:8080/api/</string>
+    <string name="custom_server_default_btn">恢复默认</string>
 </resources>

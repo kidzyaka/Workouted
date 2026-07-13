@@ -32,6 +32,7 @@ class UserPreferencesRepositoryImpl @Inject constructor(
         val FRIEND_CODE = stringPreferencesKey("friend_code")
         val USER_COLOR = stringPreferencesKey("user_color")
         val FRIEND_COLOR_OVERRIDES = stringPreferencesKey("friend_color_overrides")
+        val CUSTOM_SERVER_URL = stringPreferencesKey("custom_server_url")
     }
 
     override val userHeightCm: Flow<Double> = context.dataStore.data
@@ -100,6 +101,10 @@ class UserPreferencesRepositoryImpl @Inject constructor(
             }.filterKeys { it != 0L }
         }
 
+    override val customServerUrl: Flow<String?> = context.dataStore.data
+        .catch { exception -> if (exception is IOException) emit(emptyPreferences()) else throw exception }
+        .map { it[PreferencesKeys.CUSTOM_SERVER_URL] }
+
     override suspend fun setUserHeightCm(height: Double) {
         context.dataStore.edit { it[PreferencesKeys.USER_HEIGHT] = height }
     }
@@ -159,6 +164,13 @@ class UserPreferencesRepositoryImpl @Inject constructor(
             
             val newSerialized = currentMap.entries.joinToString(",") { "${it.key}:${it.value}" }
             prefs[PreferencesKeys.FRIEND_COLOR_OVERRIDES] = newSerialized
+        }
+    }
+
+    override suspend fun setCustomServerUrl(url: String?) {
+        context.dataStore.edit {
+            if (url == null) it.remove(PreferencesKeys.CUSTOM_SERVER_URL)
+            else it[PreferencesKeys.CUSTOM_SERVER_URL] = url
         }
     }
 }

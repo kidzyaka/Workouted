@@ -44,6 +44,7 @@ fun SettingsScreen(
     SettingsContent(
         uiState = uiState,
         highlightLogin = highlightLogin,
+        onSaveCustomServer = { viewModel.setCustomServerUrl(it) },
         onUpdateHeight = { viewModel.updateHeight(it) },
         onUpdateWeight = { viewModel.updateWeight(it) },
         onUpdateAge = { viewModel.updateAge(it) },
@@ -68,6 +69,7 @@ fun SettingsScreen(
 fun SettingsContent(
     uiState: SettingsUiState,
     highlightLogin: Boolean = false,
+    onSaveCustomServer: (String) -> Unit,
     onUpdateHeight: (String) -> Unit,
     onUpdateWeight: (String) -> Unit,
     onUpdateAge: (String) -> Unit,
@@ -86,6 +88,7 @@ fun SettingsContent(
     var showLanguageDialog by remember { mutableStateOf(false) }
     var showColorDialog by remember { mutableStateOf(false) }
     var showAuthDialog by remember { mutableStateOf(false) }
+    var showCustomServerDialog by remember { mutableStateOf(false) }
     var showImportConfirmDialog by remember { mutableStateOf(false) }
     var pendingImportJson by remember { mutableStateOf<String?>(null) }
     
@@ -282,6 +285,12 @@ fun SettingsContent(
                             onClick = onLogout
                         )
                     }
+                    SettingsItem(
+                        icon = Icons.Default.Dns,
+                        title = stringResource(R.string.custom_server),
+                        subtitle = uiState.customServerUrl ?: stringResource(R.string.custom_server_subtitle),
+                        onClick = { showCustomServerDialog = true }
+                    )
                 }
             }
 
@@ -380,6 +389,17 @@ fun SettingsContent(
                 showColorDialog = false 
             },
             onDismiss = { showColorDialog = false }
+        )
+    }
+
+    if (showCustomServerDialog) {
+        CustomServerDialog(
+            currentUrl = uiState.customServerUrl ?: "",
+            onDismiss = { showCustomServerDialog = false },
+            onSave = { url ->
+                onSaveCustomServer(url)
+                showCustomServerDialog = false
+            }
         )
     }
 
@@ -672,6 +692,7 @@ fun SettingsPreview() {
         SettingsContent(
             uiState = SettingsUiState(height = "180", weight = "85", age = "30", language = "en"),
             highlightLogin = false,
+            onSaveCustomServer = {},
             onUpdateHeight = {},
             onUpdateWeight = {},
             onUpdateAge = {},
@@ -688,4 +709,38 @@ fun SettingsPreview() {
             onPullBackup = {}
         )
     }
+}
+
+
+@Composable
+fun CustomServerDialog(
+    currentUrl: String,
+    onDismiss: () -> Unit,
+    onSave: (String) -> Unit
+) {
+    var url by remember { mutableStateOf(currentUrl) }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(stringResource(R.string.custom_server_dialog_title)) },
+        text = {
+            OutlinedTextField(
+                value = url,
+                onValueChange = { url = it },
+                placeholder = { Text(stringResource(R.string.custom_server_dialog_placeholder)) },
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth()
+            )
+        },
+        confirmButton = {
+            TextButton(onClick = { onSave(url) }) {
+                Text(stringResource(R.string.action_accept))
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = { onSave("") }) {
+                Text(stringResource(R.string.custom_server_default_btn))
+            }
+        }
+    )
 }
