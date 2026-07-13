@@ -36,13 +36,39 @@ import com.kidz.workouted.ui.theme.WorkoutedTheme
 import kotlin.math.cos
 import kotlin.math.sin
 
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import com.kidz.workouted.presentation.social.SocialScreen
+
 @Composable
 fun StatsScreen(
-    viewModel: StatsViewModel
+    viewModel: StatsViewModel,
+    onNavigateToSettingsLogin: () -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    var selectedTabIndex by remember { mutableStateOf(0) }
+    val tabs = listOf(stringResource(R.string.statistics), stringResource(R.string.nav_social))
 
-    StatsContent(uiState = uiState)
+    Column(modifier = Modifier.fillMaxSize().statusBarsPadding()) {
+        TabRow(
+            selectedTabIndex = selectedTabIndex,
+            containerColor = Color.Transparent
+        ) {
+            tabs.forEachIndexed { index, title ->
+                Tab(
+                    selected = selectedTabIndex == index,
+                    onClick = { selectedTabIndex = index },
+                    text = { Text(title, fontWeight = FontWeight.Bold) }
+                )
+            }
+        }
+        
+        when (selectedTabIndex) {
+            0 -> StatsContent(uiState = uiState)
+            1 -> SocialScreen(onNavigateToLogin = onNavigateToSettingsLogin)
+        }
+    }
 }
 
 @Composable
@@ -52,7 +78,6 @@ fun StatsContent(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .statusBarsPadding()
             .verticalScroll(rememberScrollState())
             .padding(horizontal = 20.dp, vertical = 16.dp)
     ) {

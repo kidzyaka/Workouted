@@ -41,6 +41,7 @@ import com.kidz.workouted.presentation.onboarding.OnboardingScreen
 import com.kidz.workouted.presentation.settings.SettingsScreen
 import com.kidz.workouted.presentation.settings.SettingsViewModel
 import com.kidz.workouted.presentation.stats.StatsScreen
+import com.kidz.workouted.presentation.social.SocialScreen
 import com.kidz.workouted.ui.theme.WorkoutedTheme
 
 @Composable
@@ -146,10 +147,28 @@ fun MainContent(
                 )
             }
             composable(Screen.Stats.route) {
-                StatsScreen(viewModel = hiltViewModel())
+                StatsScreen(
+                    viewModel = hiltViewModel(),
+                    onNavigateToSettingsLogin = {
+                        navController.navigate(Screen.Settings.createRoute(highlightLogin = true)) {
+                            launchSingleTop = true
+                            restoreState = true
+                            popUpTo(Screen.Dashboard.route) {
+                                saveState = true
+                            }
+                        }
+                    }
+                )
             }
-            composable(Screen.Settings.route) {
-                SettingsScreen()
+            composable(
+                route = Screen.Settings.route,
+                arguments = listOf(navArgument("highlightLogin") {
+                    type = NavType.BoolType
+                    defaultValue = false
+                })
+            ) { backStackEntry ->
+                val highlightLogin = backStackEntry.arguments?.getBoolean("highlightLogin") ?: false
+                SettingsScreen(highlightLogin = highlightLogin)
             }
             composable(
                 route = Screen.AddWorkout.route,

@@ -74,6 +74,11 @@ dependencies {
     // DataStore
     implementation(libs.datastore.preferences)
 
+    // Network
+    implementation(libs.retrofit)
+    implementation(libs.okhttp.logging.interceptor)
+    implementation(libs.retrofit.kotlinx.serialization)
+
     testImplementation(libs.junit)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)

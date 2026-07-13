@@ -18,5 +18,6 @@ data class UserPreferencesBackup(
     val age: Int,
     val language: String,
     val isOnboardingCompleted: Boolean,
+    val defaultColor: String? = null,
     val lastSeenMuscleRanks: Map<String, String>
 )

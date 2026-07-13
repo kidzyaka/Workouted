@@ -18,6 +18,9 @@ interface WorkoutDao {
     @Query("SELECT * FROM sets WHERE workoutId = :workoutId")
     suspend fun getSetsForWorkout(workoutId: Long): List<SetEntity>
 
+    @Query("SELECT * FROM sets WHERE exerciseId = :exerciseId")
+    fun getSetsForExercise(exerciseId: Long): Flow<List<SetEntity>>
+
     @Query("DELETE FROM sets WHERE workoutId = :workoutId")
     suspend fun deleteSetsForWorkout(workoutId: Long)
 

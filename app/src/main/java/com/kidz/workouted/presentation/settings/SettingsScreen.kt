@@ -3,6 +3,7 @@ package com.kidz.workouted.presentation.settings
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -12,6 +13,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.animation.core.animateFloat
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -34,12 +36,15 @@ import java.io.OutputStreamWriter
 
 @Composable
 fun SettingsScreen(
-    viewModel: SettingsViewModel = hiltViewModel()
+    viewModel: SettingsViewModel = hiltViewModel(),
+    highlightLogin: Boolean = false
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
     SettingsContent(
         uiState = uiState,
+        highlightLogin = highlightLogin,
+        onSaveCustomServer = { viewModel.setCustomServerUrl(it) },
         onUpdateHeight = { viewModel.updateHeight(it) },
         onUpdateWeight = { viewModel.updateWeight(it) },
         onUpdateAge = { viewModel.updateAge(it) },
@@ -47,26 +52,43 @@ fun SettingsScreen(
             viewModel.updateLanguage(code)
             AppCompatDelegate.setApplicationLocales(LocaleListCompat.forLanguageTags(code))
         },
+        onUpdateUserColor = { viewModel.updateUserColor(it) },
         onResetOnboarding = { viewModel.resetOnboarding() },
         onExportData = { viewModel.getExportJson() },
         onImportData = { viewModel.importFromJson(it) },
-        onClearBackupState = { viewModel.clearBackupState() }
+        onClearBackupState = { viewModel.clearBackupState() },
+        onLogin = { u, p -> viewModel.login(u, p) },
+        onRegister = { u, p -> viewModel.register(u, p) },
+        onLogout = { viewModel.logout() },
+        onPushBackup = { viewModel.pushBackupToCloud() },
+        onPullBackup = { viewModel.pullBackupFromCloud() }
     )
 }
 
 @Composable
 fun SettingsContent(
     uiState: SettingsUiState,
+    highlightLogin: Boolean = false,
+    onSaveCustomServer: (String) -> Unit,
     onUpdateHeight: (String) -> Unit,
     onUpdateWeight: (String) -> Unit,
     onUpdateAge: (String) -> Unit,
     onUpdateLanguage: (String) -> Unit,
+    onUpdateUserColor: (String) -> Unit,
     onResetOnboarding: () -> Unit,
     onExportData: suspend () -> String,
     onImportData: (String) -> Unit,
-    onClearBackupState: () -> Unit
+    onClearBackupState: () -> Unit,
+    onLogin: (String, String) -> Unit,
+    onRegister: (String, String) -> Unit,
+    onLogout: () -> Unit,
+    onPushBackup: () -> Unit,
+    onPullBackup: () -> Unit
 ) {
     var showLanguageDialog by remember { mutableStateOf(false) }
+    var showColorDialog by remember { mutableStateOf(false) }
+    var showAuthDialog by remember { mutableStateOf(false) }
+    var showCustomServerDialog by remember { mutableStateOf(false) }
     var showImportConfirmDialog by remember { mutableStateOf(false) }
     var pendingImportJson by remember { mutableStateOf<String?>(null) }
     
@@ -128,6 +150,13 @@ fun SettingsContent(
         }
     }
 
+    LaunchedEffect(uiState.authError) {
+        if (uiState.authError != null) {
+            snackbarHostState.showSnackbar("Auth Error: ${uiState.authError}")
+            onClearBackupState()
+        }
+    }
+
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) },
         containerColor = Color.Transparent
@@ -171,6 +200,12 @@ fun SettingsContent(
                         subtitle = languageName,
                         onClick = { showLanguageDialog = true }
                     )
+                    SettingsItem(
+                        icon = Icons.Default.Palette,
+                        title = stringResource(R.string.profile_color),
+                        subtitle = uiState.userColor ?: "Default",
+                        onClick = { showColorDialog = true }
+                    )
                 }
             }
 
@@ -202,6 +237,66 @@ fun SettingsContent(
             Spacer(modifier = Modifier.height(24.dp))
 
             StaggeredEntranceItem(index = 3) {
+                SettingsSection(title = stringResource(R.string.server_account_sync)) {
+                    if (uiState.token.isNullOrEmpty()) {
+                        val infiniteTransition = androidx.compose.animation.core.rememberInfiniteTransition(label = "highlight")
+                        val highlightAlpha by infiniteTransition.animateFloat(
+                            initialValue = 0.0f,
+                            targetValue = 0.5f,
+                            animationSpec = androidx.compose.animation.core.infiniteRepeatable(
+                                animation = androidx.compose.animation.core.tween(800),
+                                repeatMode = androidx.compose.animation.core.RepeatMode.Reverse
+                            ),
+                            label = "alpha"
+                        )
+                        val highlightMod = if (highlightLogin) Modifier.background(MaterialTheme.colorScheme.primary.copy(alpha = highlightAlpha)) else Modifier
+                        
+                        SettingsItem(
+                            modifier = highlightMod,
+                            icon = Icons.Default.Person,
+                            title = stringResource(R.string.login_register),
+                            subtitle = stringResource(R.string.connect_to_cloud),
+                            onClick = { showAuthDialog = true }
+                        )
+                    } else {
+                        SettingsItem(
+                            icon = Icons.Default.PersonOutline,
+                            title = stringResource(R.string.logged_in),
+                            subtitle = stringResource(R.string.friend_code) + ": ${uiState.friendCode}",
+                            onClick = null,
+                            showChevron = false
+                        )
+                        SettingsItem(
+                            icon = Icons.Default.CloudUpload,
+                            title = stringResource(R.string.push_to_cloud),
+                            subtitle = stringResource(R.string.backup_to_server),
+                            onClick = onPushBackup
+                        )
+                        SettingsItem(
+                            icon = Icons.Default.CloudDownload,
+                            title = stringResource(R.string.pull_from_cloud),
+                            subtitle = stringResource(R.string.restore_from_server),
+                            onClick = onPullBackup
+                        )
+                        SettingsItem(
+                            icon = Icons.Default.Logout,
+                            title = stringResource(R.string.logout),
+                            subtitle = stringResource(R.string.disconnect_account),
+                            onClick = onLogout
+                        )
+                    }
+                    SettingsItem(
+                        icon = Icons.Default.Dns,
+                        title = stringResource(R.string.custom_server),
+                        subtitle = uiState.customServerUrl ?: stringResource(R.string.custom_server_subtitle),
+                        onClick = { showCustomServerDialog = true }
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            StaggeredEntranceItem(index = 4) {
                 SettingsSection(title = stringResource(R.string.data_management)) {
                     SettingsItem(
                         icon = Icons.Default.FileUpload,
@@ -285,6 +380,151 @@ fun SettingsContent(
             }
         )
     }
+
+    if (showColorDialog) {
+        ColorSelectionDialog(
+            currentColor = uiState.userColor ?: "#FF9800",
+            onColorSelected = { 
+                onUpdateUserColor(it)
+                showColorDialog = false 
+            },
+            onDismiss = { showColorDialog = false }
+        )
+    }
+
+    if (showCustomServerDialog) {
+        CustomServerDialog(
+            currentUrl = uiState.customServerUrl ?: "",
+            onDismiss = { showCustomServerDialog = false },
+            onSave = { url ->
+                onSaveCustomServer(url)
+                showCustomServerDialog = false
+            }
+        )
+    }
+
+    if (showAuthDialog) {
+        AuthDialog(
+            onLogin = { u, p -> 
+                onLogin(u, p)
+                showAuthDialog = false 
+            },
+            onRegister = { u, p -> 
+                onRegister(u, p)
+                showAuthDialog = false 
+            },
+            onDismiss = { showAuthDialog = false },
+            isLoading = uiState.isLoading
+        )
+    }
+}
+
+@Composable
+fun AuthDialog(
+    onLogin: (String, String) -> Unit,
+    onRegister: (String, String) -> Unit,
+    onDismiss: () -> Unit,
+    isLoading: Boolean
+) {
+    var username by remember { mutableStateOf("") }
+    var password by remember { mutableStateOf("") }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(stringResource(R.string.server_account)) },
+        text = {
+            Column {
+                OutlinedTextField(
+                    value = username,
+                    onValueChange = { username = it },
+                    label = { Text(stringResource(R.string.username)) },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp)
+                )
+                OutlinedTextField(
+                    value = password,
+                    onValueChange = { password = it },
+                    label = { Text(stringResource(R.string.password)) },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+        },
+        confirmButton = {
+            Row {
+                TextButton(
+                    onClick = { onRegister(username, password) },
+                    enabled = username.isNotBlank() && password.isNotBlank() && !isLoading
+                ) {
+                    Text(stringResource(R.string.action_register))
+                }
+                Spacer(modifier = Modifier.width(8.dp))
+                Button(
+                    onClick = { onLogin(username, password) },
+                    enabled = username.isNotBlank() && password.isNotBlank() && !isLoading
+                ) {
+                    Text(stringResource(R.string.action_login))
+                }
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(stringResource(R.string.cancel))
+            }
+        }
+    )
+}
+
+@Composable
+fun ColorSelectionDialog(
+    currentColor: String,
+    onColorSelected: (String) -> Unit,
+    onDismiss: () -> Unit
+) {
+    val colors = listOf(
+        "#F44336", "#E91E63", "#9C27B0", "#673AB7",
+        "#3F51B5", "#2196F3", "#03A9F4", "#00BCD4",
+        "#009688", "#4CAF50", "#8BC34A", "#CDDC39",
+        "#FFEB3B", "#FFC107", "#FF9800", "#FF5722"
+    )
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(stringResource(R.string.select_profile_color)) },
+        text = {
+            // Using a simple column/row layout for the colors
+            Column {
+                for (i in colors.indices step 4) {
+                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
+                        for (j in 0 until 4) {
+                            if (i + j < colors.size) {
+                                val colorHex = colors[i + j]
+                                Box(
+                                    modifier = Modifier
+                                        .size(48.dp)
+                                        .padding(4.dp)
+                                        .clickable { onColorSelected(colorHex) },
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    androidx.compose.foundation.Canvas(modifier = Modifier.fillMaxSize()) {
+                                        drawCircle(color = Color(android.graphics.Color.parseColor(colorHex)))
+                                    }
+                                    if (currentColor.equals(colorHex, ignoreCase = true)) {
+                                        Icon(Icons.Default.Check, contentDescription = null, tint = Color.White)
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = onDismiss) {
+                Text(stringResource(R.string.cancel))
+            }
+        }
+    )
 }
 
 @Composable
@@ -353,6 +593,7 @@ fun SettingsSection(title: String, content: @Composable ColumnScope.() -> Unit) 
 
 @Composable
 fun SettingsItem(
+    modifier: Modifier = Modifier,
     title: String,
     subtitle: String,
     icon: androidx.compose.ui.graphics.vector.ImageVector? = null,
@@ -360,6 +601,7 @@ fun SettingsItem(
     showChevron: Boolean = true
 ) {
     Surface(
+        modifier = modifier,
         onClick = onClick ?: {},
         color = Color.Transparent,
         enabled = onClick != null
@@ -449,14 +691,56 @@ fun SettingsPreview() {
     WorkoutedTheme {
         SettingsContent(
             uiState = SettingsUiState(height = "180", weight = "85", age = "30", language = "en"),
+            highlightLogin = false,
+            onSaveCustomServer = {},
             onUpdateHeight = {},
             onUpdateWeight = {},
             onUpdateAge = {},
             onUpdateLanguage = {},
+            onUpdateUserColor = {},
             onResetOnboarding = {},
             onExportData = { "" },
             onImportData = {},
-            onClearBackupState = {}
+            onClearBackupState = {},
+            onLogin = { _, _ -> },
+            onRegister = { _, _ -> },
+            onLogout = {},
+            onPushBackup = {},
+            onPullBackup = {}
         )
     }
+}
+
+
+@Composable
+fun CustomServerDialog(
+    currentUrl: String,
+    onDismiss: () -> Unit,
+    onSave: (String) -> Unit
+) {
+    var url by remember { mutableStateOf(currentUrl) }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(stringResource(R.string.custom_server_dialog_title)) },
+        text = {
+            OutlinedTextField(
+                value = url,
+                onValueChange = { url = it },
+                placeholder = { Text(stringResource(R.string.custom_server_dialog_placeholder)) },
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth()
+            )
+        },
+        confirmButton = {
+            TextButton(onClick = { onSave(url) }) {
+                Text(stringResource(R.string.action_accept))
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = { onSave("") }) {
+                Text(stringResource(R.string.custom_server_default_btn))
+            }
+        }
+    )
 }

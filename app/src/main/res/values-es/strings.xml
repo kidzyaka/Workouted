@@ -1,20 +1,15 @@
+<?xml version='1.0' encoding='utf-8'?>
 <resources>
     <string name="app_name">Workouted</string>
-
-    <!-- Navigation -->
     <string name="nav_home">Inicio</string>
     <string name="nav_log">Registro</string>
     <string name="nav_stats">Estadísticas</string>
     <string name="nav_profile">Perfil</string>
     <string name="add_workout">Añadir entrenamiento</string>
-
-    <!-- Onboarding -->
     <string name="welcome_to_workouted">Bienvenido a Workouted</string>
     <string name="set_parameters_desc">Configura tus parámetros para empezar</string>
     <string name="get_started">Empezar</string>
     <string name="reset_onboarding">Reiniciar Onboarding (Debug)</string>
-
-    <!-- Dashboard Greetings -->
     <string name="greeting_morning">Buenos días,</string>
     <string name="greeting_day">Buen día,</string>
     <string name="greeting_evening">Buenas noches,</string>
@@ -25,7 +20,6 @@
     <string name="title_legend">¡Leyenda!</string>
     <string name="title_hero">¡Héroe!</string>
     <string name="title_titan">¡Titán!</string>
-
     <string name="muscle_map">Mapa muscular</string>
     <string name="progress_by_muscle">Progreso por músculo</string>
     <string name="weekly_summary">Resumen semanal</string>
@@ -39,8 +33,6 @@
     <string name="group_progression">Progreso del grupo</string>
     <string name="individual_muscles">Músculos individuales</string>
     <string name="rank_up_title">¡Nuevo rango!</string>
-
-    <!-- Log -->
     <string name="workout_log">Registro de entrenamientos</string>
     <string name="no_workouts">No hay entrenamientos registrados.</string>
     <string name="delete_workout">Eliminar entrenamiento</string>
@@ -50,8 +42,6 @@
     <string name="workout_details">Detalles del entrenamiento</string>
     <string name="edit">Editar</string>
     <string name="exercises">ejercicios</string>
-
-    <!-- Add Workout -->
     <string name="log_workout">Registrar entrenamiento</string>
     <string name="finish">Terminar</string>
     <string name="add_exercise">Añadir ejercicio</string>
@@ -63,17 +53,13 @@
     <string name="weight_kg">Peso (kg)</string>
     <string name="reps">Reps</string>
     <string name="set_label">Serie</string>
-
-    <!-- Stats -->
     <string name="statistics">Estadísticas</string>
     <string name="progress_30_days">Tu progreso en los últimos 30 días</string>
     <string name="workload">Carga de trabajo</string>
     <string name="muscle_balance">Equilibrio muscular</string>
-    <string name="strength_progress">Progreso de fuerza (1RM estimado)</string>
+    <string name="strength_progress">Volumen total de entrenamiento</string>
     <string name="no_progress_data">Sin datos de progreso</string>
     <string name="add_workouts_balance">Añade entrenamientos para ver el equilibrio</string>
-
-    <!-- Settings -->
     <string name="settings">Ajustes</string>
     <string name="manage_profile">Gestiona tu perfil y preferencias</string>
     <string name="language_region">Idioma y región</string>
@@ -96,8 +82,6 @@
     <string name="import_error">Error al importar datos: %s</string>
     <string name="export_success">¡Datos exportados con éxito!</string>
     <string name="export_error">Error al exportar datos</string>
-
-    <!-- Ranks -->
     <string name="rank_wood">Madera</string>
     <string name="rank_bronze">Bronce</string>
     <string name="rank_silver">Plata</string>
@@ -106,16 +90,12 @@
     <string name="rank_emerald">Esmeralda</string>
     <string name="rank_diamond">Diamante</string>
     <string name="rank_elite">Élite</string>
-
-    <!-- Muscle Groups -->
     <string name="group_chest">Pecho</string>
     <string name="group_back">Espalda</string>
     <string name="group_legs">Piernas</string>
     <string name="group_shoulders">Hombros</string>
     <string name="group_arms">Brazos</string>
     <string name="group_core">Core</string>
-
-    <!-- Muscles -->
     <string name="m_chest_mid">Pecho Medio</string>
     <string name="m_chest_upper">Pecho Superior</string>
     <string name="m_lats">Dorsales</string>
@@ -134,8 +114,6 @@
     <string name="m_forearms">Antebrazos</string>
     <string name="m_abs">Abdominales</string>
     <string name="m_obliques">Oblicuos</string>
-
-    <!-- Exercises -->
     <string name="ex_bench_press_classic">Press de banca con barra</string>
     <string name="ex_incline_bench_press">Press de banca inclinado con barra</string>
     <string name="ex_dumbbell_press">Press de banca con mancuernas</string>
@@ -245,4 +223,47 @@
     <string name="ex_captain_chair_leg_raises">Elevación de piernas en silla romana</string>
     <string name="ex_cable_woodchopper">Leñador en polea</string>
     <string name="ex_swiss_ball_crunches">Crunches en fitball</string>
+    <string name="social_server_title">Social y Servidor</string>
+    <string name="social_server_desc">Compite con amigos y sincroniza datos</string>
+    <string name="friend_requests">Solicitudes de amistad</string>
+    <string name="action_accept">Aceptar</string>
+    <string name="friends_leaderboard">Tabla de clasificación</string>
+    <string name="no_friends_yet">Aún no hay amigos.</string>
+    <string name="score_prefix">Puntuación: </string>
+    <string name="friend_profiles">Perfiles de amigos</string>
+    <string name="code_prefix">Código: </string>
+    <string name="change_color">Cambiar color</string>
+    <string name="height_short_prefix">A: </string>
+    <string name="weight_short_prefix">P: </string>
+    <string name="age_prefix">Edad: </string>
+    <string name="muscle_ranks">Rangos musculares:</string>
+    <string name="add_friend">Añadir amigo</string>
+    <string name="friend_code">Código de amigo</string>
+    <string name="send_request">Enviar</string>
+    <string name="you">Tú</string>
+    <string name="friend">Amigo</string>
+    <string name="nav_social">Amigos</string>
+    <string name="profile_color">Color de perfil</string>
+    <string name="server_account_sync">Cuenta de Servidor y Sincronización</string>
+    <string name="login_register">Iniciar sesión / Registrarse</string>
+    <string name="connect_to_cloud">Conectar a la nube Workouted</string>
+    <string name="logged_in">Sesión iniciada</string>
+    <string name="push_to_cloud">Subir a la nube</string>
+    <string name="backup_to_server">Hacer copia de seguridad</string>
+    <string name="pull_from_cloud">Descargar de la nube</string>
+    <string name="restore_from_server">Restaurar datos</string>
+    <string name="logout">Cerrar sesión</string>
+    <string name="disconnect_account">Desconectar cuenta</string>
+    <string name="server_account">Cuenta de servidor</string>
+    <string name="username">Usuario</string>
+    <string name="password">Contraseña</string>
+    <string name="action_register">Registrarse</string>
+    <string name="action_login">Entrar</string>
+    <string name="select_profile_color">Seleccionar color de perfil</string>
+    <string name="social_login_prompt">Inicia sesión o regístrate para sincronizar tus datos y ver el progreso de tus amigos.</string>
+    <string name="custom_server">Servidor personalizado</string>
+    <string name="custom_server_subtitle">Conectarse a un servidor propio</string>
+    <string name="custom_server_dialog_title">Ingrese la dirección del servidor</string>
+    <string name="custom_server_dialog_placeholder">ej., http://192.168.0.52:8080/api/</string>
+    <string name="custom_server_default_btn">Restablecer por defecto</string>
 </resources>
