@@ -23,6 +23,12 @@ interface WorkoutedApi {
     @POST("friends/accept")
     suspend fun acceptFriendRequest(@Query("friendshipId") friendshipId: Long)
 
+    @POST("friends/reject")
+    suspend fun rejectFriendRequest(@Query("friendshipId") friendshipId: Long)
+
+    @POST("friends/remove")
+    suspend fun removeFriend(@Query("friendId") friendId: Long)
+
     @GET("friends/requests")
     suspend fun getFriendRequests(): List<FriendRequestDto>
 

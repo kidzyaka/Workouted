@@ -77,7 +77,6 @@ fun LogContent(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .statusBarsPadding()
             .padding(horizontal = 20.dp, vertical = 16.dp)
     ) {
         StaggeredEntranceItem(index = 0) {
@@ -162,6 +161,7 @@ fun LogContent(
 
                     LazyColumn(
                         verticalArrangement = Arrangement.spacedBy(16.dp),
+                        contentPadding = PaddingValues(bottom = 120.dp),
                         modifier = Modifier.fillMaxSize()
                     ) {
                         itemsIndexed(

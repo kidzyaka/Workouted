@@ -159,12 +159,12 @@ fun SettingsContent(
 
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) },
-        containerColor = Color.Transparent
+        containerColor = Color.Transparent,
+        contentWindowInsets = WindowInsets(0, 0, 0, 0)
     ) { innerPadding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .statusBarsPadding()
                 .padding(innerPadding)
                 .verticalScroll(rememberScrollState())
                 .padding(horizontal = 20.dp, vertical = 16.dp)
@@ -323,7 +323,7 @@ fun SettingsContent(
                 SettingsSection(title = stringResource(R.string.about_app)) {
                     SettingsItem(
                         title = stringResource(R.string.version),
-                        subtitle = "1.0",
+                        subtitle = "0.4RC1",
                         showChevron = false
                     )
                     SettingsItem(
@@ -342,7 +342,7 @@ fun SettingsContent(
                 }
             }
             
-            Spacer(modifier = Modifier.height(80.dp))
+            Spacer(modifier = Modifier.height(120.dp))
         }
     }
 

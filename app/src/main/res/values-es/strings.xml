@@ -225,9 +225,10 @@
     <string name="ex_swiss_ball_crunches">Crunches en fitball</string>
     <string name="social_server_title">Social y Servidor</string>
     <string name="social_server_desc">Compite con amigos y sincroniza datos</string>
-    <string name="friend_requests">Solicitudes de amistad</string>
+    <string name="friend_requests">Solicitudes de Amistad</string>
     <string name="action_accept">Aceptar</string>
-    <string name="friends_leaderboard">Tabla de clasificación</string>
+    <string name="action_reject">Rechazar</string>
+    <string name="friends_leaderboard">Tabla de Clasificación de Amigos</string>
     <string name="no_friends_yet">Aún no hay amigos.</string>
     <string name="score_prefix">Puntuación: </string>
     <string name="friend_profiles">Perfiles de amigos</string>
@@ -242,6 +243,12 @@
     <string name="send_request">Enviar</string>
     <string name="you">Tú</string>
     <string name="friend">Amigo</string>
+    <string name="remove_friend">Eliminar de amigos</string>
+    <string name="remove_friend_confirm_title">Eliminar amigo</string>
+    <string name="remove_friend_confirm_text">¿Estás seguro de que quieres eliminar a este amigo? Perderás el acceso a su progreso.</string>
+    <string name="action_confirm">Confirmar</string>
+    <string name="action_confirm_timer">Confirmar (%d s)</string>
+    <string name="friend_details_title">Detalles del Amigo</string>
     <string name="nav_social">Amigos</string>
     <string name="profile_color">Color de perfil</string>
     <string name="server_account_sync">Cuenta de Servidor y Sincronización</string>

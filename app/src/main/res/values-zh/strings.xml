@@ -227,6 +227,7 @@
     <string name="social_server_desc">与朋友竞争并同步数据</string>
     <string name="friend_requests">好友请求</string>
     <string name="action_accept">接受</string>
+    <string name="action_reject">拒绝</string>
     <string name="friends_leaderboard">好友排行榜</string>
     <string name="no_friends_yet">还没有朋友。</string>
     <string name="score_prefix">分数: </string>
@@ -242,6 +243,12 @@
     <string name="send_request">发送请求</string>
     <string name="you">你</string>
     <string name="friend">朋友</string>
+    <string name="remove_friend">删除好友</string>
+    <string name="remove_friend_confirm_title">删除好友</string>
+    <string name="remove_friend_confirm_text">您确定要删除此好友吗？您将无法查看他们的进度。</string>
+    <string name="action_confirm">确认</string>
+    <string name="action_confirm_timer">确认 (%d 秒)</string>
+    <string name="friend_details_title">好友详情</string>
     <string name="nav_social">朋友</string>
     <string name="profile_color">个人资料颜色</string>
     <string name="server_account_sync">服务器帐户和同步</string>

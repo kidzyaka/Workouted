@@ -29,6 +29,24 @@ class SocialRepository @Inject constructor(
         }
     }
 
+    suspend fun rejectFriendRequest(friendshipId: Long): Result<Unit> {
+        return try {
+            api.rejectFriendRequest(friendshipId)
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    suspend fun removeFriend(friendId: Long): Result<Unit> {
+        return try {
+            api.removeFriend(friendId)
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
     suspend fun getFriendRequests(): Result<List<FriendRequestDto>> {
         return try {
             val requests = api.getFriendRequests()

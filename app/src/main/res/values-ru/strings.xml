@@ -227,6 +227,7 @@
     <string name="social_server_desc">Соревнуйтесь с друзьями и синхронизируйте данные</string>
     <string name="friend_requests">Запросы в друзья</string>
     <string name="action_accept">Принять</string>
+    <string name="action_reject">Отклонить</string>
     <string name="friends_leaderboard">Таблица лидеров</string>
     <string name="no_friends_yet">Пока нет друзей.</string>
     <string name="score_prefix">Очки: </string>
@@ -243,6 +244,12 @@
     <string name="you">Вы</string>
     <string name="friend">Друг</string>
     <string name="nav_social">Друзья</string>
+    <string name="remove_friend">Удалить из друзей</string>
+    <string name="remove_friend_confirm_title">Удаление друга</string>
+    <string name="remove_friend_confirm_text">Вы уверены, что хотите удалить этого друга? Вы потеряете доступ к его прогрессу.</string>
+    <string name="action_confirm">Подтвердить</string>
+    <string name="action_confirm_timer">Подтвердить (%d сек)</string>
+    <string name="friend_details_title">Профиль друга</string>
     <string name="profile_color">Цвет профиля</string>
     <string name="server_account_sync">Аккаунт сервера и синхронизация</string>
     <string name="login_register">Вход / Регистрация</string>

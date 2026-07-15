@@ -228,6 +228,7 @@
     <string name="social_server_desc">Compete with friends and sync data</string>
     <string name="friend_requests">Friend Requests</string>
     <string name="action_accept">Accept</string>
+    <string name="action_reject">Reject</string>
     <string name="friends_leaderboard">Friends Leaderboard</string>
     <string name="no_friends_yet">No friends yet.</string>
     <string name="score_prefix">Score: </string>
@@ -243,6 +244,12 @@
     <string name="send_request">Send Request</string>
     <string name="you">You</string>
     <string name="friend">Friend</string>
+    <string name="remove_friend">Remove from friends</string>
+    <string name="remove_friend_confirm_title">Remove Friend</string>
+    <string name="remove_friend_confirm_text">Are you sure you want to remove this friend? You will lose access to their progress.</string>
+    <string name="action_confirm">Confirm</string>
+    <string name="action_confirm_timer">Confirm (%d s)</string>
+    <string name="friend_details_title">Friend Details</string>
     <string name="profile_color">Profile Color</string>
     <string name="server_account_sync">Server Account &amp; Sync</string>
     <string name="login_register">Login / Register</string>

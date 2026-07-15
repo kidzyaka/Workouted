@@ -1,7 +1,14 @@
 package com.kidz.workouted.presentation.stats
 
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -50,7 +57,7 @@ fun StatsScreen(
     var selectedTabIndex by remember { mutableStateOf(0) }
     val tabs = listOf(stringResource(R.string.statistics), stringResource(R.string.nav_social))
 
-    Column(modifier = Modifier.fillMaxSize().statusBarsPadding()) {
+    Column(modifier = Modifier.fillMaxSize()) {
         TabRow(
             selectedTabIndex = selectedTabIndex,
             containerColor = Color.Transparent
@@ -64,9 +71,11 @@ fun StatsScreen(
             }
         }
         
-        when (selectedTabIndex) {
-            0 -> StatsContent(uiState = uiState)
-            1 -> SocialScreen(onNavigateToLogin = onNavigateToSettingsLogin)
+        Box(modifier = Modifier.weight(1f).fillMaxWidth()) {
+            when (selectedTabIndex) {
+                0 -> StatsContent(uiState = uiState)
+                1 -> SocialScreen(onNavigateToLogin = onNavigateToSettingsLogin)
+            }
         }
     }
 }
@@ -142,7 +151,7 @@ fun StatsContent(
             }
         }
         
-        Spacer(modifier = Modifier.height(80.dp))
+        Spacer(modifier = Modifier.height(120.dp))
     }
 }
 
@@ -401,7 +410,12 @@ fun ProgressChart(data: List<ProgressData>) {
                 fontWeight = FontWeight.Bold
             )
             Spacer(modifier = Modifier.height(20.dp))
-            
+            val animationProgress = remember { Animatable(0f) }
+            LaunchedEffect(data) {
+                animationProgress.snapTo(0f)
+                animationProgress.animateTo(1f, tween(1000, easing = FastOutSlowInEasing))
+            }
+
             Canvas(modifier = Modifier.fillMaxWidth().height(150.dp).padding(horizontal = 16.dp)) {
                 if (data.size < 2) {
                     val valY = size.height / 2
@@ -413,20 +427,41 @@ fun ProgressChart(data: List<ProgressData>) {
                     val range = (maxVal - minVal).coerceAtLeast(1f)
                     
                     val points = data.mapIndexed { index, item ->
-                        Offset(
-                            x = index * spacing,
-                            y = size.height - ((item.value - minVal) / range) * size.height
-                        )
+                        val targetY = size.height - ((item.value - minVal) / range) * size.height
+                        // Animate from bottom (size.height) to targetY
+                        val animatedY = size.height - (size.height - targetY) * animationProgress.value
+                        Offset(x = index * spacing, y = animatedY.toFloat())
                     }
                     
-                    for (i in 0 until points.size - 1) {
-                        drawLine(
-                            color = Color(0xFFE57373),
-                            start = points[i],
-                            end = points[i+1],
-                            strokeWidth = 3.dp.toPx()
-                        )
+                    val strokePath = Path().apply {
+                        moveTo(points.first().x, points.first().y)
+                        for (i in 0 until points.size - 1) {
+                            val p1 = points[i]
+                            val p2 = points[i + 1]
+                            val cx = (p1.x + p2.x) / 2
+                            cubicTo(cx, p1.y, cx, p2.y, p2.x, p2.y)
+                        }
                     }
+
+                    val fillPath = Path().apply {
+                        addPath(strokePath)
+                        lineTo(points.last().x, size.height)
+                        lineTo(points.first().x, size.height)
+                        close()
+                    }
+
+                    val gradient = Brush.verticalGradient(
+                        colors = listOf(Color(0xFFE57373).copy(alpha = 0.5f * animationProgress.value), Color.Transparent),
+                        startY = points.minOf { it.y },
+                        endY = size.height
+                    )
+
+                    drawPath(path = fillPath, brush = gradient)
+                    drawPath(
+                        path = strokePath,
+                        color = Color(0xFFE57373),
+                        style = Stroke(width = 3.dp.toPx(), cap = StrokeCap.Round, join = StrokeJoin.Round)
+                    )
                     
                     points.forEach { point ->
                         drawCircle(Color.White, radius = 4.dp.toPx(), center = point)

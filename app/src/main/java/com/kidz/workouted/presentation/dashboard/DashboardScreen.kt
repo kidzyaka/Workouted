@@ -106,7 +106,6 @@ fun DashboardContent(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .statusBarsPadding()
                 .verticalScroll(rememberScrollState())
                 .padding(horizontal = 20.dp, vertical = 16.dp)
         ) {
@@ -259,7 +258,7 @@ fun DashboardContent(
                 }
             }
 
-            Spacer(modifier = Modifier.height(80.dp)) // Space for bottom bar
+            Spacer(modifier = Modifier.height(120.dp)) // Space for bottom bar
         }
 
         currentRankUp?.let { rankUp ->

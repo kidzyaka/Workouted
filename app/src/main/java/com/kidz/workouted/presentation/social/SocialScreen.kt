@@ -1,8 +1,14 @@
 package com.kidz.workouted.presentation.social
 
+import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTransformGestures
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -18,7 +24,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.StrokeJoin
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -44,6 +55,8 @@ fun SocialScreen(
     val uiState by viewModel.uiState.collectAsState()
 
     var showAddFriendDialog by remember { mutableStateOf(false) }
+    var selectedFriend by remember { mutableStateOf<LeaderboardEntry?>(null) }
+    var showRemoveConfirmDialog by remember { mutableStateOf(false) }
 
     if (!uiState.isLoggedIn) {
         Column(
@@ -71,20 +84,13 @@ fun SocialScreen(
         return
     }
 
-    Scaffold(
-        floatingActionButton = {
-            FloatingActionButton(onClick = { showAddFriendDialog = true }) {
-                Icon(Icons.Default.PersonAdd, contentDescription = stringResource(R.string.add_friend))
-            }
-        },
-        containerColor = Color.Transparent
-    ) { innerPadding ->
+    Box(modifier = Modifier.fillMaxSize()) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPadding)
                 .verticalScroll(rememberScrollState())
                 .padding(horizontal = 20.dp, vertical = 16.dp)
+                .padding(bottom = 80.dp) // padding for FAB and Nav Bar
         ) {
             StaggeredEntranceItem(index = 0) {
                 Column {
@@ -120,19 +126,9 @@ fun SocialScreen(
                 }
             }
 
-            if (uiState.requests.isNotEmpty()) {
-                StaggeredEntranceItem(index = 1) {
-                    FriendRequestsSection(
-                        requests = uiState.requests,
-                        onAccept = { viewModel.acceptRequest(it) }
-                    )
-                }
-                Spacer(modifier = Modifier.height(24.dp))
-            }
-
             val friendsLeaderboard = uiState.leaderboard.filter { it.friendCode != uiState.userFriendCode }
 
-            StaggeredEntranceItem(index = 2) {
+            StaggeredEntranceItem(index = 1) {
                 FriendsLeaderboardSection(leaderboard = friendsLeaderboard)
             }
             Spacer(modifier = Modifier.height(24.dp))
@@ -148,15 +144,27 @@ fun SocialScreen(
             }
             Spacer(modifier = Modifier.height(24.dp))
 
-            StaggeredEntranceItem(index = 4) {
+            StaggeredEntranceItem(index = 3) {
                 FriendCardsSection(
                     leaderboard = friendsLeaderboard,
                     friendColorOverrides = uiState.friendColorOverrides,
-                    onUpdateColor = { friendId, color -> viewModel.setFriendColor(friendId, color) }
+                    onUpdateColor = { friendId, color -> viewModel.setFriendColor(friendId, color) },
+                    onFriendClick = { selectedFriend = it }
                 )
             }
 
-            Spacer(modifier = Modifier.height(80.dp))
+            if (uiState.requests.isNotEmpty()) {
+                Spacer(modifier = Modifier.height(24.dp))
+                StaggeredEntranceItem(index = 4) {
+                    FriendRequestsSection(
+                        requests = uiState.requests,
+                        onAccept = { viewModel.acceptRequest(it) },
+                        onReject = { viewModel.rejectRequest(it) }
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(120.dp))
         }
 
         if (showAddFriendDialog) {
@@ -168,11 +176,42 @@ fun SocialScreen(
                 onDismiss = { showAddFriendDialog = false }
             )
         }
+
+        selectedFriend?.let { friend ->
+            FriendDetailsDialog(
+                friend = friend,
+                customColor = uiState.friendColorOverrides[friend.friendId],
+                stats = uiState.friendsVolumeStats[friend.friendId.toString()] ?: emptyList(),
+                onDismiss = { selectedFriend = null },
+                onRemove = { showRemoveConfirmDialog = true }
+            )
+        }
+
+        if (showRemoveConfirmDialog && selectedFriend != null) {
+            RemoveFriendConfirmationDialog(
+                onConfirm = {
+                    viewModel.removeFriend(selectedFriend!!.friendId)
+                    showRemoveConfirmDialog = false
+                    selectedFriend = null
+                },
+                onDismiss = { showRemoveConfirmDialog = false }
+            )
+        }
+
+        FloatingActionButton(
+            onClick = { showAddFriendDialog = true },
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .padding(16.dp)
+                .padding(bottom = 80.dp) // Offset above the navigation bar
+        ) {
+            Icon(Icons.Default.PersonAdd, contentDescription = stringResource(R.string.add_friend))
+        }
     }
 }
 
 @Composable
-fun FriendRequestsSection(requests: List<FriendRequestDto>, onAccept: (Long) -> Unit) {
+fun FriendRequestsSection(requests: List<FriendRequestDto>, onAccept: (Long) -> Unit, onReject: (Long) -> Unit) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = MaterialTheme.shapes.extraLarge,
@@ -196,8 +235,13 @@ fun FriendRequestsSection(requests: List<FriendRequestDto>, onAccept: (Long) -> 
                         Text(req.requesterUsername, fontWeight = FontWeight.Bold)
                         Text(req.requesterCode, style = MaterialTheme.typography.bodySmall)
                     }
-                    Button(onClick = { onAccept(req.friendshipId) }) {
-                        Text(stringResource(R.string.action_accept))
+                    Row(horizontalArrangement = Arrangement.End) {
+                        IconButton(onClick = { onReject(req.friendshipId) }) {
+                            Icon(Icons.Default.Close, contentDescription = stringResource(R.string.action_reject), tint = MaterialTheme.colorScheme.error)
+                        }
+                        IconButton(onClick = { onAccept(req.friendshipId) }) {
+                            Icon(Icons.Default.Check, contentDescription = stringResource(R.string.action_accept), tint = Color(0xFF4CAF50))
+                        }
                     }
                 }
             }
@@ -307,9 +351,9 @@ fun MultiLineProgressChartSection(
             val defaultUserColor = Color(android.graphics.Color.parseColor(userColor ?: "#E57373"))
 
             // Plot all data
-            val allDataSets = mutableMapOf<Color, List<OneRepMaxPointDto>>()
+            val allDataSets = mutableListOf<Pair<Color, List<OneRepMaxPointDto>>>()
             if (userStats.isNotEmpty()) {
-                allDataSets[defaultUserColor] = userStats
+                allDataSets.add(defaultUserColor to userStats)
             }
 
             friendsStats.forEach { (friendIdStr, stats) ->
@@ -318,16 +362,41 @@ fun MultiLineProgressChartSection(
                 val hexColor = friendColorOverrides[friendId] ?: friend?.defaultColor ?: "#888888"
                 val color = try { Color(android.graphics.Color.parseColor(hexColor)) } catch (e: Exception) { Color.Gray }
                 if (stats.isNotEmpty()) {
-                    allDataSets[color] = stats
+                    allDataSets.add(color to stats)
                 }
             }
 
-            Canvas(modifier = Modifier.fillMaxWidth().height(200.dp).padding(horizontal = 16.dp)) {
+            val animationProgress = remember { Animatable(0f) }
+            LaunchedEffect(allDataSets) {
+                animationProgress.snapTo(0f)
+                animationProgress.animateTo(1f, tween(1000, easing = FastOutSlowInEasing))
+            }
+
+            var scale by remember { mutableFloatStateOf(1f) }
+            var offsetX by remember { mutableFloatStateOf(0f) }
+
+            Canvas(modifier = Modifier
+                .fillMaxWidth()
+                .height(200.dp)
+                .padding(horizontal = 16.dp)
+                .clipToBounds()
+                .pointerInput(Unit) {
+                    detectTransformGestures { _, pan, zoom, _ ->
+                        scale = (scale * zoom).coerceAtLeast(1f).coerceAtMost(10f)
+                        offsetX += pan.x
+                        
+                        // Limit offset so we don't pan too far off screen
+                        val maxOffset = 0f
+                        val minOffset = -size.width * (scale - 1)
+                        offsetX = offsetX.coerceIn(minOffset, maxOffset)
+                    }
+                }
+            ) {
                 if (allDataSets.isEmpty()) {
                     val valY = size.height / 2
                     drawCircle(defaultUserColor, radius = 6.dp.toPx(), center = Offset(size.width / 2, valY))
                 } else {
-                    val allPoints = allDataSets.values.flatten()
+                    val allPoints = allDataSets.flatMap { it.second }
                     val minTime = allPoints.minOf { it.timestamp }
                     val maxTime = allPoints.maxOf { it.timestamp }.coerceAtLeast(minTime + 86400000)
                     val minVal = allPoints.minOf { it.oneRm } * 0.9
@@ -338,18 +407,48 @@ fun MultiLineProgressChartSection(
                     allDataSets.forEach { (color, stats) ->
                         val sortedStats = stats.sortedBy { it.timestamp }
                         val points = sortedStats.map { stat ->
+                            val targetY = size.height - (((stat.oneRm - minVal) / valRange) * size.height).toFloat()
+                            val animatedY = size.height - (size.height - targetY) * animationProgress.value
+                            val baseX = (((stat.timestamp - minTime).toDouble() / timeRange) * size.width).toFloat()
                             Offset(
-                                x = (((stat.timestamp - minTime).toDouble() / timeRange) * size.width).toFloat(),
-                                y = size.height - (((stat.oneRm - minVal) / valRange) * size.height).toFloat()
+                                x = (baseX * scale) + offsetX,
+                                y = animatedY
                             )
                         }
 
                         if (points.size == 1) {
                             drawCircle(color, radius = 6.dp.toPx(), center = points.first())
                         } else {
-                            for (i in 0 until points.size - 1) {
-                                drawLine(color = color, start = points[i], end = points[i + 1], strokeWidth = 3.dp.toPx())
+                            val strokePath = Path().apply {
+                                moveTo(points.first().x, points.first().y)
+                                for (i in 0 until points.size - 1) {
+                                    val p1 = points[i]
+                                    val p2 = points[i + 1]
+                                    val cx = (p1.x + p2.x) / 2
+                                    cubicTo(cx, p1.y, cx, p2.y, p2.x, p2.y)
+                                }
                             }
+
+                            val fillPath = Path().apply {
+                                addPath(strokePath)
+                                lineTo(points.last().x, size.height)
+                                lineTo(points.first().x, size.height)
+                                close()
+                            }
+
+                            val gradient = Brush.verticalGradient(
+                                colors = listOf(color.copy(alpha = 0.5f * animationProgress.value), Color.Transparent),
+                                startY = points.minOf { it.y },
+                                endY = size.height
+                            )
+
+                            drawPath(path = fillPath, brush = gradient)
+                            drawPath(
+                                path = strokePath,
+                                color = color,
+                                style = Stroke(width = 3.dp.toPx(), cap = StrokeCap.Round, join = StrokeJoin.Round)
+                            )
+                            
                             points.forEach { point ->
                                 drawCircle(Color.White, radius = 4.dp.toPx(), center = point)
                                 drawCircle(color, radius = 2.dp.toPx(), center = point)
@@ -387,7 +486,8 @@ fun MultiLineProgressChartSection(
 fun FriendCardsSection(
     leaderboard: List<LeaderboardEntry>,
     friendColorOverrides: Map<Long, String>,
-    onUpdateColor: (Long, String) -> Unit
+    onUpdateColor: (Long, String) -> Unit,
+    onFriendClick: (LeaderboardEntry) -> Unit
 ) {
     Column {
         Text(
@@ -400,7 +500,8 @@ fun FriendCardsSection(
             FriendCard(
                 friend = friend,
                 customColor = friendColorOverrides[friend.friendId],
-                onUpdateColor = { onUpdateColor(friend.friendId, it) }
+                onUpdateColor = { onUpdateColor(friend.friendId, it) },
+                onClick = { onFriendClick(friend) }
             )
             Spacer(modifier = Modifier.height(16.dp))
         }
@@ -411,14 +512,15 @@ fun FriendCardsSection(
 fun FriendCard(
     friend: LeaderboardEntry,
     customColor: String?,
-    onUpdateColor: (String) -> Unit
+    onUpdateColor: (String) -> Unit,
+    onClick: () -> Unit
 ) {
     var showColorDialog by remember { mutableStateOf(false) }
     val displayColorHex = customColor ?: friend.defaultColor ?: "#888888"
     val displayColor = try { Color(android.graphics.Color.parseColor(displayColorHex)) } catch (e: Exception) { Color.Gray }
 
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier.fillMaxWidth().clickable { onClick() },
         shape = MaterialTheme.shapes.large,
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.2f))
     ) {
@@ -549,9 +651,9 @@ fun MultiLineVolumeChartSection(
             val defaultUserColor = Color(android.graphics.Color.parseColor(userColor ?: "#E57373"))
 
             // Plot all data
-            val allDataSets = mutableMapOf<Color, List<OneRepMaxPointDto>>()
+            val allDataSets = mutableListOf<Pair<Color, List<OneRepMaxPointDto>>>()
             if (userStats.isNotEmpty()) {
-                allDataSets[defaultUserColor] = userStats
+                allDataSets.add(defaultUserColor to userStats)
             }
 
             friendsStats.forEach { (friendIdStr, stats) ->
@@ -560,16 +662,40 @@ fun MultiLineVolumeChartSection(
                 val hexColor = friendColorOverrides[friendId] ?: friend?.defaultColor ?: "#888888"
                 val color = try { Color(android.graphics.Color.parseColor(hexColor)) } catch (e: Exception) { Color.Gray }
                 if (stats.isNotEmpty()) {
-                    allDataSets[color] = stats
+                    allDataSets.add(color to stats)
                 }
             }
 
-            Canvas(modifier = Modifier.fillMaxWidth().height(200.dp).padding(horizontal = 16.dp)) {
+            val animationProgress = remember { Animatable(0f) }
+            LaunchedEffect(allDataSets) {
+                animationProgress.snapTo(0f)
+                animationProgress.animateTo(1f, tween(1000, easing = FastOutSlowInEasing))
+            }
+
+            var scale by remember { mutableFloatStateOf(1f) }
+            var offsetX by remember { mutableFloatStateOf(0f) }
+
+            Canvas(modifier = Modifier
+                .fillMaxWidth()
+                .height(200.dp)
+                .padding(horizontal = 16.dp)
+                .clipToBounds()
+                .pointerInput(Unit) {
+                    detectTransformGestures { _, pan, zoom, _ ->
+                        scale = (scale * zoom).coerceAtLeast(1f).coerceAtMost(10f)
+                        offsetX += pan.x
+                        
+                        val maxOffset = 0f
+                        val minOffset = -size.width * (scale - 1)
+                        offsetX = offsetX.coerceIn(minOffset, maxOffset)
+                    }
+                }
+            ) {
                 if (allDataSets.isEmpty()) {
                     val valY = size.height / 2
                     drawCircle(defaultUserColor, radius = 6.dp.toPx(), center = Offset(size.width / 2, valY))
                 } else {
-                    val allPoints = allDataSets.values.flatten()
+                    val allPoints = allDataSets.flatMap { it.second }
                     val minTime = allPoints.minOf { it.timestamp }
                     val maxTime = allPoints.maxOf { it.timestamp }.coerceAtLeast(minTime + 86400000)
                     val minVal = allPoints.minOf { it.oneRm } * 0.9
@@ -580,18 +706,48 @@ fun MultiLineVolumeChartSection(
                     allDataSets.forEach { (color, stats) ->
                         val sortedStats = stats.sortedBy { it.timestamp }
                         val points = sortedStats.map { stat ->
+                            val targetY = size.height - (((stat.oneRm - minVal) / valRange) * size.height).toFloat()
+                            val animatedY = size.height - (size.height - targetY) * animationProgress.value
+                            val baseX = (((stat.timestamp - minTime).toDouble() / timeRange) * size.width).toFloat()
                             Offset(
-                                x = (((stat.timestamp - minTime).toDouble() / timeRange) * size.width).toFloat(),
-                                y = size.height - (((stat.oneRm - minVal) / valRange) * size.height).toFloat()
+                                x = (baseX * scale) + offsetX,
+                                y = animatedY
                             )
                         }
 
                         if (points.size == 1) {
                             drawCircle(color, radius = 6.dp.toPx(), center = points.first())
                         } else {
-                            for (i in 0 until points.size - 1) {
-                                drawLine(color = color, start = points[i], end = points[i + 1], strokeWidth = 3.dp.toPx())
+                            val strokePath = Path().apply {
+                                moveTo(points.first().x, points.first().y)
+                                for (i in 0 until points.size - 1) {
+                                    val p1 = points[i]
+                                    val p2 = points[i + 1]
+                                    val cx = (p1.x + p2.x) / 2
+                                    cubicTo(cx, p1.y, cx, p2.y, p2.x, p2.y)
+                                }
                             }
+
+                            val fillPath = Path().apply {
+                                addPath(strokePath)
+                                lineTo(points.last().x, size.height)
+                                lineTo(points.first().x, size.height)
+                                close()
+                            }
+
+                            val gradient = Brush.verticalGradient(
+                                colors = listOf(color.copy(alpha = 0.5f * animationProgress.value), Color.Transparent),
+                                startY = points.minOf { it.y },
+                                endY = size.height
+                            )
+
+                            drawPath(path = fillPath, brush = gradient)
+                            drawPath(
+                                path = strokePath,
+                                color = color,
+                                style = Stroke(width = 3.dp.toPx(), cap = StrokeCap.Round, join = StrokeJoin.Round)
+                            )
+                            
                             points.forEach { point ->
                                 drawCircle(Color.White, radius = 4.dp.toPx(), center = point)
                                 drawCircle(color, radius = 2.dp.toPx(), center = point)
@@ -623,4 +779,126 @@ fun MultiLineVolumeChartSection(
             }
         }
     }
+}
+
+@Composable
+fun FriendDetailsDialog(
+    friend: LeaderboardEntry,
+    customColor: String?,
+    stats: List<OneRepMaxPointDto>,
+    onDismiss: () -> Unit,
+    onRemove: () -> Unit
+) {
+    val displayColorHex = customColor ?: friend.defaultColor ?: "#888888"
+    val displayColor = try { Color(android.graphics.Color.parseColor(displayColorHex)) } catch (e: Exception) { Color.Gray }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        properties = androidx.compose.ui.window.DialogProperties(usePlatformDefaultWidth = false),
+        modifier = Modifier.fillMaxWidth(0.95f).padding(vertical = 16.dp),
+        title = {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Box(modifier = Modifier.size(48.dp).clip(CircleShape).background(displayColor), contentAlignment = Alignment.Center) {
+                    Text(friend.username.take(1).uppercase(), color = Color.White, fontWeight = FontWeight.Bold)
+                }
+                Spacer(modifier = Modifier.width(16.dp))
+                Column {
+                    Text(friend.username, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                    Text(stringResource(R.string.code_prefix) + friend.friendCode, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
+            }
+        },
+        text = {
+            Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
+                Row(horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth().padding(vertical = 12.dp)) {
+                    Text(stringResource(R.string.height_short_prefix) + (friend.height ?: "?") + " cm", style = MaterialTheme.typography.bodySmall)
+                    Text(stringResource(R.string.weight_short_prefix) + (friend.weight ?: "?") + " kg", style = MaterialTheme.typography.bodySmall)
+                    Text(stringResource(R.string.age_prefix) + (friend.age ?: "?"), style = MaterialTheme.typography.bodySmall)
+                }
+                
+                val ranks = friend.muscleScores.entries.toList()
+                if (ranks.isNotEmpty()) {
+                    val context = LocalContext.current
+                    Text(stringResource(R.string.muscle_ranks), style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold)
+                    Spacer(modifier = Modifier.height(8.dp))
+                    for (i in ranks.indices step 2) {
+                        Row(modifier = Modifier.fillMaxWidth()) {
+                            val r1 = ranks[i]
+                            RankBadge(name = LocalizationUtil.getLocalizedName(context, r1.key), rank = r1.value.rank, modifier = Modifier.weight(1f))
+                            if (i + 1 < ranks.size) {
+                                Spacer(modifier = Modifier.width(8.dp))
+                                val r2 = ranks[i + 1]
+                                RankBadge(name = LocalizationUtil.getLocalizedName(context, r2.key), rank = r2.value.rank, modifier = Modifier.weight(1f))
+                            } else {
+                                Spacer(modifier = Modifier.weight(1f).padding(start = 8.dp))
+                            }
+                        }
+                        Spacer(modifier = Modifier.height(8.dp))
+                    }
+                }
+                
+                if (stats.isNotEmpty()) {
+                    Spacer(modifier = Modifier.height(16.dp))
+                    MultiLineVolumeChartSection(
+                        friendsStats = mapOf(friend.friendId.toString() to stats),
+                        userStats = emptyList(),
+                        leaderboard = listOf(friend),
+                        friendColorOverrides = mapOf(friend.friendId to displayColorHex),
+                        userColor = null
+                    )
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = onDismiss) {
+                Text(stringResource(R.string.cancel))
+            }
+        },
+        dismissButton = {
+            Button(
+                onClick = onRemove,
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
+            ) {
+                Text(stringResource(R.string.remove_friend))
+            }
+        }
+    )
+}
+
+@Composable
+fun RemoveFriendConfirmationDialog(onConfirm: () -> Unit, onDismiss: () -> Unit) {
+    var timeLeft by remember { mutableIntStateOf(3) }
+    
+    LaunchedEffect(Unit) {
+        while (timeLeft > 0) {
+            kotlinx.coroutines.delay(1000)
+            timeLeft--
+        }
+    }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(stringResource(R.string.remove_friend_confirm_title)) },
+        text = { Text(stringResource(R.string.remove_friend_confirm_text)) },
+        confirmButton = {
+            Button(
+                onClick = onConfirm,
+                enabled = timeLeft == 0,
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.error,
+                    disabledContainerColor = MaterialTheme.colorScheme.error.copy(alpha = 0.5f)
+                )
+            ) {
+                Text(
+                    text = if (timeLeft > 0) stringResource(R.string.action_confirm_timer, timeLeft) 
+                           else stringResource(R.string.action_confirm)
+                )
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(stringResource(R.string.cancel))
+            }
+        }
+    )
 }

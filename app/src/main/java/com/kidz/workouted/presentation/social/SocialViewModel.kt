@@ -92,6 +92,9 @@ class SocialViewModel @Inject constructor(
             val result = socialRepository.getFriendRequests()
             if (result.isSuccess) {
                 _uiState.update { it.copy(requests = result.getOrNull() ?: emptyList()) }
+            } else {
+                android.util.Log.e("WORKOUTED_ERR", "Failed to fetch requests", result.exceptionOrNull())
+                _uiState.update { it.copy(error = "Failed to fetch requests: ${result.exceptionOrNull()?.message}") }
             }
         }
     }
@@ -119,6 +122,32 @@ class SocialViewModel @Inject constructor(
                 loadData()
             } else {
                 _uiState.update { it.copy(error = "Failed to accept request") }
+            }
+        }
+    }
+
+    fun rejectRequest(friendshipId: Long) {
+        viewModelScope.launch {
+            _uiState.update { it.copy(isLoading = true) }
+            val result = socialRepository.rejectFriendRequest(friendshipId)
+            _uiState.update { it.copy(isLoading = false) }
+            if (result.isSuccess) {
+                loadData()
+            } else {
+                _uiState.update { it.copy(error = "Failed to reject request") }
+            }
+        }
+    }
+
+    fun removeFriend(friendId: Long) {
+        viewModelScope.launch {
+            _uiState.update { it.copy(isLoading = true) }
+            val result = socialRepository.removeFriend(friendId)
+            _uiState.update { it.copy(isLoading = false) }
+            if (result.isSuccess) {
+                loadData()
+            } else {
+                _uiState.update { it.copy(error = "Failed to remove friend") }
             }
         }
     }

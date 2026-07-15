@@ -19,6 +19,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -96,35 +97,25 @@ fun MainContent(
 ) {
     val showBottomBar = currentDestination?.route != Screen.Onboarding.route
 
-    Scaffold(
-        bottomBar = {
-            if (showBottomBar) {
-                ExpressiveNavigationBar(
-                    currentDestination = currentDestination,
-                    hasRankUp = hasRankUp,
-                    onNavigate = onNavigate,
-                    onAddWorkoutClick = onAddWorkoutClick
-                )
-            }
-        }
-    ) { innerPadding ->
-        NavHost(
-            navController = navController,
-            startDestination = startDestination,
-            modifier = Modifier.padding(bottom = if (showBottomBar) innerPadding.calculateBottomPadding() else 0.dp),
-            enterTransition = {
-                fadeIn(animationSpec = tween(100))
-            },
-            exitTransition = {
-                fadeOut(animationSpec = tween(100))
-            },
-            popEnterTransition = {
-                fadeIn(animationSpec = tween(100))
-            },
-            popExitTransition = {
-                fadeOut(animationSpec = tween(100))
-            }
-        ) {
+    Scaffold { innerPadding ->
+        Box(modifier = Modifier.fillMaxSize()) {
+            NavHost(
+                navController = navController,
+                startDestination = startDestination,
+                modifier = Modifier.padding(top = innerPadding.calculateTopPadding()),
+                enterTransition = {
+                    fadeIn(animationSpec = tween(100))
+                },
+                exitTransition = {
+                    fadeOut(animationSpec = tween(100))
+                },
+                popEnterTransition = {
+                    fadeIn(animationSpec = tween(100))
+                },
+                popExitTransition = {
+                    fadeOut(animationSpec = tween(100))
+                }
+            ) {
             composable(Screen.Onboarding.route) {
                 OnboardingScreen(
                     viewModel = hiltViewModel(),
@@ -224,7 +215,18 @@ fun MainContent(
                 )
             }
         }
+
+        if (showBottomBar) {
+            ExpressiveNavigationBar(
+                currentDestination = currentDestination,
+                hasRankUp = hasRankUp,
+                onNavigate = onNavigate,
+                onAddWorkoutClick = onAddWorkoutClick,
+                modifier = Modifier.align(Alignment.BottomCenter)
+            )
+        }
     }
+}
 }
 
 @Composable
@@ -232,22 +234,30 @@ fun ExpressiveNavigationBar(
     currentDestination: NavDestination?,
     hasRankUp: Boolean,
     onNavigate: (String) -> Unit,
-    onAddWorkoutClick: () -> Unit
+    onAddWorkoutClick: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     val haptic = LocalHapticFeedback.current
 
-    Surface(
-        modifier = Modifier
+    Box(
+        modifier = modifier
             .fillMaxWidth()
             .navigationBarsPadding()
-            .padding(horizontal = 12.dp, vertical = 12.dp),
-        color = Color.Transparent
+            .padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 4.dp)
     ) {
-        Row(
+        Surface(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically
+            shape = MaterialTheme.shapes.large,
+            color = lerp(MaterialTheme.colorScheme.background, Color.Black, 0.15f).copy(alpha = 0.95f),
+            shadowElevation = 8.dp
         ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 8.dp, vertical = 8.dp),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
             // First two items
             bottomNavItems.take(2).forEach { screen ->
                 val isSelected = currentDestination?.hierarchy?.any { it.route == screen.route } == true
@@ -284,7 +294,7 @@ fun ExpressiveNavigationBar(
             Surface(
                 modifier = Modifier
                     .weight(1.3f)
-                    .height(64.dp)
+                    .height(68.dp)
                     .padding(horizontal = 4.dp)
                     .graphicsLayer {
                         scaleX = addScale
@@ -334,6 +344,7 @@ fun ExpressiveNavigationBar(
         }
     }
 }
+}
 
 @Composable
 private fun RowScope.NavigationItem(
@@ -346,7 +357,7 @@ private fun RowScope.NavigationItem(
     Surface(
         modifier = Modifier
             .weight(weight)
-            .height(64.dp)
+            .height(68.dp)
             .padding(horizontal = 4.dp),
         shape = MaterialTheme.shapes.large,
         color = if (isSelected) MaterialTheme.colorScheme.primaryContainer 

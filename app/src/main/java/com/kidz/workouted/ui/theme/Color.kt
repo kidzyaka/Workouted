@@ -49,7 +49,7 @@ val SurfaceVariantLight = Color(0xFFE4E1E6)
 val OnSurfaceVariantLight = Color(0xFF47464F)
 
 // Rank Colors
-val RankTree = Color(0xFF4F3B3A)
+val RankTree = Color(0xFFD4A373)
 val RankBronze = Color(0xFFCD7F32)
 val RankSilver = Color(0xFFC0C0C0)
 val RankGold = Color(0xFFFFD700)
