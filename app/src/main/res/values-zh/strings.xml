@@ -273,4 +273,5 @@
     <string name="custom_server_dialog_title">输入服务器地址</string>
     <string name="custom_server_dialog_placeholder">例如：http://192.168.0.52:8080/api/</string>
     <string name="custom_server_default_btn">恢复默认</string>
+    <string name="import_continue">继续</string>
 </resources>

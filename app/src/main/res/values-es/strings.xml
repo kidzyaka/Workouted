@@ -273,4 +273,5 @@
     <string name="custom_server_dialog_title">Ingrese la dirección del servidor</string>
     <string name="custom_server_dialog_placeholder">ej., http://192.168.0.52:8080/api/</string>
     <string name="custom_server_default_btn">Restablecer por defecto</string>
+    <string name="import_continue">Continuar</string>
 </resources>

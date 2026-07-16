@@ -273,4 +273,6 @@
     <string name="custom_server_dialog_title">Введите адрес сервера</string>
     <string name="custom_server_dialog_placeholder">напр., http://192.168.0.52:8080/api/</string>
     <string name="custom_server_default_btn">По умолчанию</string>
+    <string name="import_continue">Продолжить</string>
+
 </resources>

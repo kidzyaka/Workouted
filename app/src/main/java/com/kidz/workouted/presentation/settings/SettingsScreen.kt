@@ -89,8 +89,7 @@ fun SettingsContent(
     var showColorDialog by remember { mutableStateOf(false) }
     var showAuthDialog by remember { mutableStateOf(false) }
     var showCustomServerDialog by remember { mutableStateOf(false) }
-    var showImportConfirmDialog by remember { mutableStateOf(false) }
-    var pendingImportJson by remember { mutableStateOf<String?>(null) }
+    var showPreImportWarningDialog by remember { mutableStateOf(false) }
     
     val uriHandler = LocalUriHandler.current
     val context = LocalContext.current
@@ -130,8 +129,7 @@ fun SettingsContent(
                 try {
                     context.contentResolver.openInputStream(uri)?.use { inputStream ->
                         val json = InputStreamReader(inputStream).readText()
-                        pendingImportJson = json
-                        showImportConfirmDialog = true
+                        onImportData(json)
                     }
                 } catch (e: Exception) {
                     snackbarHostState.showSnackbar(importErrorMsg.format(e.message ?: "Unknown"))
@@ -312,7 +310,7 @@ fun SettingsContent(
                         icon = Icons.Default.FileDownload,
                         title = stringResource(R.string.import_data),
                         subtitle = stringResource(R.string.import_data_desc),
-                        onClick = { openDocumentLauncher.launch(arrayOf("application/json")) }
+                        onClick = { showPreImportWarningDialog = true }
                     )
                 }
             }
@@ -357,24 +355,34 @@ fun SettingsContent(
         )
     }
 
-    if (showImportConfirmDialog) {
+    if (showPreImportWarningDialog) {
+        var countdown by remember { mutableIntStateOf(5) }
+
+        LaunchedEffect(Unit) {
+            while (countdown > 0) {
+                kotlinx.coroutines.delay(1000)
+                countdown--
+            }
+        }
+
         AlertDialog(
-            onDismissRequest = { showImportConfirmDialog = false },
+            onDismissRequest = { showPreImportWarningDialog = false },
             title = { Text(stringResource(R.string.import_confirm_title)) },
             text = { Text(stringResource(R.string.import_confirm_message)) },
             confirmButton = {
                 Button(
                     onClick = {
-                        pendingImportJson?.let { onImportData(it) }
-                        showImportConfirmDialog = false
+                        openDocumentLauncher.launch(arrayOf("application/json"))
+                        showPreImportWarningDialog = false
                     },
-                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error),
+                    enabled = countdown == 0
                 ) {
-                    Text(stringResource(R.string.import_data))
+                    Text(if (countdown > 0) "${stringResource(R.string.import_continue)} ($countdown)" else stringResource(R.string.import_continue))
                 }
             },
             dismissButton = {
-                TextButton(onClick = { showImportConfirmDialog = false }) {
+                TextButton(onClick = { showPreImportWarningDialog = false }) {
                     Text(stringResource(R.string.cancel))
                 }
             }
