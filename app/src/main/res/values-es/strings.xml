@@ -250,7 +250,7 @@
     <string name="action_confirm_timer">Confirmar (%d s)</string>
     <string name="friend_details_title">Detalles del Amigo</string>
     <string name="nav_social">Amigos</string>
-    <string name="profile_color">Color de perfil</string>
+    <string name="profile_color">Color</string>
     <string name="server_account_sync">Cuenta de Servidor y Sincronización</string>
     <string name="login_register">Iniciar sesión / Registrarse</string>
     <string name="connect_to_cloud">Conectar a la nube Workouted</string>

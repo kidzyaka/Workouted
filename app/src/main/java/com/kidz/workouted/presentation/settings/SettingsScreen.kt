@@ -53,6 +53,7 @@ fun SettingsScreen(
             AppCompatDelegate.setApplicationLocales(LocaleListCompat.forLanguageTags(code))
         },
         onUpdateUserColor = { viewModel.updateUserColor(it) },
+        onUpdateTheme = { viewModel.updateTheme(it) },
         onResetOnboarding = { viewModel.resetOnboarding() },
         onExportData = { viewModel.getExportJson() },
         onImportData = { viewModel.importFromJson(it) },
@@ -74,6 +75,7 @@ fun SettingsContent(
     onUpdateWeight: (String) -> Unit,
     onUpdateAge: (String) -> Unit,
     onUpdateLanguage: (String) -> Unit,
+    onUpdateTheme: (String) -> Unit,
     onUpdateUserColor: (String) -> Unit,
     onResetOnboarding: () -> Unit,
     onExportData: suspend () -> String,
@@ -86,6 +88,7 @@ fun SettingsContent(
     onPullBackup: () -> Unit
 ) {
     var showLanguageDialog by remember { mutableStateOf(false) }
+    var showThemeDialog by remember { mutableStateOf(false) }
     var showColorDialog by remember { mutableStateOf(false) }
     var showAuthDialog by remember { mutableStateOf(false) }
     var showCustomServerDialog by remember { mutableStateOf(false) }
@@ -198,6 +201,20 @@ fun SettingsContent(
                         subtitle = languageName,
                         onClick = { showLanguageDialog = true }
                     )
+                    
+                    val themeName = when (uiState.appTheme) {
+                        "LIGHT" -> stringResource(R.string.theme_light)
+                        "DARK" -> stringResource(R.string.theme_dark)
+                        "AMOLED" -> stringResource(R.string.theme_amoled)
+                        else -> stringResource(R.string.theme_system)
+                    }
+                    SettingsItem(
+                        icon = Icons.Default.DarkMode,
+                        title = stringResource(R.string.theme),
+                        subtitle = themeName,
+                        onClick = { showThemeDialog = true }
+                    )
+                    
                     SettingsItem(
                         icon = Icons.Default.Palette,
                         title = stringResource(R.string.profile_color),
@@ -321,7 +338,7 @@ fun SettingsContent(
                 SettingsSection(title = stringResource(R.string.about_app)) {
                     SettingsItem(
                         title = stringResource(R.string.version),
-                        subtitle = "0.4RC1",
+                        subtitle = "0.4",
                         showChevron = false
                     )
                     SettingsItem(
@@ -352,6 +369,17 @@ fun SettingsContent(
                 showLanguageDialog = false
             },
             onDismiss = { showLanguageDialog = false }
+        )
+    }
+
+    if (showThemeDialog) {
+        ThemeSelectionDialog(
+            currentTheme = uiState.appTheme,
+            onThemeSelected = { theme ->
+                onUpdateTheme(theme)
+                showThemeDialog = false
+            },
+            onDismiss = { showThemeDialog = false }
         )
     }
 
@@ -489,37 +517,39 @@ fun ColorSelectionDialog(
     onColorSelected: (String) -> Unit,
     onDismiss: () -> Unit
 ) {
+    // 6 basic colors, 3 shades each (Light, Base, Dark)
     val colors = listOf(
-        "#F44336", "#E91E63", "#9C27B0", "#673AB7",
-        "#3F51B5", "#2196F3", "#03A9F4", "#00BCD4",
-        "#009688", "#4CAF50", "#8BC34A", "#CDDC39",
-        "#FFEB3B", "#FFC107", "#FF9800", "#FF5722"
+        listOf("#EF9A9A", "#F44336", "#D32F2F"), // Red
+        listOf("#90CAF9", "#2196F3", "#1976D2"), // Blue
+        listOf("#A5D6A7", "#4CAF50", "#388E3C"), // Green
+        listOf("#FFCC80", "#FF9800", "#F57C00"), // Orange
+        listOf("#CE93D8", "#9C27B0", "#7B1FA2"), // Purple
+        listOf("#80CBC4", "#009688", "#00796B")  // Teal
     )
 
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text(stringResource(R.string.select_profile_color)) },
         text = {
-            // Using a simple column/row layout for the colors
             Column {
-                for (i in colors.indices step 4) {
-                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
-                        for (j in 0 until 4) {
-                            if (i + j < colors.size) {
-                                val colorHex = colors[i + j]
-                                Box(
-                                    modifier = Modifier
-                                        .size(48.dp)
-                                        .padding(4.dp)
-                                        .clickable { onColorSelected(colorHex) },
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    androidx.compose.foundation.Canvas(modifier = Modifier.fillMaxSize()) {
-                                        drawCircle(color = Color(android.graphics.Color.parseColor(colorHex)))
-                                    }
-                                    if (currentColor.equals(colorHex, ignoreCase = true)) {
-                                        Icon(Icons.Default.Check, contentDescription = null, tint = Color.White)
-                                    }
+                colors.forEach { shadeRow ->
+                    Row(
+                        modifier = Modifier.fillMaxWidth(), 
+                        horizontalArrangement = Arrangement.SpaceEvenly
+                    ) {
+                        shadeRow.forEach { colorHex ->
+                            Box(
+                                modifier = Modifier
+                                    .size(48.dp)
+                                    .padding(4.dp)
+                                    .clickable { onColorSelected(colorHex) },
+                                contentAlignment = Alignment.Center
+                            ) {
+                                androidx.compose.foundation.Canvas(modifier = Modifier.fillMaxSize()) {
+                                    drawCircle(color = Color(android.graphics.Color.parseColor(colorHex)))
+                                }
+                                if (currentColor.equals(colorHex, ignoreCase = true)) {
+                                    Icon(Icons.Default.Check, contentDescription = null, tint = Color.White)
                                 }
                             }
                         }
@@ -563,6 +593,50 @@ fun LanguageSelectionDialog(
                     ) {
                         RadioButton(
                             selected = code == currentLanguage,
+                            onClick = null
+                        )
+                        Spacer(modifier = Modifier.width(12.dp))
+                        Text(text = name, style = MaterialTheme.typography.bodyLarge)
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = onDismiss) {
+                Text(text = stringResource(R.string.cancel))
+            }
+        }
+    )
+}
+
+@Composable
+fun ThemeSelectionDialog(
+    currentTheme: String,
+    onThemeSelected: (String) -> Unit,
+    onDismiss: () -> Unit
+) {
+    val themes = listOf(
+        "SYSTEM" to stringResource(R.string.theme_system),
+        "LIGHT" to stringResource(R.string.theme_light),
+        "DARK" to stringResource(R.string.theme_dark),
+        "AMOLED" to stringResource(R.string.theme_amoled)
+    )
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(text = stringResource(R.string.theme)) },
+        text = {
+            Column {
+                themes.forEach { (code, name) ->
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { onThemeSelected(code) }
+                            .padding(vertical = 12.dp, horizontal = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        RadioButton(
+                            selected = code == currentTheme,
                             onClick = null
                         )
                         Spacer(modifier = Modifier.width(12.dp))
@@ -705,6 +779,7 @@ fun SettingsPreview() {
             onUpdateWeight = {},
             onUpdateAge = {},
             onUpdateLanguage = {},
+            onUpdateTheme = {},
             onUpdateUserColor = {},
             onResetOnboarding = {},
             onExportData = { "" },

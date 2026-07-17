@@ -250,7 +250,7 @@
     <string name="action_confirm_timer">确认 (%d 秒)</string>
     <string name="friend_details_title">好友详情</string>
     <string name="nav_social">朋友</string>
-    <string name="profile_color">个人资料颜色</string>
+    <string name="profile_color">颜色</string>
     <string name="server_account_sync">服务器帐户和同步</string>
     <string name="login_register">登录 / 注册</string>
     <string name="connect_to_cloud">连接到Workouted云</string>

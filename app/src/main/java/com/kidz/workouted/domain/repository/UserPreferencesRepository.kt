@@ -14,6 +14,7 @@ interface UserPreferencesRepository {
     val userColor: Flow<String?>
     val friendColorOverrides: Flow<Map<Long, String>>
     val customServerUrl: Flow<String?>
+    val appTheme: Flow<String>
     
     suspend fun setUserHeightCm(height: Double)
     suspend fun setUserWeightKg(weight: Double)
@@ -26,4 +27,5 @@ interface UserPreferencesRepository {
     suspend fun setUserColor(color: String?)
     suspend fun setFriendColorOverride(friendId: Long, color: String)
     suspend fun setCustomServerUrl(url: String?)
+    suspend fun setAppTheme(theme: String)
 }

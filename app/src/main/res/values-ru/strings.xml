@@ -64,6 +64,11 @@
     <string name="manage_profile">Управление профилем и предпочтениями</string>
     <string name="language_region">Язык и регион</string>
     <string name="app_language">Язык приложения</string>
+    <string name="theme">Тема</string>
+    <string name="theme_system">Системная</string>
+    <string name="theme_light">Светлая</string>
+    <string name="theme_dark">Темная</string>
+    <string name="theme_amoled">AMOLED</string>
     <string name="physical_parameters">Физические параметры</string>
     <string name="height_cm">Рост (см)</string>
     <string name="weight_kg_label">Вес (кг)</string>
@@ -250,7 +255,7 @@
     <string name="action_confirm">Подтвердить</string>
     <string name="action_confirm_timer">Подтвердить (%d сек)</string>
     <string name="friend_details_title">Профиль друга</string>
-    <string name="profile_color">Цвет профиля</string>
+    <string name="profile_color">Цвет</string>
     <string name="server_account_sync">Аккаунт сервера и синхронизация</string>
     <string name="login_register">Вход / Регистрация</string>
     <string name="connect_to_cloud">Подключиться к облаку Workouted</string>

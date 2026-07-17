@@ -23,7 +23,8 @@ data class SettingsUiState(
     val userColor: String? = null,
     val isLoading: Boolean = false,
     val authError: String? = null,
-    val customServerUrl: String? = null
+    val customServerUrl: String? = null,
+    val appTheme: String = com.kidz.workouted.domain.model.AppTheme.SYSTEM.name
 )
 
 @HiltViewModel
@@ -46,7 +47,8 @@ class SettingsViewModel @Inject constructor(
             repository.jwtToken,
             repository.friendCode,
             repository.userColor,
-            repository.customServerUrl
+            repository.customServerUrl,
+            repository.appTheme
         ) { values ->
             val height = values[0] as Double
             val weight = values[1] as Double
@@ -56,6 +58,7 @@ class SettingsViewModel @Inject constructor(
             val friendCode = values[5] as String?
             val userColor = values[6] as String?
             val customServerUrl = values[7] as String?
+            val appTheme = values[8] as String
 
             _uiState.value.copy(
                 height = height.toString(),
@@ -65,7 +68,8 @@ class SettingsViewModel @Inject constructor(
                 token = token,
                 friendCode = friendCode,
                 userColor = userColor,
-                customServerUrl = customServerUrl
+                customServerUrl = customServerUrl,
+                appTheme = appTheme
             )
         }.onEach { state ->
             _uiState.value = state
@@ -116,6 +120,12 @@ class SettingsViewModel @Inject constructor(
     fun updateLanguage(languageCode: String) {
         viewModelScope.launch {
             repository.setAppLanguage(languageCode)
+        }
+    }
+
+    fun updateTheme(themeName: String) {
+        viewModelScope.launch {
+            repository.setAppTheme(themeName)
         }
     }
 

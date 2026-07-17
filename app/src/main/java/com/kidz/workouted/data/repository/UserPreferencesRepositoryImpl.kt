@@ -33,6 +33,7 @@ class UserPreferencesRepositoryImpl @Inject constructor(
         val USER_COLOR = stringPreferencesKey("user_color")
         val FRIEND_COLOR_OVERRIDES = stringPreferencesKey("friend_color_overrides")
         val CUSTOM_SERVER_URL = stringPreferencesKey("custom_server_url")
+        val APP_THEME = stringPreferencesKey("app_theme")
     }
 
     override val userHeightCm: Flow<Double> = context.dataStore.data
@@ -105,6 +106,10 @@ class UserPreferencesRepositoryImpl @Inject constructor(
         .catch { exception -> if (exception is IOException) emit(emptyPreferences()) else throw exception }
         .map { it[PreferencesKeys.CUSTOM_SERVER_URL] }
 
+    override val appTheme: Flow<String> = context.dataStore.data
+        .catch { exception -> if (exception is IOException) emit(emptyPreferences()) else throw exception }
+        .map { it[PreferencesKeys.APP_THEME] ?: com.kidz.workouted.domain.model.AppTheme.SYSTEM.name }
+
     override suspend fun setUserHeightCm(height: Double) {
         context.dataStore.edit { it[PreferencesKeys.USER_HEIGHT] = height }
     }
@@ -172,5 +177,9 @@ class UserPreferencesRepositoryImpl @Inject constructor(
             if (url == null) it.remove(PreferencesKeys.CUSTOM_SERVER_URL)
             else it[PreferencesKeys.CUSTOM_SERVER_URL] = url
         }
+    }
+
+    override suspend fun setAppTheme(theme: String) {
+        context.dataStore.edit { it[PreferencesKeys.APP_THEME] = theme }
     }
 }

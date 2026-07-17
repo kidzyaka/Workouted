@@ -19,5 +19,6 @@ data class UserPreferencesBackup(
     val language: String,
     val isOnboardingCompleted: Boolean,
     val defaultColor: String? = null,
-    val lastSeenMuscleRanks: Map<String, String>
+    val lastSeenMuscleRanks: Map<String, String>,
+    val appTheme: String? = null
 )

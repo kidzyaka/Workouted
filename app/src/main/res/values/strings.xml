@@ -65,6 +65,11 @@
     <string name="manage_profile">Manage your profile and preferences</string>
     <string name="language_region">Language &amp; Region</string>
     <string name="app_language">App Language</string>
+    <string name="theme">Theme</string>
+    <string name="theme_system">System</string>
+    <string name="theme_light">Light</string>
+    <string name="theme_dark">Dark</string>
+    <string name="theme_amoled">AMOLED</string>
     <string name="physical_parameters">Physical Parameters</string>
     <string name="height_cm">Height (cm)</string>
     <string name="weight_kg_label">Weight (kg)</string>
@@ -250,7 +255,7 @@
     <string name="action_confirm">Confirm</string>
     <string name="action_confirm_timer">Confirm (%d s)</string>
     <string name="friend_details_title">Friend Details</string>
-    <string name="profile_color">Profile Color</string>
+    <string name="profile_color">Color</string>
     <string name="server_account_sync">Server Account &amp; Sync</string>
     <string name="login_register">Login / Register</string>
     <string name="connect_to_cloud">Connect to Workouted Cloud</string>

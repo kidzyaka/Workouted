@@ -33,6 +33,7 @@ class BackupRepositoryImpl @Inject constructor(
         val onboarding = preferencesRepository.isOnboardingCompleted.first()
         val ranks = preferencesRepository.lastSeenMuscleRanks.first()
         val color = preferencesRepository.userColor.first()
+        val theme = preferencesRepository.appTheme.first()
 
         return BackupData(
             workouts = workouts,
@@ -44,7 +45,8 @@ class BackupRepositoryImpl @Inject constructor(
                 language = language,
                 isOnboardingCompleted = onboarding,
                 defaultColor = color,
-                lastSeenMuscleRanks = ranks
+                lastSeenMuscleRanks = ranks,
+                appTheme = theme
             )
         )
     }
@@ -64,6 +66,9 @@ class BackupRepositoryImpl @Inject constructor(
             preferencesRepository.updateLastSeenMuscleRanks(data.preferences.lastSeenMuscleRanks)
             if (data.preferences.defaultColor != null) {
                 preferencesRepository.setUserColor(data.preferences.defaultColor)
+            }
+            if (data.preferences.appTheme != null) {
+                preferencesRepository.setAppTheme(data.preferences.appTheme)
             }
 
             // Restore Database
