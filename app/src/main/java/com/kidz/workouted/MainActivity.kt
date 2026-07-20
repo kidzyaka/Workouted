@@ -13,6 +13,11 @@ import javax.inject.Inject
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import com.kidz.workouted.domain.model.AppTheme
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkManager
+import androidx.work.Constraints
+import androidx.work.NetworkType
+import com.kidz.workouted.data.worker.SyncWorker
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
@@ -23,6 +28,14 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         
+        val constraints = Constraints.Builder()
+            .setRequiredNetworkType(NetworkType.CONNECTED)
+            .build()
+        val syncRequest = OneTimeWorkRequestBuilder<SyncWorker>()
+            .setConstraints(constraints)
+            .build()
+        WorkManager.getInstance(this).enqueue(syncRequest)
+
         enableEdgeToEdge()
         setContent {
             val themeString by preferencesRepository.appTheme.collectAsState(initial = AppTheme.SYSTEM.name)

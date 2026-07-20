@@ -274,4 +274,12 @@
     <string name="custom_server_dialog_placeholder">ej., http://192.168.0.52:8080/api/</string>
     <string name="custom_server_default_btn">Restablecer por defecto</string>
     <string name="import_continue">Continuar</string>
+    <string name="sync_conflict_title">Conflicto de Datos</string>
+    <string name="sync_conflict_message">Está intentando sincronizar menos entrenamientos de los que están almacenados en el servidor. Sobrescribir los datos del servidor provocará la pérdida de datos. ¿Desea continuar?</string>
+    <string name="sync_conflict_confirm">Sobrescribir Servidor</string>
+    <string name="theme">Tema</string>
+    <string name="theme_system">Sistema</string>
+    <string name="theme_light">Claro</string>
+    <string name="theme_dark">Oscuro</string>
+    <string name="theme_amoled">AMOLED</string>
 </resources>

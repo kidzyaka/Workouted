@@ -8,7 +8,8 @@ import kotlinx.serialization.Serializable
 data class BackupData(
     val workouts: List<WorkoutEntity>,
     val sets: List<SetEntity>,
-    val preferences: UserPreferencesBackup
+    val preferences: UserPreferencesBackup,
+    val force: Boolean = false
 )
 
 @Serializable

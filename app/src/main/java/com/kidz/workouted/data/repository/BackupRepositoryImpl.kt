@@ -22,8 +22,8 @@ class BackupRepositoryImpl @Inject constructor(
         prettyPrint = true 
     }
 
-    override suspend fun getBackupData(): BackupData {
-        val workouts = workoutDao.getAllWorkouts().first()
+    override suspend fun getBackupData(force: Boolean): BackupData {
+        val workouts = workoutDao.getAllWorkoutsIncludingDeleted().first()
         val sets = workoutDao.getAllSets().first()
         
         val height = preferencesRepository.userHeightCm.first()
@@ -47,7 +47,8 @@ class BackupRepositoryImpl @Inject constructor(
                 defaultColor = color,
                 lastSeenMuscleRanks = ranks,
                 appTheme = theme
-            )
+            ),
+            force = force
         )
     }
 

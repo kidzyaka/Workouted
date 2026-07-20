@@ -62,7 +62,9 @@ fun SettingsScreen(
         onRegister = { u, p -> viewModel.register(u, p) },
         onLogout = { viewModel.logout() },
         onPushBackup = { viewModel.pushBackupToCloud() },
-        onPullBackup = { viewModel.pullBackupFromCloud() }
+        onPullBackup = { viewModel.pullBackupFromCloud() },
+        onConfirmSyncConflict = { viewModel.pushBackupToCloud(force = true) },
+        onDismissSyncConflict = { viewModel.dismissSyncConflictDialog() }
     )
 }
 
@@ -85,7 +87,9 @@ fun SettingsContent(
     onRegister: (String, String) -> Unit,
     onLogout: () -> Unit,
     onPushBackup: () -> Unit,
-    onPullBackup: () -> Unit
+    onPullBackup: () -> Unit,
+    onConfirmSyncConflict: () -> Unit,
+    onDismissSyncConflict: () -> Unit
 ) {
     var showLanguageDialog by remember { mutableStateOf(false) }
     var showThemeDialog by remember { mutableStateOf(false) }
@@ -453,6 +457,30 @@ fun SettingsContent(
             isLoading = uiState.isLoading
         )
     }
+
+    if (uiState.showSyncConflictDialog) {
+        AlertDialog(
+            onDismissRequest = onDismissSyncConflict,
+            title = { Text(stringResource(R.string.sync_conflict_title)) },
+            text = { Text(stringResource(R.string.sync_conflict_message)) },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        onConfirmSyncConflict()
+                        onDismissSyncConflict()
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
+                ) {
+                    Text(stringResource(R.string.sync_conflict_confirm))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = onDismissSyncConflict) {
+                    Text(stringResource(R.string.cancel))
+                }
+            }
+        )
+    }
 }
 
 @Composable
@@ -789,7 +817,9 @@ fun SettingsPreview() {
             onRegister = { _, _ -> },
             onLogout = {},
             onPushBackup = {},
-            onPullBackup = {}
+            onPullBackup = {},
+            onConfirmSyncConflict = {},
+            onDismissSyncConflict = {}
         )
     }
 }

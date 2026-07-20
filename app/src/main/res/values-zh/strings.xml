@@ -274,4 +274,12 @@
     <string name="custom_server_dialog_placeholder">例如：http://192.168.0.52:8080/api/</string>
     <string name="custom_server_default_btn">恢复默认</string>
     <string name="import_continue">继续</string>
+    <string name="sync_conflict_title">数据冲突</string>
+    <string name="sync_conflict_message">您尝试同步的训练数量少于服务器上存储的数量。覆盖服务器数据将导致数据丢失。是否继续？</string>
+    <string name="sync_conflict_confirm">覆盖服务器数据</string>
+    <string name="theme">主题</string>
+    <string name="theme_system">系统默认</string>
+    <string name="theme_light">浅色</string>
+    <string name="theme_dark">深色</string>
+    <string name="theme_amoled">AMOLED</string>
 </resources>

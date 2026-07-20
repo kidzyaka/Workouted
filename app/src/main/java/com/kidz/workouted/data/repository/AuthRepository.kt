@@ -17,6 +17,9 @@ class AuthRepository @Inject constructor(
             preferences.setJwtToken(response.token)
             preferences.setFriendCode(response.friendCode)
             Result.success(Unit)
+        } catch (e: retrofit2.HttpException) {
+            val errorMessage = extractErrorMessage(e)
+            Result.failure(Exception(errorMessage))
         } catch (e: Exception) {
             Result.failure(e)
         }
@@ -28,8 +31,24 @@ class AuthRepository @Inject constructor(
             preferences.setJwtToken(response.token)
             preferences.setFriendCode(response.friendCode)
             Result.success(Unit)
+        } catch (e: retrofit2.HttpException) {
+            val errorMessage = extractErrorMessage(e)
+            Result.failure(Exception(errorMessage))
         } catch (e: Exception) {
             Result.failure(e)
+        }
+    }
+
+    private fun extractErrorMessage(e: retrofit2.HttpException): String {
+        return try {
+            val errorBody = e.response()?.errorBody()?.string()
+            if (errorBody != null) {
+                org.json.JSONObject(errorBody).getString("error")
+            } else {
+                e.message() ?: "HTTP Error ${e.code()}"
+            }
+        } catch (ex: Exception) {
+            e.message() ?: "HTTP Error ${e.code()}"
         }
     }
 

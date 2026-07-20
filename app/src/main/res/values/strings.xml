@@ -70,6 +70,9 @@
     <string name="theme_light">Light</string>
     <string name="theme_dark">Dark</string>
     <string name="theme_amoled">AMOLED</string>
+    <string name="sync_conflict_title">Data Conflict</string>
+    <string name="sync_conflict_message">You are trying to sync fewer workouts than are stored on the server. Overwriting the server data will result in data loss. Do you want to proceed?</string>
+    <string name="sync_conflict_confirm">Overwrite Server Data</string>
     <string name="physical_parameters">Physical Parameters</string>
     <string name="height_cm">Height (cm)</string>
     <string name="weight_kg_label">Weight (kg)</string>
@@ -279,5 +282,4 @@
     <string name="custom_server_dialog_placeholder">e.g., http://192.168.0.52:8080/api/</string>
     <string name="custom_server_default_btn">Reset to Default</string>
     <string name="import_continue">Continue</string>
-
 </resources>

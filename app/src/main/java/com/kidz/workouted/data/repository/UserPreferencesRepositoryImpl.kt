@@ -34,6 +34,7 @@ class UserPreferencesRepositoryImpl @Inject constructor(
         val FRIEND_COLOR_OVERRIDES = stringPreferencesKey("friend_color_overrides")
         val CUSTOM_SERVER_URL = stringPreferencesKey("custom_server_url")
         val APP_THEME = stringPreferencesKey("app_theme")
+        val HAS_UNSYNCED_CHANGES = booleanPreferencesKey("has_unsynced_changes")
     }
 
     override val userHeightCm: Flow<Double> = context.dataStore.data
@@ -110,6 +111,10 @@ class UserPreferencesRepositoryImpl @Inject constructor(
         .catch { exception -> if (exception is IOException) emit(emptyPreferences()) else throw exception }
         .map { it[PreferencesKeys.APP_THEME] ?: com.kidz.workouted.domain.model.AppTheme.SYSTEM.name }
 
+    override val hasUnsyncedChanges: Flow<Boolean> = context.dataStore.data
+        .catch { exception -> if (exception is IOException) emit(emptyPreferences()) else throw exception }
+        .map { it[PreferencesKeys.HAS_UNSYNCED_CHANGES] ?: false }
+
     override suspend fun setUserHeightCm(height: Double) {
         context.dataStore.edit { it[PreferencesKeys.USER_HEIGHT] = height }
     }
@@ -181,5 +186,9 @@ class UserPreferencesRepositoryImpl @Inject constructor(
 
     override suspend fun setAppTheme(theme: String) {
         context.dataStore.edit { it[PreferencesKeys.APP_THEME] = theme }
+    }
+
+    override suspend fun setHasUnsyncedChanges(hasChanges: Boolean) {
+        context.dataStore.edit { it[PreferencesKeys.HAS_UNSYNCED_CHANGES] = hasChanges }
     }
 }

@@ -6,8 +6,11 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface WorkoutDao {
-    @Query("SELECT * FROM workouts ORDER BY timestamp DESC")
+    @Query("SELECT * FROM workouts WHERE isDeleted = 0 ORDER BY timestamp DESC")
     fun getAllWorkouts(): Flow<List<WorkoutEntity>>
+
+    @Query("SELECT * FROM workouts ORDER BY timestamp DESC")
+    fun getAllWorkoutsIncludingDeleted(): Flow<List<WorkoutEntity>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertWorkout(workout: WorkoutEntity): Long
@@ -37,6 +40,9 @@ interface WorkoutDao {
         val setsWithId = sets.map { it.copy(workoutId = workoutId) }
         insertSets(setsWithId)
     }
+
+    @Query("UPDATE workouts SET isDeleted = 1 WHERE id = :workoutId")
+    suspend fun softDeleteWorkout(workoutId: Long)
 
     @Delete
     suspend fun deleteWorkout(workout: WorkoutEntity)

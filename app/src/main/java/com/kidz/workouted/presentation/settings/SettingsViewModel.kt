@@ -24,7 +24,8 @@ data class SettingsUiState(
     val isLoading: Boolean = false,
     val authError: String? = null,
     val customServerUrl: String? = null,
-    val appTheme: String = com.kidz.workouted.domain.model.AppTheme.SYSTEM.name
+    val appTheme: String = com.kidz.workouted.domain.model.AppTheme.SYSTEM.name,
+    val showSyncConflictDialog: Boolean = false
 )
 
 @HiltViewModel
@@ -188,11 +189,24 @@ class SettingsViewModel @Inject constructor(
         viewModelScope.launch { authRepository.logout() }
     }
 
-    fun pushBackupToCloud() {
+    fun pushBackupToCloud(force: Boolean = false) {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, backupError = null) }
-            val data = backupRepository.getBackupData()
+            val data = backupRepository.getBackupData(force)
             val result = syncRepository.pushBackup(data)
+            
+            if (result.isFailure) {
+                val e = result.exceptionOrNull()
+                if (e is retrofit2.HttpException && e.code() == 409) {
+                    _uiState.update { it.copy(isLoading = false, showSyncConflictDialog = true) }
+                    return@launch
+                }
+            }
+            
+            if (result.isSuccess) {
+                repository.setHasUnsyncedChanges(false)
+            }
+            
             _uiState.update { 
                 it.copy(
                     isLoading = false, 
@@ -201,6 +215,10 @@ class SettingsViewModel @Inject constructor(
                 ) 
             }
         }
+    }
+
+    fun dismissSyncConflictDialog() {
+        _uiState.update { it.copy(showSyncConflictDialog = false) }
     }
 
     fun pullBackupFromCloud() {

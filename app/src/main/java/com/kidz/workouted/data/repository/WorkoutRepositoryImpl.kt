@@ -6,12 +6,14 @@ import com.kidz.workouted.data.local.entity.WorkoutEntity
 import com.kidz.workouted.data.local.entity.SetEntity
 import com.kidz.workouted.domain.model.Workout
 import com.kidz.workouted.domain.repository.WorkoutRepository
+import com.kidz.workouted.domain.repository.UserPreferencesRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
 class WorkoutRepositoryImpl @Inject constructor(
-    private val dao: WorkoutDao
+    private val dao: WorkoutDao,
+    private val userPrefs: UserPreferencesRepository
 ) : WorkoutRepository {
 
     override fun getWorkouts(): Flow<List<Workout>> {
@@ -27,10 +29,12 @@ class WorkoutRepositoryImpl @Inject constructor(
 
     override suspend fun saveWorkout(timestamp: Long, sets: List<SetEntity>, workoutId: Long) {
         dao.saveWorkoutWithSets(WorkoutEntity(id = workoutId, timestamp = timestamp), sets)
+        userPrefs.setHasUnsyncedChanges(true)
     }
 
     override suspend fun deleteWorkout(workout: Workout) {
-        dao.deleteWorkout(workout.toEntity())
+        dao.softDeleteWorkout(workout.id)
+        userPrefs.setHasUnsyncedChanges(true)
     }
 
     override suspend fun getWorkoutById(id: Long): Workout? {
@@ -53,11 +57,13 @@ class WorkoutRepositoryImpl @Inject constructor(
         id = id,
         timestamp = timestamp,
         totalVolume = totalVolume,
-        exercisesCount = exercisesCount
+        exercisesCount = exercisesCount,
+        isDeleted = isDeleted
     )
 
     private fun Workout.toEntity() = WorkoutEntity(
         id = id,
-        timestamp = timestamp
+        timestamp = timestamp,
+        isDeleted = isDeleted
     )
 }
