@@ -239,4 +239,21 @@ class SettingsViewModel @Inject constructor(
             }
         }
     }
+
+    fun deleteAccount() {
+        viewModelScope.launch {
+            _uiState.update { it.copy(isLoading = true, authError = null) }
+            val result = authRepository.deleteAccount()
+            if (result.isSuccess) {
+                _uiState.update { it.copy(isLoading = false, authError = null) }
+            } else {
+                _uiState.update { 
+                    it.copy(
+                        isLoading = false, 
+                        authError = result.exceptionOrNull()?.message ?: "Failed to delete account"
+                    ) 
+                }
+            }
+        }
+    }
 }

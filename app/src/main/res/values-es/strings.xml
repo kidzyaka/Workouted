@@ -282,4 +282,8 @@
     <string name="theme_light">Claro</string>
     <string name="theme_dark">Oscuro</string>
     <string name="theme_amoled">AMOLED</string>
+    <string name="delete_account">Eliminar cuenta</string>
+    <string name="delete_account_confirm_title">Eliminar cuenta</string>
+    <string name="delete_account_confirm_message">¿Estás seguro de que deseas eliminar tu cuenta? Esta acción no se puede deshacer y perderás todos tus datos.</string>
+    <string name="delete_account_success">Cuenta eliminada exitosamente.</string>
 </resources>

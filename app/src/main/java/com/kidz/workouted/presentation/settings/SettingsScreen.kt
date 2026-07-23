@@ -61,6 +61,7 @@ fun SettingsScreen(
         onLogin = { u, p -> viewModel.login(u, p) },
         onRegister = { u, p -> viewModel.register(u, p) },
         onLogout = { viewModel.logout() },
+        onDeleteAccount = { viewModel.deleteAccount() },
         onPushBackup = { viewModel.pushBackupToCloud() },
         onPullBackup = { viewModel.pullBackupFromCloud() },
         onConfirmSyncConflict = { viewModel.pushBackupToCloud(force = true) },
@@ -86,6 +87,7 @@ fun SettingsContent(
     onLogin: (String, String) -> Unit,
     onRegister: (String, String) -> Unit,
     onLogout: () -> Unit,
+    onDeleteAccount: () -> Unit,
     onPushBackup: () -> Unit,
     onPullBackup: () -> Unit,
     onConfirmSyncConflict: () -> Unit,
@@ -97,6 +99,7 @@ fun SettingsContent(
     var showAuthDialog by remember { mutableStateOf(false) }
     var showCustomServerDialog by remember { mutableStateOf(false) }
     var showPreImportWarningDialog by remember { mutableStateOf(false) }
+    var showDeleteAccountDialog by remember { mutableStateOf(false) }
     
     val uriHandler = LocalUriHandler.current
     val context = LocalContext.current
@@ -163,7 +166,12 @@ fun SettingsContent(
     }
 
     Scaffold(
-        snackbarHost = { SnackbarHost(snackbarHostState) },
+        snackbarHost = { 
+            SnackbarHost(
+                hostState = snackbarHostState,
+                modifier = Modifier.padding(bottom = 90.dp)
+            ) 
+        },
         containerColor = Color.Transparent,
         contentWindowInsets = WindowInsets(0, 0, 0, 0)
     ) { innerPadding ->
@@ -302,6 +310,12 @@ fun SettingsContent(
                             title = stringResource(R.string.logout),
                             subtitle = stringResource(R.string.disconnect_account),
                             onClick = onLogout
+                        )
+                        SettingsItem(
+                            icon = Icons.Default.DeleteForever,
+                            title = stringResource(R.string.delete_account),
+                            subtitle = null,
+                            onClick = { showDeleteAccountDialog = true }
                         )
                     }
                     SettingsItem(
@@ -476,6 +490,40 @@ fun SettingsContent(
             },
             dismissButton = {
                 TextButton(onClick = onDismissSyncConflict) {
+                    Text(stringResource(R.string.cancel))
+                }
+            }
+        )
+    }
+
+    if (showDeleteAccountDialog) {
+        var countdown by remember { mutableIntStateOf(3) }
+
+        LaunchedEffect(Unit) {
+            while (countdown > 0) {
+                kotlinx.coroutines.delay(1000)
+                countdown--
+            }
+        }
+
+        AlertDialog(
+            onDismissRequest = { showDeleteAccountDialog = false },
+            title = { Text(stringResource(R.string.delete_account_confirm_title)) },
+            text = { Text(stringResource(R.string.delete_account_confirm_message)) },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        onDeleteAccount()
+                        showDeleteAccountDialog = false
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error),
+                    enabled = countdown == 0
+                ) {
+                    Text(if (countdown > 0) "${stringResource(R.string.import_continue)} ($countdown)" else stringResource(R.string.import_continue))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDeleteAccountDialog = false }) {
                     Text(stringResource(R.string.cancel))
                 }
             }
@@ -705,7 +753,7 @@ fun SettingsSection(title: String, content: @Composable ColumnScope.() -> Unit) 
 fun SettingsItem(
     modifier: Modifier = Modifier,
     title: String,
-    subtitle: String,
+    subtitle: String? = null,
     icon: androidx.compose.ui.graphics.vector.ImageVector? = null,
     onClick: (() -> Unit)? = null,
     showChevron: Boolean = true
@@ -733,11 +781,13 @@ fun SettingsItem(
             }
             Column(modifier = Modifier.weight(1f)) {
                 Text(text = title, style = MaterialTheme.typography.bodyLarge)
-                Text(
-                    text = subtitle,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
-                )
+                if (subtitle != null) {
+                    Text(
+                        text = subtitle,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
+                    )
+                }
             }
             if (showChevron) {
                 Icon(
@@ -816,6 +866,7 @@ fun SettingsPreview() {
             onLogin = { _, _ -> },
             onRegister = { _, _ -> },
             onLogout = {},
+            onDeleteAccount = {},
             onPushBackup = {},
             onPullBackup = {},
             onConfirmSyncConflict = {},

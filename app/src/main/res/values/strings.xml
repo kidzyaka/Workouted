@@ -282,4 +282,8 @@
     <string name="custom_server_dialog_placeholder">e.g., http://192.168.0.52:8080/api/</string>
     <string name="custom_server_default_btn">Reset to Default</string>
     <string name="import_continue">Continue</string>
+    <string name="delete_account">Delete Account</string>
+    <string name="delete_account_confirm_title">Delete Account</string>
+    <string name="delete_account_confirm_message">Are you sure you want to delete your account? This action cannot be undone and you will lose all your data.</string>
+    <string name="delete_account_success">Account deleted successfully.</string>
 </resources>

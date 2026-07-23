@@ -282,4 +282,8 @@
     <string name="theme_light">浅色</string>
     <string name="theme_dark">深色</string>
     <string name="theme_amoled">AMOLED</string>
+    <string name="delete_account">删除帐户</string>
+    <string name="delete_account_confirm_title">删除帐户</string>
+    <string name="delete_account_confirm_message">您确定要删除您的帐户吗？此操作无法撤销，您将丢失所有数据。</string>
+    <string name="delete_account_success">帐户删除成功。</string>
 </resources>

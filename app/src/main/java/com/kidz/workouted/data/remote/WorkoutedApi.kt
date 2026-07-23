@@ -11,6 +11,9 @@ interface WorkoutedApi {
     @POST("auth/login")
     suspend fun login(@Body request: AuthRequest): AuthResponse
 
+    @DELETE("auth/account")
+    suspend fun deleteAccount()
+
     @POST("sync/backup")
     suspend fun pushBackup(@Body backupData: BackupData)
 

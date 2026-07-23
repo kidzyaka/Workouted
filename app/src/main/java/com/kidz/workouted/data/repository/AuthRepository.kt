@@ -56,4 +56,17 @@ class AuthRepository @Inject constructor(
         preferences.setJwtToken(null)
         preferences.setFriendCode(null)
     }
+
+    suspend fun deleteAccount(): Result<Unit> {
+        return try {
+            api.deleteAccount()
+            logout()
+            Result.success(Unit)
+        } catch (e: retrofit2.HttpException) {
+            val errorMessage = extractErrorMessage(e)
+            Result.failure(Exception(errorMessage))
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
 }
