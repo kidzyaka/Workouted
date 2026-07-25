@@ -2,16 +2,15 @@ package com.kidz.workouted.di
 
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import com.kidz.workouted.data.remote.WorkoutedApi
-import com.kidz.workouted.domain.repository.UserPreferencesRepository
+import com.kidz.workouted.data.remote.interceptor.AuthAuthenticator
+import com.kidz.workouted.data.remote.interceptor.AuthInterceptor
+import com.kidz.workouted.data.remote.interceptor.BaseUrlInterceptor
+import com.kidz.workouted.data.remote.interceptor.BaseUrlInterceptor.Companion.BASE_URL
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.Json
-import okhttp3.Interceptor
-import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -22,8 +21,6 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 object NetworkModule {
 
-    private const val BASE_URL = "https://workouted.kddz.ru:1454/api/"
-
     @Provides
     @Singleton
     fun provideJson(): Json = Json {
@@ -33,41 +30,20 @@ object NetworkModule {
 
     @Provides
     @Singleton
-    fun provideOkHttpClient(preferencesRepository: UserPreferencesRepository): OkHttpClient {
+    fun provideOkHttpClient(
+        authInterceptor: AuthInterceptor,
+        authAuthenticator: AuthAuthenticator,
+        baseUrlInterceptor: BaseUrlInterceptor
+    ): OkHttpClient {
         val loggingInterceptor = HttpLoggingInterceptor().apply {
             level = HttpLoggingInterceptor.Level.BODY
-        }
-
-        val authInterceptor = Interceptor { chain ->
-            val token = runBlocking { preferencesRepository.jwtToken.first() }
-            val request = chain.request().newBuilder().apply {
-                if (!token.isNullOrEmpty()) {
-                    addHeader("Authorization", "Bearer $token")
-                }
-            }.build()
-            chain.proceed(request)
-        }
-
-        val baseUrlInterceptor = Interceptor { chain ->
-            val customServerUrl = runBlocking { preferencesRepository.customServerUrl.first() }
-            var request = chain.request()
-            if (!customServerUrl.isNullOrBlank()) {
-                val requestUrlStr = request.url.toString()
-                if (requestUrlStr.startsWith(BASE_URL)) {
-                    val newUrlStr = requestUrlStr.replaceFirst(BASE_URL, customServerUrl)
-                    val newUrl = newUrlStr.toHttpUrlOrNull()
-                    if (newUrl != null) {
-                        request = request.newBuilder().url(newUrl).build()
-                    }
-                }
-            }
-            chain.proceed(request)
         }
 
         return OkHttpClient.Builder()
             .addInterceptor(loggingInterceptor)
             .addInterceptor(baseUrlInterceptor)
             .addInterceptor(authInterceptor)
+            .authenticator(authAuthenticator)
             .build()
     }
 
