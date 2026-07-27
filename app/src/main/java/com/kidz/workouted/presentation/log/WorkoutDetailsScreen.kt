@@ -74,7 +74,8 @@ fun WorkoutDetailsContent(
                     icon = { Icon(Icons.Default.Edit, contentDescription = null) },
                     text = { Text(stringResource(R.string.edit)) },
                     containerColor = MaterialTheme.colorScheme.primary,
-                    contentColor = MaterialTheme.colorScheme.onPrimary
+                    contentColor = MaterialTheme.colorScheme.onPrimary,
+                    modifier = Modifier.padding(bottom = 80.dp)
                 )
             }
         }
