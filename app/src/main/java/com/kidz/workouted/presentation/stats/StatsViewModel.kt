@@ -31,7 +31,7 @@ class StatsViewModel @Inject constructor(
     private fun loadStats() {
         combine(
             workoutDao.getAllWorkouts(),
-            workoutDao.getAllSets(),
+            workoutDao.getActiveSets(),
             workoutDao.getExercisesWithMuscleImpacts(),
             workoutDao.getMuscleGroupsWithMuscles(),
             preferencesRepository.userHeightCm

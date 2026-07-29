@@ -41,7 +41,7 @@ class DashboardViewModel @Inject constructor(
     private fun loadDashboardData() {
         combine(
             workoutDao.getAllWorkouts(),
-            workoutDao.getAllSets(),
+            workoutDao.getActiveSets(),
             workoutDao.getExercisesWithMuscleImpacts(),
             workoutDao.getMuscleGroupsWithMuscles(),
             preferencesRepository.userHeightCm,

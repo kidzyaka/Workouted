@@ -12,6 +12,9 @@ interface WorkoutDao {
     @Query("SELECT * FROM workouts ORDER BY timestamp DESC")
     fun getAllWorkoutsIncludingDeleted(): Flow<List<WorkoutEntity>>
 
+    @Query("SELECT sets.* FROM sets INNER JOIN workouts ON sets.workoutId = workouts.id WHERE workouts.isDeleted = 0")
+    fun getActiveSets(): Flow<List<SetEntity>>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertWorkout(workout: WorkoutEntity): Long
 

@@ -163,7 +163,7 @@ class SocialViewModel @Inject constructor(
             }
             
             // Generate user's own volume data from local DB
-            val sets = workoutDao.getAllSets().firstOrNull() ?: emptyList()
+            val sets = workoutDao.getActiveSets().firstOrNull() ?: emptyList()
             val workouts = workoutDao.getAllWorkouts().firstOrNull() ?: emptyList()
             val workoutMap = workouts.associateBy { it.id }
             
