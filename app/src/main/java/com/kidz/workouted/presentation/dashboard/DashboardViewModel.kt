@@ -10,6 +10,7 @@ import com.kidz.workouted.domain.repository.UserPreferencesRepository
 import com.kidz.workouted.domain.usecase.AggregateGroupRatingUseCase
 import com.kidz.workouted.domain.usecase.GetMuscleRatingsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -143,7 +144,9 @@ class DashboardViewModel @Inject constructor(
                 greetingTitleResId = sessionGreetingTitleResId,
                 rankUps = rankUps
             )
-        }.onEach { state ->
+        }
+        .flowOn(Dispatchers.Default)
+        .onEach { state ->
             _uiState.value = state
         }.launchIn(viewModelScope)
     }
