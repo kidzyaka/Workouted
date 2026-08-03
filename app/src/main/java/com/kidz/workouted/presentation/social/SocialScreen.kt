@@ -202,8 +202,8 @@ fun SocialScreen(
             onClick = { showAddFriendDialog = true },
             modifier = Modifier
                 .align(Alignment.BottomEnd)
-                .padding(16.dp)
-                .padding(bottom = 80.dp) // Offset above the navigation bar
+                .navigationBarsPadding()
+                .padding(end = 16.dp, bottom = 100.dp)
         ) {
             Icon(Icons.Default.PersonAdd, contentDescription = stringResource(R.string.add_friend))
         }
