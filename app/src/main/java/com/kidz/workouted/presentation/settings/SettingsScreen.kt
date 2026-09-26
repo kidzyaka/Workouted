@@ -1,4 +1,6 @@
+
 package com.kidz.workouted.presentation.settings
+import androidx.compose.ui.text.style.TextAlign
 
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -531,6 +533,7 @@ fun SettingsContent(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AuthDialog(
     onLogin: (String, String) -> Unit,
@@ -540,51 +543,112 @@ fun AuthDialog(
 ) {
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+    var passwordVisible by remember { mutableStateOf(false) }
+    var isLoginMode by remember { mutableStateOf(true) }
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
-    AlertDialog(
+    ModalBottomSheet(
         onDismissRequest = onDismiss,
-        title = { Text(stringResource(R.string.server_account)) },
-        text = {
-            Column {
-                OutlinedTextField(
-                    value = username,
-                    onValueChange = { username = it },
-                    label = { Text(stringResource(R.string.username)) },
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp)
-                )
-                OutlinedTextField(
-                    value = password,
-                    onValueChange = { password = it },
-                    label = { Text(stringResource(R.string.password)) },
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth()
-                )
-            }
-        },
-        confirmButton = {
-            Row {
-                TextButton(
-                    onClick = { onRegister(username, password) },
-                    enabled = username.isNotBlank() && password.isNotBlank() && !isLoading
+        sheetState = sheetState,
+        containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
+        dragHandle = { BottomSheetDefaults.DragHandle() }
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 24.dp)
+                .padding(bottom = 32.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                text = stringResource(R.string.server_account),
+                style = MaterialTheme.typography.headlineSmall,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(bottom = 16.dp)
+            )
+
+            // Segmented-like Toggle
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 24.dp)
+                    .background(MaterialTheme.colorScheme.surfaceContainerHighest, MaterialTheme.shapes.extraLarge)
+                    .padding(4.dp),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Surface(
+                    shape = MaterialTheme.shapes.extraLarge,
+                    color = if (isLoginMode) MaterialTheme.colorScheme.primaryContainer else Color.Transparent,
+                    modifier = Modifier.weight(1f).clickable { isLoginMode = true }
                 ) {
-                    Text(stringResource(R.string.action_register))
+                    Text(
+                        text = stringResource(R.string.action_login),
+                        textAlign = TextAlign.Center,
+                        fontWeight = if (isLoginMode) FontWeight.Bold else FontWeight.Normal,
+                        modifier = Modifier.padding(vertical = 12.dp)
+                    )
                 }
-                Spacer(modifier = Modifier.width(8.dp))
-                Button(
-                    onClick = { onLogin(username, password) },
-                    enabled = username.isNotBlank() && password.isNotBlank() && !isLoading
+                Surface(
+                    shape = MaterialTheme.shapes.extraLarge,
+                    color = if (!isLoginMode) MaterialTheme.colorScheme.primaryContainer else Color.Transparent,
+                    modifier = Modifier.weight(1f).clickable { isLoginMode = false }
                 ) {
-                    Text(stringResource(R.string.action_login))
+                    Text(
+                        text = stringResource(R.string.action_register),
+                        textAlign = TextAlign.Center,
+                        fontWeight = if (!isLoginMode) FontWeight.Bold else FontWeight.Normal,
+                        modifier = Modifier.padding(vertical = 12.dp)
+                    )
                 }
             }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text(stringResource(R.string.cancel))
+
+            OutlinedTextField(
+                value = username,
+                onValueChange = { username = it },
+                label = { Text(stringResource(R.string.username)) },
+                singleLine = true,
+                shape = MaterialTheme.shapes.medium,
+                modifier = Modifier.fillMaxWidth().padding(bottom = 12.dp)
+            )
+
+            OutlinedTextField(
+                value = password,
+                onValueChange = { password = it },
+                label = { Text(stringResource(R.string.password)) },
+                singleLine = true,
+                shape = MaterialTheme.shapes.medium,
+                visualTransformation = if (passwordVisible) androidx.compose.ui.text.input.VisualTransformation.None else androidx.compose.ui.text.input.PasswordVisualTransformation(),
+                trailingIcon = {
+                    IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                        Icon(
+                            imageVector = if (passwordVisible) androidx.compose.material.icons.Icons.Default.Visibility else androidx.compose.material.icons.Icons.Default.VisibilityOff,
+                            contentDescription = if (passwordVisible) "Hide password" else "Show password"
+                        )
+                    }
+                },
+                modifier = Modifier.fillMaxWidth().padding(bottom = 24.dp)
+            )
+
+            Button(
+                onClick = {
+                    if (isLoginMode) onLogin(username, password) else onRegister(username, password)
+                },
+                enabled = username.isNotBlank() && password.isNotBlank() && !isLoading,
+                modifier = Modifier.fillMaxWidth().height(56.dp),
+                shape = MaterialTheme.shapes.large
+            ) {
+                if (isLoading) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(24.dp),
+                        color = MaterialTheme.colorScheme.onPrimary,
+                        strokeWidth = 2.dp
+                    )
+                } else {
+                    Text(if (isLoginMode) stringResource(R.string.action_login) else stringResource(R.string.action_register))
+                }
             }
         }
-    )
+    }
 }
 
 @Composable

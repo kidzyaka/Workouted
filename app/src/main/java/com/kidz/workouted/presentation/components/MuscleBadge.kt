@@ -17,12 +17,14 @@ import com.kidz.workouted.domain.model.Rank
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.runtime.remember
 
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.border
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.graphics.graphicsLayer
 
 @Composable
 fun MuscleBadge(
@@ -32,6 +34,7 @@ fun MuscleBadge(
     hasUnseenProgression: Boolean = false,
     onClick: () -> Unit = {}
 ) {
+    val haptic = androidx.compose.ui.platform.LocalHapticFeedback.current
     val infiniteTransition = rememberInfiniteTransition(label = "glow")
     val alpha by infiniteTransition.animateFloat(
         initialValue = 0.2f,
@@ -43,57 +46,69 @@ fun MuscleBadge(
         label = "alpha"
     )
 
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = modifier.clickable(
-            interactionSource = remember { MutableInteractionSource() },
-            indication = null,
-            onClick = onClick
-        )
-    ) {
-        Box(
-            contentAlignment = Alignment.Center,
-            modifier = Modifier.padding(bottom = 6.dp)
-        ) {
-            if (hasUnseenProgression) {
-                Box(
-                    modifier = Modifier
-                        .size(24.dp)
-                        .clip(CircleShape)
-                        .background(rank.color.copy(alpha = alpha * 0.4f))
-                )
+    val interactionSource = remember { MutableInteractionSource() }
+    val isPressed by interactionSource.collectIsPressedAsState()
+    val scale by animateFloatAsState(
+        targetValue = if (isPressed) 0.90f else 1.0f,
+        animationSpec = spring(dampingRatio = 0.5f, stiffness = Spring.StiffnessMedium),
+        label = "pressScale"
+    )
+
+    Surface(
+        shape = MaterialTheme.shapes.medium,
+        color = MaterialTheme.colorScheme.surfaceContainerHigh.copy(alpha = 0.85f),
+        modifier = modifier
+            .graphicsLayer {
+                scaleX = scale
+                scaleY = scale
             }
-            Surface(
-                shape = CircleShape,
-                color = rank.color,
-                modifier = Modifier.size(14.dp),
-                shadowElevation = if (hasUnseenProgression) 4.dp else 0.dp,
-                border = if (hasUnseenProgression) BorderStroke(1.dp, Color.White.copy(alpha = 0.5f)) else null
-            ) {}
-        }
-        
-        Surface(
-            shape = MaterialTheme.shapes.extraSmall,
-            color = MaterialTheme.colorScheme.surfaceContainerHighest.copy(alpha = 0.8f),
-            modifier = Modifier.clip(MaterialTheme.shapes.extraSmall)
+            .clickable(
+                interactionSource = interactionSource,
+                indication = androidx.compose.foundation.LocalIndication.current,
+                onClick = {
+                    haptic.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.LongPress)
+                    onClick()
+                }
+            )
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier.padding(horizontal = 8.dp, vertical = 6.dp)
         ) {
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier.padding(bottom = 6.dp)
+            ) {
+                if (hasUnseenProgression) {
+                    Box(
+                        modifier = Modifier
+                            .size(24.dp)
+                            .clip(CircleShape)
+                            .background(rank.color.copy(alpha = alpha * 0.4f))
+                    )
+                }
+                Surface(
+                    shape = CircleShape,
+                    color = rank.color,
+                    modifier = Modifier.size(14.dp),
+                    shadowElevation = if (hasUnseenProgression) 4.dp else 0.dp,
+                    border = if (hasUnseenProgression) BorderStroke(1.dp, Color.White.copy(alpha = 0.5f)) else null
+                ) {}
+            }
+            
             Text(
                 text = muscleName.uppercase(),
                 style = MaterialTheme.typography.labelSmall,
                 fontWeight = FontWeight.Black,
                 color = MaterialTheme.colorScheme.onSurface,
-                modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
-                fontSize = 9.sp
+            )
+            
+            Text(
+                text = stringResource(rank.nameRes),
+                style = MaterialTheme.typography.labelSmall,
+                fontWeight = FontWeight.Bold,
+                color = rank.color,
             )
         }
-        
-        Text(
-            text = stringResource(rank.nameRes),
-            style = MaterialTheme.typography.labelSmall,
-            fontWeight = FontWeight.Bold,
-            fontSize = 10.sp,
-            color = rank.color,
-            modifier = Modifier.padding(top = 2.dp)
-        )
     }
 }

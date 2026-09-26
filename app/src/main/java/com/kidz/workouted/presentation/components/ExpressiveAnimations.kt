@@ -14,9 +14,6 @@ fun StaggeredEntranceItem(
 ) {
     var startAnimation by remember { mutableStateOf(false) }
     
-    // Softened overshoot curve for a more premium, less aggressive feel
-    val expressiveEasing = CubicBezierEasing(0.2f, 1.25f, 0.4f, 1.0f)
-    
     LaunchedEffect(Unit) {
         val staggerDelay = when (index) {
             0 -> 0L
@@ -27,20 +24,36 @@ fun StaggeredEntranceItem(
         startAnimation = true
     }
 
-    val progress by animateFloatAsState(
+    val alpha by animateFloatAsState(
         targetValue = if (startAnimation) 1f else 0f,
-        animationSpec = tween(durationMillis = 200, easing = expressiveEasing),
-        label = "entranceProgress"
+        animationSpec = tween(durationMillis = 300),
+        label = "entranceAlpha"
+    )
+
+    val scale by animateFloatAsState(
+        targetValue = if (startAnimation) 1.0f else 0.94f,
+        animationSpec = spring(
+            dampingRatio = 0.65f, // Deliberate expressive overshoot
+            stiffness = Spring.StiffnessMediumLow
+        ),
+        label = "entranceScale"
+    )
+
+    val translationY by androidx.compose.animation.core.animateDpAsState(
+        targetValue = if (startAnimation) 0.dp else 28.dp,
+        animationSpec = spring(
+            dampingRatio = 0.7f,
+            stiffness = Spring.StiffnessMediumLow
+        ),
+        label = "entranceTranslationY"
     )
 
     Box(
         modifier = Modifier.graphicsLayer {
-            alpha = progress
-            // Subtler scale: from 0.99 to 1.0
-            scaleX = 0.99f + (0.01f * progress)
-            scaleY = 0.99f + (0.01f * progress)
-            // Subtler jump: from 12dp to 0
-            translationY = (12.dp.toPx()) * (1f - progress)
+            this.alpha = alpha
+            this.scaleX = scale
+            this.scaleY = scale
+            this.translationY = translationY.toPx()
         }
     ) {
         content()

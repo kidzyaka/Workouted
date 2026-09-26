@@ -8,6 +8,10 @@ import android.os.VibratorManager
 import androidx.compose.animation.*
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.interaction.collectIsPressedAsState
+import androidx.compose.foundation.clickable
+
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.*
@@ -17,6 +21,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -35,7 +41,10 @@ fun RankUpOverlay(
 ) {
     val context = LocalContext.current
     var startAnimation by remember { mutableStateOf(false) }
+    var isFilled by remember { mutableStateOf(false) }
+    var isExiting by remember { mutableStateOf(false) }
     val progress = remember { Animatable(0f) }
+    val haptic = androidx.compose.ui.platform.LocalHapticFeedback.current
     
     val vibrator = remember {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
@@ -47,16 +56,22 @@ fun RankUpOverlay(
         }
     }
 
+    LaunchedEffect(isExiting) {
+        if (isExiting) {
+            startAnimation = false
+            delay(600)
+            onFinished()
+        }
+    }
+
     LaunchedEffect(Unit) {
         delay(300)
         startAnimation = true
         
-        // Progress animation from 0 to 1 with haptic feedback
         progress.animateTo(
             targetValue = 1f,
-            animationSpec = tween(durationMillis = 2500, easing = FastOutSlowInEasing)
+            animationSpec = tween(durationMillis = 2000, easing = FastOutSlowInEasing)
         ) {
-            // Increasing vibration intensity
             val intensity = (this.value * 255).toInt().coerceIn(1, 255)
             try {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -65,12 +80,9 @@ fun RankUpOverlay(
                     @Suppress("DEPRECATION")
                     vibrator.vibrate(80)
                 }
-            } catch (_: Exception) {
-                // Ignore vibration errors
-            }
+            } catch (_: Exception) {}
         }
         
-        // Final strong vibration
         try {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 vibrator.vibrate(VibrationEffect.createOneShot(400, VibrationEffect.DEFAULT_AMPLITUDE))
@@ -78,14 +90,9 @@ fun RankUpOverlay(
                 @Suppress("DEPRECATION")
                 vibrator.vibrate(400)
             }
-        } catch (_: Exception) {
-            // Ignore vibration errors
-        }
+        } catch (_: Exception) {}
         
-        delay(1200)
-        startAnimation = false // Trigger exit animation
-        delay(600) // Wait for exit animation to finish
-        onFinished()
+        isFilled = true
     }
 
     AnimatedVisibility(
@@ -100,9 +107,42 @@ fun RankUpOverlay(
                 .fillMaxSize()
                 .background(Color.Black.copy(alpha = 0.95f))
                 .padding(32.dp)
-                .pointerInput(Unit) {}, // Consume all touch events
+                .pointerInput(Unit) {},
             contentAlignment = Alignment.Center
         ) {
+            // Radiant Rays
+            if (isFilled) {
+                val infiniteTransition = rememberInfiniteTransition(label = "rays")
+                val rotation by infiniteTransition.animateFloat(
+                    initialValue = 0f,
+                    targetValue = 360f,
+                    animationSpec = infiniteRepeatable(
+                        animation = tween(10000, easing = LinearEasing),
+                        repeatMode = RepeatMode.Restart
+                    ),
+                    label = "rotation"
+                )
+                
+                Box(
+                    modifier = Modifier
+                        .size(300.dp)
+                        .graphicsLayer { rotationZ = rotation }
+                        .background(
+                            Brush.sweepGradient(
+                                listOf(
+                                    newRank.color.copy(alpha = 0.4f),
+                                    Color.Transparent,
+                                    newRank.color.copy(alpha = 0.4f),
+                                    Color.Transparent,
+                                    newRank.color.copy(alpha = 0.4f),
+                                    Color.Transparent
+                                )
+                            ),
+                            shape = CircleShape
+                        )
+                )
+            }
+
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
@@ -127,8 +167,8 @@ fun RankUpOverlay(
                 
                 Spacer(modifier = Modifier.height(48.dp))
                 
-                // Rank Badge with Glow
-                Box(contentAlignment = Alignment.Center) {
+                // Geometric Badge
+                Box(contentAlignment = Alignment.Center, modifier = Modifier.size(160.dp)) {
                     val pulseAlpha by rememberInfiniteTransition().animateFloat(
                         initialValue = 0.4f,
                         targetValue = 0.8f,
@@ -141,20 +181,31 @@ fun RankUpOverlay(
                     
                     Box(
                         modifier = Modifier
-                            .size(120.dp)
+                            .fillMaxSize()
                             .clip(CircleShape)
-                            .background(
-                                Brush.radialGradient(
-                                    colors = listOf(newRank.color.copy(alpha = pulseAlpha), Color.Transparent)
-                                )
-                            )
+                            .background(Brush.radialGradient(listOf(newRank.color.copy(alpha = pulseAlpha), Color.Transparent)))
                     )
                     
+                    // Core Geometry based on rank power (approximated by color hash/length or just visual variety)
+                    val rotationModifier = if (newRank.name.contains("DIAMOND") || newRank.name.contains("EMERALD") || newRank.name.contains("PLATINUM")) {
+                        Modifier.graphicsLayer { rotationZ = 45f }
+                    } else {
+                        Modifier
+                    }
+                    
+                    val shape = if (newRank.name.contains("ELITE") || newRank.name.contains("GOLD")) {
+                        androidx.compose.foundation.shape.CutCornerShape(24.dp)
+                    } else {
+                        androidx.compose.foundation.shape.RoundedCornerShape(16.dp)
+                    }
+
                     Box(
                         modifier = Modifier
-                            .size(60.dp)
-                            .clip(CircleShape)
+                            .size(72.dp)
+                            .then(rotationModifier)
+                            .clip(shape)
                             .background(newRank.color)
+                            .border(4.dp, Color.White.copy(alpha = 0.5f), shape)
                     )
                 }
                 
@@ -169,7 +220,6 @@ fun RankUpOverlay(
                 
                 Spacer(modifier = Modifier.height(32.dp))
                 
-                // Filling scale
                 LinearProgressIndicator(
                     progress = { progress.value },
                     modifier = Modifier
@@ -180,8 +230,41 @@ fun RankUpOverlay(
                     trackColor = Color.White.copy(alpha = 0.1f),
                     gapSize = 0.dp,
                     drawStopIndicator = {},
-                    strokeCap = androidx.compose.ui.graphics.StrokeCap.Round
+                    strokeCap = StrokeCap.Round
                 )
+                
+                Spacer(modifier = Modifier.height(48.dp))
+                
+                AnimatedVisibility(visible = isFilled) {
+                    val interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() }
+                    val isPressed by interactionSource.collectIsPressedAsState()
+                    val scale by animateFloatAsState(targetValue = if (isPressed) 0.95f else 1f)
+
+                    Surface(
+                        shape = CircleShape,
+                        color = newRank.color,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(56.dp)
+                            .graphicsLayer { scaleX = scale; scaleY = scale }
+                            .clickable(
+                                interactionSource = interactionSource,
+                                indication = androidx.compose.foundation.LocalIndication.current
+                            ) {
+                                haptic.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.LongPress)
+                                isExiting = true
+                            }
+                    ) {
+                        Box(contentAlignment = Alignment.Center) {
+                            Text(
+                                text = "CLAIM RANK",
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.Bold,
+                                color = Color.White
+                            )
+                        }
+                    }
+                }
             }
         }
     }
