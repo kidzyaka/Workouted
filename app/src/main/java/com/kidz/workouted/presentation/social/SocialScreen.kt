@@ -253,28 +253,56 @@ fun FriendRequestsSection(requests: List<FriendRequestDto>, onAccept: (Long) -> 
 fun FriendsLeaderboardSection(leaderboard: List<LeaderboardEntry>) {
     Card(
         modifier = Modifier.fillMaxWidth(),
-        shape = MaterialTheme.shapes.extraLarge
+        shape = MaterialTheme.shapes.extraLarge,
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f))
     ) {
         Column(modifier = Modifier.padding(20.dp)) {
             Text(
                 stringResource(R.string.friends_leaderboard),
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(bottom = 16.dp)
+                modifier = Modifier.padding(bottom = 24.dp)
             )
+            
             if (leaderboard.isEmpty()) {
                 Text(stringResource(R.string.no_friends_yet), color = MaterialTheme.colorScheme.onSurfaceVariant)
             } else {
-                leaderboard.forEachIndexed { index, entry ->
+                // Top 3 Podium
+                val top3 = leaderboard.take(3)
+                if (top3.isNotEmpty()) {
                     Row(
-                        modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(220.dp),
+                        horizontalArrangement = Arrangement.SpaceEvenly,
+                        verticalAlignment = Alignment.Bottom
+                    ) {
+                        // 2nd Place
+                        if (top3.size > 1) {
+                            PodiumBar(entry = top3[1], place = 2, height = 120.dp, color = Color(0xFFC0C0C0), delay = 100)
+                        }
+                        // 1st Place
+                        PodiumBar(entry = top3[0], place = 1, height = 160.dp, color = Color(0xFFFFD700), delay = 0)
+                        // 3rd Place
+                        if (top3.size > 2) {
+                            PodiumBar(entry = top3[2], place = 3, height = 90.dp, color = Color(0xFFCD7F32), delay = 200)
+                        }
+                    }
+                    Spacer(modifier = Modifier.height(24.dp))
+                }
+                
+                // Rest of the list
+                leaderboard.drop(3).forEachIndexed { index, entry ->
+                    val actualRank = index + 4
+                    Row(
+                        modifier = Modifier.fillMaxWidth().padding(vertical = 12.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = "#${index + 1}",
+                            text = "#$actualRank",
                             fontWeight = FontWeight.Black,
-                            style = MaterialTheme.typography.titleLarge,
-                            color = MaterialTheme.colorScheme.primary,
+                            style = MaterialTheme.typography.titleMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
                             modifier = Modifier.width(40.dp)
                         )
                         Column(modifier = Modifier.weight(1f)) {
@@ -282,11 +310,73 @@ fun FriendsLeaderboardSection(leaderboard: List<LeaderboardEntry>) {
                             Text(stringResource(R.string.score_prefix) + entry.totalScore.toInt(), style = MaterialTheme.typography.bodySmall)
                         }
                     }
-                    if (index < leaderboard.size - 1) {
-                        Divider(modifier = Modifier.padding(start = 40.dp), color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f))
-                    }
                 }
             }
+        }
+    }
+}
+
+@Composable
+fun PodiumBar(entry: LeaderboardEntry, place: Int, height: androidx.compose.ui.unit.Dp, color: Color, delay: Int) {
+    var startAnimation by remember { mutableStateOf(false) }
+    LaunchedEffect(Unit) {
+        kotlinx.coroutines.delay(delay.toLong())
+        startAnimation = true
+    }
+    
+    val animatedHeight by androidx.compose.animation.core.animateDpAsState(
+        targetValue = if (startAnimation) height else 0.dp,
+        animationSpec = androidx.compose.animation.core.spring(
+            dampingRatio = 0.6f,
+            stiffness = androidx.compose.animation.core.Spring.StiffnessMediumLow
+        ),
+        label = "podiumHeight"
+    )
+    
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Bottom,
+        modifier = Modifier.width(80.dp)
+    ) {
+        androidx.compose.animation.AnimatedVisibility(
+            visible = startAnimation,
+            enter = androidx.compose.animation.fadeIn() + androidx.compose.animation.slideInVertically(initialOffsetY = { 50 })
+        ) {
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Text(
+                    text = entry.username.take(6),
+                    style = MaterialTheme.typography.labelMedium,
+                    fontWeight = FontWeight.Bold,
+                    maxLines = 1,
+                    overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
+                )
+                Text(
+                    text = entry.totalScore.toInt().toString(),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = color
+                )
+            }
+        }
+        
+        Spacer(modifier = Modifier.height(8.dp))
+        
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(animatedHeight)
+                .background(
+                    color = color,
+                    shape = androidx.compose.foundation.shape.RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)
+                ),
+            contentAlignment = Alignment.TopCenter
+        ) {
+            Text(
+                text = place.toString(),
+                style = MaterialTheme.typography.headlineMedium,
+                fontWeight = FontWeight.Black,
+                color = Color.White,
+                modifier = Modifier.padding(top = 8.dp)
+            )
         }
     }
 }

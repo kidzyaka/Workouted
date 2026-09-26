@@ -183,7 +183,17 @@ fun MuscleProgressBar(nameKey: String, score: Float) {
     val ranks = Rank.entries.sortedBy { it.minScore }
     val maxRankScore = ranks.last().minScore.toFloat()
     val maxScaleScore = maxRankScore + 100f
-    val progress = (score / maxScaleScore).coerceIn(0f, 1f)
+    val targetProgress = (score / maxScaleScore).coerceIn(0f, 1f)
+    var startAnim by remember { mutableStateOf(false) }
+    LaunchedEffect(Unit) { startAnim = true }
+    val progress by androidx.compose.animation.core.animateFloatAsState(
+        targetValue = if (startAnim) targetProgress else 0f,
+        animationSpec = androidx.compose.animation.core.spring(
+            dampingRatio = 0.7f,
+            stiffness = androidx.compose.animation.core.Spring.StiffnessLow
+        ),
+        label = "progress"
+    )
     
     val primaryColor = MaterialTheme.colorScheme.primary
     val onSurface = MaterialTheme.colorScheme.onSurface
