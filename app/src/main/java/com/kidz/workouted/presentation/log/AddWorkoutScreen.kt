@@ -12,6 +12,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -45,7 +46,7 @@ fun AddWorkoutScreen(
         onSaveWorkout = { viewModel.saveWorkout() },
         onAddSet = { viewModel.addSet(it) },
         onRemoveExercise = { viewModel.removeExercise(it) },
-        onUpdateSet = { exIdx, setIdx, w, r -> viewModel.updateSet(exIdx, setIdx, w, r) },
+        onUpdateSet = { exIdx, setIdx, w, r, c -> viewModel.updateSet(exIdx, setIdx, w, r, c) },
         onRemoveSet = { exIdx, setIdx -> viewModel.removeSet(exIdx, setIdx) }
     )
 }
@@ -61,7 +62,7 @@ fun AddWorkoutContent(
     onSaveWorkout: () -> Unit,
     onAddSet: (Int) -> Unit,
     onRemoveExercise: (Int) -> Unit,
-    onUpdateSet: (Int, Int, String, String) -> Unit,
+    onUpdateSet: (Int, Int, String, String, Boolean) -> Unit,
     onRemoveSet: (Int, Int) -> Unit
 ) {
     var showDatePicker by remember { mutableStateOf(false) }
@@ -171,8 +172,8 @@ fun AddWorkoutContent(
                         activeExercise = activeExercise,
                         onAddSet = { onAddSet(exerciseIndex) },
                         onRemoveExercise = { onRemoveExercise(exerciseIndex) },
-                        onUpdateSet = { setIndex, weight, reps ->
-                            onUpdateSet(exerciseIndex, setIndex, weight, reps)
+                        onUpdateSet = { setIndex, weight, reps, completed ->
+                            onUpdateSet(exerciseIndex, setIndex, weight, reps, completed)
                         },
                         onRemoveSet = { setIndex ->
                             onRemoveSet(exerciseIndex, setIndex)
@@ -190,7 +191,7 @@ fun ExerciseCard(
     activeExercise: ActiveExercise,
     onAddSet: () -> Unit,
     onRemoveExercise: () -> Unit,
-    onUpdateSet: (Int, String, String) -> Unit,
+    onUpdateSet: (Int, String, String, Boolean) -> Unit,
     onRemoveSet: (Int) -> Unit
 ) {
     val context = LocalContext.current
@@ -223,79 +224,127 @@ fun ExerciseCard(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Set Headers
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 8.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = stringResource(R.string.set_label), 
-                    modifier = Modifier.width(40.dp), 
-                    style = MaterialTheme.typography.labelMedium,
-                    textAlign = androidx.compose.ui.text.style.TextAlign.Center
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                    text = stringResource(R.string.weight_kg), 
-                    modifier = Modifier.weight(1f), 
-                    style = MaterialTheme.typography.labelMedium,
-                    textAlign = androidx.compose.ui.text.style.TextAlign.Center
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                    text = stringResource(R.string.reps), 
-                    modifier = Modifier.weight(1f), 
-                    style = MaterialTheme.typography.labelMedium,
-                    textAlign = androidx.compose.ui.text.style.TextAlign.Center
-                )
-                Spacer(modifier = Modifier.width(48.dp)) // Matching IconButton width
-            }
 
             activeExercise.sets.forEachIndexed { setIndex, activeSet ->
+                val isCompleted = activeSet.isCompleted
+                val alpha by androidx.compose.animation.core.animateFloatAsState(targetValue = if (isCompleted) 0.5f else 1f, label = "alpha")
+                val textDecoration = if (isCompleted) androidx.compose.ui.text.style.TextDecoration.LineThrough else androidx.compose.ui.text.style.TextDecoration.None
+                val backgroundColor by androidx.compose.animation.animateColorAsState(
+                    targetValue = if (isCompleted) MaterialTheme.colorScheme.surfaceVariant else Color.Transparent,
+                    label = "bg_color"
+                )
+
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(vertical = 4.dp),
+                        .padding(vertical = 4.dp)
+                        .background(backgroundColor, MaterialTheme.shapes.medium)
+                        .padding(4.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(
-                        text = (setIndex + 1).toString(),
-                        modifier = Modifier.width(40.dp),
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.primary,
-                        textAlign = androidx.compose.ui.text.style.TextAlign.Center
-                    )
-                    
-                    Spacer(modifier = Modifier.width(8.dp))
-                    
-                    OutlinedTextField(
-                        value = activeSet.weight,
-                        onValueChange = { onUpdateSet(setIndex, it, activeSet.reps) },
+                    // Set Number
+                    Box(
+                        modifier = Modifier
+                            .size(32.dp)
+                            .background(
+                                color = if (isCompleted) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.primaryContainer,
+                                shape = androidx.compose.foundation.shape.CircleShape
+                            ),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = (setIndex + 1).toString(),
+                            style = MaterialTheme.typography.labelMedium,
+                            fontWeight = FontWeight.Black,
+                            color = if (isCompleted) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onPrimaryContainer
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.width(12.dp))
+
+                    // Weight × Reps Compact Fields
+                    Row(
                         modifier = Modifier.weight(1f),
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                        singleLine = true,
-                        shape = MaterialTheme.shapes.large
-                    )
-                    
-                    Spacer(modifier = Modifier.width(8.dp))
-                    
-                    OutlinedTextField(
-                        value = activeSet.reps,
-                        onValueChange = { onUpdateSet(setIndex, activeSet.weight, it) },
-                        modifier = Modifier.weight(1f),
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                        singleLine = true,
-                        shape = MaterialTheme.shapes.large
-                    )
+                        horizontalArrangement = Arrangement.Center,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        OutlinedTextField(
+                            value = activeSet.weight,
+                            onValueChange = { onUpdateSet(setIndex, it, activeSet.reps, isCompleted) },
+                            modifier = Modifier.weight(1f).height(56.dp),
+                            textStyle = androidx.compose.ui.text.TextStyle(
+                                textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                                textDecoration = textDecoration,
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.Bold
+                            ),
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                            singleLine = true,
+                            shape = MaterialTheme.shapes.medium,
+                            colors = OutlinedTextFieldDefaults.colors(
+                                focusedBorderColor = Color.Transparent,
+                                unfocusedBorderColor = Color.Transparent,
+                                disabledBorderColor = Color.Transparent,
+                                focusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHighest.copy(alpha = alpha),
+                                unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHighest.copy(alpha = alpha)
+                            )
+                        )
+
+                        Text(
+                            text = "×",
+                            modifier = Modifier.padding(horizontal = 8.dp),
+                            style = MaterialTheme.typography.titleMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = alpha)
+                        )
+
+                        OutlinedTextField(
+                            value = activeSet.reps,
+                            onValueChange = { onUpdateSet(setIndex, activeSet.weight, it, isCompleted) },
+                            modifier = Modifier.weight(1f).height(56.dp),
+                            textStyle = androidx.compose.ui.text.TextStyle(
+                                textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                                textDecoration = textDecoration,
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.Bold
+                            ),
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                            singleLine = true,
+                            shape = MaterialTheme.shapes.medium,
+                            colors = OutlinedTextFieldDefaults.colors(
+                                focusedBorderColor = Color.Transparent,
+                                unfocusedBorderColor = Color.Transparent,
+                                disabledBorderColor = Color.Transparent,
+                                focusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHighest.copy(alpha = alpha),
+                                unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHighest.copy(alpha = alpha)
+                            )
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.width(12.dp))
+
+                    // Action Icons
+                    if (isCompleted) {
+                        IconButton(
+                            onClick = { onUpdateSet(setIndex, activeSet.weight, activeSet.reps, false) },
+                            modifier = Modifier.size(48.dp)
+                        ) {
+                            Icon(Icons.Default.CheckCircle, contentDescription = "Uncheck", tint = MaterialTheme.colorScheme.primary)
+                        }
+                    } else {
+                        IconButton(
+                            onClick = { onUpdateSet(setIndex, activeSet.weight, activeSet.reps, true) },
+                            modifier = Modifier.size(48.dp)
+                        ) {
+                            Icon(Icons.Default.CheckCircleOutline, contentDescription = "Check", tint = MaterialTheme.colorScheme.outline)
+                        }
+                    }
 
                     IconButton(
                         onClick = { onRemoveSet(setIndex) },
                         enabled = activeExercise.sets.size > 1,
                         modifier = Modifier.size(48.dp)
                     ) {
-                        Icon(Icons.Default.RemoveCircleOutline, contentDescription = "Remove Set")
+                        Icon(Icons.Default.RemoveCircleOutline, contentDescription = "Remove Set", tint = MaterialTheme.colorScheme.error.copy(alpha = alpha))
                     }
                 }
             }
@@ -328,7 +377,7 @@ fun AddWorkoutPreview() {
                 exercises = listOf(
                     ActiveExercise(
                         exercise = ExerciseEntity(name = "ex_bench_press_classic", isWeightBased = true, maxWeightReference = 100.0),
-                        sets = listOf(ActiveSet("60", "10"), ActiveSet("65", "8"))
+                        sets = listOf(ActiveSet(false, "60", "10"), ActiveSet(false, "65", "8"))
                     )
                 )
             ),
@@ -339,7 +388,7 @@ fun AddWorkoutPreview() {
             onSaveWorkout = {},
             onAddSet = {},
             onRemoveExercise = {},
-            onUpdateSet = { _, _, _, _ -> },
+            onUpdateSet = { _, _, _, _, _ -> },
             onRemoveSet = { _, _ -> }
         )
     }

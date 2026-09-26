@@ -18,6 +18,7 @@ data class ActiveExercise(
 )
 
 data class ActiveSet(
+    val isCompleted: Boolean = false,
     val weight: String = "",
     val reps: String = ""
 )
@@ -67,7 +68,7 @@ class AddWorkoutViewModel @Inject constructor(
                 val exercise = exerciseMap[exerciseId]?.exercise ?: return@map null
                 ActiveExercise(
                     exercise = exercise,
-                    sets = exerciseSets.map { ActiveSet(it.weight.toString(), it.reps.toString()) }
+                    sets = exerciseSets.map { ActiveSet(false, it.weight.toString(), it.reps.toString()) }
                 )
             }.filterNotNull()
 
@@ -106,12 +107,12 @@ class AddWorkoutViewModel @Inject constructor(
         }
     }
 
-    fun updateSet(exerciseIndex: Int, setIndex: Int, weight: String, reps: String) {
+    fun updateSet(exerciseIndex: Int, setIndex: Int, weight: String, reps: String, isCompleted: Boolean = false) {
         _uiState.update { state ->
             val newList = state.exercises.toMutableList()
             val exercise = newList[exerciseIndex]
             val newSets = exercise.sets.toMutableList()
-            newSets[setIndex] = ActiveSet(weight, reps)
+            newSets[setIndex] = ActiveSet(isCompleted, weight, reps)
             newList[exerciseIndex] = exercise.copy(sets = newSets)
             state.copy(exercises = newList)
         }

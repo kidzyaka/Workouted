@@ -7,6 +7,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -49,10 +50,17 @@ fun SelectExerciseContent(
     var searchQuery by remember { mutableStateOf("") }
     val context = LocalContext.current
 
-    val filteredExercises = remember(searchQuery, availableExercises, context) {
+    val uniqueGroups = remember(availableExercises) {
+        availableExercises.flatMap { it.impacts.map { imp -> imp.muscleId } }.distinct().sorted()
+    }
+    var selectedGroup by remember { mutableStateOf<String?>(null) }
+
+    val filteredExercises = remember(searchQuery, selectedGroup, availableExercises, context) {
         availableExercises.filter { item ->
             val localizedName = LocalizationUtil.getLocalizedName(context, item.exercise.name)
-            localizedName.contains(searchQuery, ignoreCase = true) 
+            val matchesSearch = localizedName.contains(searchQuery, ignoreCase = true) 
+            val matchesGroup = selectedGroup == null || item.impacts.any { it.muscleId == selectedGroup }
+            matchesSearch && matchesGroup
         }
     }
 
@@ -78,12 +86,38 @@ fun SelectExerciseContent(
                 onValueChange = { searchQuery = it },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(16.dp),
+                    .padding(horizontal = 16.dp)
+                    .padding(top = 16.dp, bottom = 8.dp),
                 placeholder = { Text(stringResource(R.string.search_exercises)) },
                 leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
                 shape = MaterialTheme.shapes.extraLarge,
                 singleLine = true
             )
+
+            if (uniqueGroups.isNotEmpty()) {
+                androidx.compose.foundation.lazy.LazyRow(
+                    modifier = Modifier.fillMaxWidth(),
+                    contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    items(uniqueGroups) { groupId ->
+                        FilterChip(
+                            selected = selectedGroup == groupId,
+                            onClick = { 
+                                selectedGroup = if (selectedGroup == groupId) null else groupId 
+                            },
+                            label = { Text(LocalizationUtil.getLocalizedName(context, groupId)) },
+                            leadingIcon = if (selectedGroup == groupId) {
+                                { Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(18.dp)) }
+                            } else null,
+                            colors = FilterChipDefaults.filterChipColors(
+                                selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                                selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer
+                            )
+                        )
+                    }
+                }
+            }
 
             LazyColumn(
                 modifier = Modifier.fillMaxSize()
