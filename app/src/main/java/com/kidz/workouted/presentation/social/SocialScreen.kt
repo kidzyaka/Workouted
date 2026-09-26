@@ -279,13 +279,34 @@ fun FriendsLeaderboardSection(leaderboard: List<LeaderboardEntry>) {
                     ) {
                         // 2nd Place
                         if (top3.size > 1) {
-                            PodiumBar(entry = top3[1], place = 2, height = 120.dp, color = Color(0xFFC0C0C0), delay = 100)
+                            PodiumBar(
+                                entry = top3[1],
+                                place = 2,
+                                height = 120.dp,
+                                color = MaterialTheme.colorScheme.secondary,
+                                contentColor = MaterialTheme.colorScheme.onSecondary,
+                                delay = 100
+                            )
                         }
                         // 1st Place
-                        PodiumBar(entry = top3[0], place = 1, height = 160.dp, color = Color(0xFFFFD700), delay = 0)
+                        PodiumBar(
+                            entry = top3[0],
+                            place = 1,
+                            height = 160.dp,
+                            color = MaterialTheme.colorScheme.primary,
+                            contentColor = MaterialTheme.colorScheme.onPrimary,
+                            delay = 0
+                        )
                         // 3rd Place
                         if (top3.size > 2) {
-                            PodiumBar(entry = top3[2], place = 3, height = 90.dp, color = Color(0xFFCD7F32), delay = 200)
+                            PodiumBar(
+                                entry = top3[2],
+                                place = 3,
+                                height = 90.dp,
+                                color = MaterialTheme.colorScheme.tertiary,
+                                contentColor = MaterialTheme.colorScheme.onTertiary,
+                                delay = 200
+                            )
                         }
                     }
                     Spacer(modifier = Modifier.height(24.dp))
@@ -317,7 +338,14 @@ fun FriendsLeaderboardSection(leaderboard: List<LeaderboardEntry>) {
 }
 
 @Composable
-fun PodiumBar(entry: LeaderboardEntry, place: Int, height: androidx.compose.ui.unit.Dp, color: Color, delay: Int) {
+fun PodiumBar(
+    entry: LeaderboardEntry,
+    place: Int,
+    height: androidx.compose.ui.unit.Dp,
+    color: Color,
+    delay: Int,
+    contentColor: Color = Color.White
+) {
     var startAnimation by remember { mutableStateOf(false) }
     LaunchedEffect(Unit) {
         kotlinx.coroutines.delay(delay.toLong())
@@ -344,7 +372,7 @@ fun PodiumBar(entry: LeaderboardEntry, place: Int, height: androidx.compose.ui.u
         ) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Text(
-                    text = entry.username.take(6),
+                    text = entry.username,
                     style = MaterialTheme.typography.labelMedium,
                     fontWeight = FontWeight.Bold,
                     maxLines = 1,
@@ -374,7 +402,7 @@ fun PodiumBar(entry: LeaderboardEntry, place: Int, height: androidx.compose.ui.u
                 text = place.toString(),
                 style = MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.Black,
-                color = Color.White,
+                color = contentColor,
                 modifier = Modifier.padding(top = 8.dp)
             )
         }

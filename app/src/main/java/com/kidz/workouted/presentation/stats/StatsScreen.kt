@@ -58,7 +58,7 @@ fun StatsScreen(
     val tabs = listOf(stringResource(R.string.statistics), stringResource(R.string.nav_social))
 
     Column(modifier = Modifier.fillMaxSize()) {
-        TabRow(
+        PrimaryTabRow(
             selectedTabIndex = selectedTabIndex,
             containerColor = Color.Transparent
         ) {
@@ -219,7 +219,7 @@ fun MuscleProgressBar(nameKey: String, score: Float) {
         Spacer(modifier = Modifier.height(8.dp))
         
         Canvas(modifier = Modifier.fillMaxWidth().height(40.dp)) {
-            val barHeight = 8.dp.toPx()
+            val barHeight = 12.dp.toPx()
             val centerY = size.height / 2
             
             drawRoundRect(
@@ -289,9 +289,13 @@ fun ActivityChart(data: List<ActivityData>) {
                                     .width(30.dp)
                                     .fillMaxHeight(item.value.coerceIn(0.05f, 1f))
                                     .background(
-                                        if (item.value > 0.1f) MaterialTheme.colorScheme.primary 
-                                        else MaterialTheme.colorScheme.primary.copy(alpha = 0.2f),
-                                        RoundedCornerShape(topStart = 4.dp, topEnd = 4.dp)
+                                        brush = Brush.verticalGradient(
+                                            listOf(
+                                                MaterialTheme.colorScheme.primary,
+                                                MaterialTheme.colorScheme.primaryContainer
+                                            )
+                                        ),
+                                        shape = MaterialTheme.shapes.medium
                                     )
                             )
                         }
