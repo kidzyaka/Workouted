@@ -241,8 +241,58 @@ fun ExerciseCard(
                 }
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
+            // Set Headers
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 4.dp, vertical = 6.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = stringResource(R.string.set_label).uppercase(),
+                    style = MaterialTheme.typography.labelSmall,
+                    fontWeight = FontWeight.ExtraBold,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+                    textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                    modifier = Modifier.width(32.dp)
+                )
 
+                Spacer(modifier = Modifier.width(12.dp))
+
+                Row(
+                    modifier = Modifier.weight(1f),
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = stringResource(R.string.weight_kg),
+                        style = MaterialTheme.typography.labelMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.primary,
+                        textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                        modifier = Modifier.weight(1f)
+                    )
+
+                    Text(
+                        text = "×",
+                        style = MaterialTheme.typography.titleMedium,
+                        color = Color.Transparent,
+                        modifier = Modifier.padding(horizontal = 8.dp)
+                    )
+
+                    Text(
+                        text = stringResource(R.string.reps),
+                        style = MaterialTheme.typography.labelMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.primary,
+                        textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+
+                Spacer(modifier = Modifier.width(12.dp))
+                Spacer(modifier = Modifier.width(96.dp))
+            }
 
             activeExercise.sets.forEachIndexed { setIndex, activeSet ->
                 val isCompleted = activeSet.isCompleted
@@ -290,7 +340,21 @@ fun ExerciseCard(
                         OutlinedTextField(
                             value = activeSet.weight,
                             onValueChange = { onUpdateSet(setIndex, it, activeSet.reps, isCompleted) },
-                            modifier = Modifier.weight(1f).height(56.dp),
+                            modifier = Modifier.weight(1f),
+                            label = {
+                                Text(
+                                    text = stringResource(R.string.weight_kg),
+                                    maxLines = 1,
+                                    overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
+                                )
+                            },
+                            placeholder = {
+                                Text(
+                                    text = "0",
+                                    textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                                    modifier = Modifier.fillMaxWidth()
+                                )
+                            },
                             textStyle = androidx.compose.ui.text.TextStyle(
                                 textAlign = androidx.compose.ui.text.style.TextAlign.Center,
                                 textDecoration = textDecoration,
@@ -301,8 +365,8 @@ fun ExerciseCard(
                             singleLine = true,
                             shape = MaterialTheme.shapes.medium,
                             colors = OutlinedTextFieldDefaults.colors(
-                                focusedBorderColor = Color.Transparent,
-                                unfocusedBorderColor = Color.Transparent,
+                                focusedBorderColor = MaterialTheme.colorScheme.primary,
+                                unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f),
                                 disabledBorderColor = Color.Transparent,
                                 focusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHighest.copy(alpha = alpha),
                                 unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHighest.copy(alpha = alpha)
@@ -319,7 +383,21 @@ fun ExerciseCard(
                         OutlinedTextField(
                             value = activeSet.reps,
                             onValueChange = { onUpdateSet(setIndex, activeSet.weight, it, isCompleted) },
-                            modifier = Modifier.weight(1f).height(56.dp),
+                            modifier = Modifier.weight(1f),
+                            label = {
+                                Text(
+                                    text = stringResource(R.string.reps),
+                                    maxLines = 1,
+                                    overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
+                                )
+                            },
+                            placeholder = {
+                                Text(
+                                    text = "0",
+                                    textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                                    modifier = Modifier.fillMaxWidth()
+                                )
+                            },
                             textStyle = androidx.compose.ui.text.TextStyle(
                                 textAlign = androidx.compose.ui.text.style.TextAlign.Center,
                                 textDecoration = textDecoration,
@@ -330,8 +408,8 @@ fun ExerciseCard(
                             singleLine = true,
                             shape = MaterialTheme.shapes.medium,
                             colors = OutlinedTextFieldDefaults.colors(
-                                focusedBorderColor = Color.Transparent,
-                                unfocusedBorderColor = Color.Transparent,
+                                focusedBorderColor = MaterialTheme.colorScheme.primary,
+                                unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f),
                                 disabledBorderColor = Color.Transparent,
                                 focusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHighest.copy(alpha = alpha),
                                 unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHighest.copy(alpha = alpha)
